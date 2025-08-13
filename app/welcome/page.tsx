@@ -7,7 +7,11 @@ import { redirect } from "next/navigation"
 
 export default async function WelcomePage() {
   // Check if user is already logged in
+<<<<<<< HEAD
+  const supabase = await createClient()
+=======
   const supabase = createClient()
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
   const {
     data: { session },
   } = await supabase.auth.getSession()
@@ -27,7 +31,11 @@ export default async function WelcomePage() {
               <Dumbbell className="h-16 w-16 text-white" />
             </div>
           </div>
+<<<<<<< HEAD
+          <h1 className="text-6xl font-bold text-white mb-4">FitTrack</h1>
+=======
           <h1 className="text-6xl font-bold text-white mb-4">PRegister</h1>
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
             Tu aplicación integral de seguimiento fitness. Registra entrenamientos, sesiones de running y obtén consejos
             nutricionales personalizados.
@@ -60,7 +68,11 @@ export default async function WelcomePage() {
             <CardHeader className="text-center">
               <UserPlus className="h-12 w-12 text-orange-400 mx-auto mb-4" />
               <CardTitle className="text-2xl text-white">Crear Cuenta</CardTitle>
+<<<<<<< HEAD
+              <CardDescription className="text-gray-400">¿Nuevo en FitTrack? Crea tu cuenta gratuita</CardDescription>
+=======
               <CardDescription className="text-gray-400">¿Nuevo en PRegister? Crea tu cuenta gratuita</CardDescription>
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
             </CardHeader>
             <CardContent>
               <Button asChild className="w-full bg-orange-600 hover:bg-orange-700 text-white py-6 text-lg" size="lg">

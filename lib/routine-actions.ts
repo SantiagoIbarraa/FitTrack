@@ -11,7 +11,11 @@ export async function createRoutine(prevState: any, formData: FormData) {
     return { error: "El nombre de la rutina es requerido" }
   }
 
+<<<<<<< HEAD
+  const supabase = await createClient()
+=======
   const supabase = createClient()
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -41,7 +45,11 @@ export async function createRoutine(prevState: any, formData: FormData) {
 }
 
 export async function getRoutines() {
+<<<<<<< HEAD
+  const supabase = await createClient()
+=======
   const supabase = createClient()
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -73,7 +81,11 @@ export async function getRoutines() {
 }
 
 export async function deleteRoutine(routineId: string) {
+<<<<<<< HEAD
+  const supabase = await createClient()
+=======
   const supabase = createClient()
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -99,7 +111,11 @@ export async function deleteRoutine(routineId: string) {
 }
 
 export async function getRoutineExercises(routineId: string) {
+<<<<<<< HEAD
+  const supabase = await createClient()
+=======
   const supabase = createClient()
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -128,7 +144,11 @@ export async function getRoutineExercises(routineId: string) {
 }
 
 export async function addExerciseToRoutine(routineId: string, exerciseData: any) {
+<<<<<<< HEAD
+  const supabase = await createClient()
+=======
   const supabase = createClient()
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -171,7 +191,11 @@ export async function addExerciseToRoutine(routineId: string, exerciseData: any)
 }
 
 export async function updateExerciseInRoutine(exerciseId: string, exerciseData: any) {
+<<<<<<< HEAD
+  const supabase = await createClient()
+=======
   const supabase = createClient()
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -205,7 +229,11 @@ export async function updateExerciseInRoutine(exerciseId: string, exerciseData: 
 }
 
 export async function deleteExerciseFromRoutine(exerciseId: string) {
+<<<<<<< HEAD
+  const supabase = await createClient()
+=======
   const supabase = createClient()
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
   const {
     data: { user },
   } = await supabase.auth.getUser()

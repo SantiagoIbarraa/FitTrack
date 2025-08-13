@@ -27,4 +27,8 @@ Continue building your app on:
 1. Create and modify your project using [v0.app](https://v0.app)
 2. Deploy your chats from the v0 interface
 3. Changes are automatically pushed to this repository
+<<<<<<< HEAD
 4. Vercel deploys the latest version from this repository
+=======
+4. Vercel deploys the latest version from this repository
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba

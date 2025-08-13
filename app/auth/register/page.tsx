@@ -4,7 +4,11 @@ import RegisterForm from "@/components/auth/register-form"
 
 export default async function RegisterPage() {
   // Check if user is already logged in
+<<<<<<< HEAD
+  const supabase = await createClient()
+=======
   const supabase = createClient()
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
   const {
     data: { session },
   } = await supabase.auth.getSession()

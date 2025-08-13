@@ -13,7 +13,11 @@ export async function createWorkout(prevState: any, formData: FormData) {
     return { error: "El nombre del ejercicio es requerido" }
   }
 
+<<<<<<< HEAD
+  const supabase = await createClient()
+=======
   const supabase = createClient()
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -23,6 +27,17 @@ export async function createWorkout(prevState: any, formData: FormData) {
   }
 
   try {
+<<<<<<< HEAD
+    const insertData = {
+      user_id: user.id,
+      exercise_name,
+      weight_kg: weight_kg && weight_kg.trim() !== "" ? Number.parseFloat(weight_kg) : null,
+      repetitions: repetitions && repetitions.trim() !== "" ? Number.parseInt(repetitions) : null,
+      sets: sets && sets.trim() !== "" ? Number.parseInt(sets) : null,
+    }
+
+    const { error } = await supabase.from("gym_workouts").insert(insertData)
+=======
     const { error } = await supabase.from("gym_workouts").insert({
       user_id: user.id,
       exercise_name,
@@ -30,6 +45,7 @@ export async function createWorkout(prevState: any, formData: FormData) {
       repetitions: repetitions ? Number.parseInt(repetitions) : 0,
       sets: sets ? Number.parseInt(sets) : 0,
     })
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
 
     if (error) {
       console.error("Database error:", error)
@@ -55,7 +71,11 @@ export async function updateWorkout(prevState: any, formData: FormData) {
     return { error: "ID y nombre del ejercicio son requeridos" }
   }
 
+<<<<<<< HEAD
+  const supabase = await createClient()
+=======
   const supabase = createClient()
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -69,9 +89,15 @@ export async function updateWorkout(prevState: any, formData: FormData) {
       .from("gym_workouts")
       .update({
         exercise_name,
+<<<<<<< HEAD
+        weight_kg: weight_kg && weight_kg.trim() !== "" ? Number.parseFloat(weight_kg) : null,
+        repetitions: repetitions && repetitions.trim() !== "" ? Number.parseInt(repetitions) : null,
+        sets: sets && sets.trim() !== "" ? Number.parseInt(sets) : null,
+=======
         weight: weight_kg ? Number.parseFloat(weight_kg) : 0,
         repetitions: repetitions ? Number.parseInt(repetitions) : 0,
         sets: sets ? Number.parseInt(sets) : 0,
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
       })
       .eq("id", id)
       .eq("user_id", user.id)
@@ -90,7 +116,11 @@ export async function updateWorkout(prevState: any, formData: FormData) {
 }
 
 export async function getWorkouts() {
+<<<<<<< HEAD
+  const supabase = await createClient()
+=======
   const supabase = createClient()
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -119,7 +149,11 @@ export async function getWorkouts() {
 }
 
 export async function deleteWorkout(workoutId: string) {
+<<<<<<< HEAD
+  const supabase = await createClient()
+=======
   const supabase = createClient()
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
   const {
     data: { user },
   } = await supabase.auth.getUser()

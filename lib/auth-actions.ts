@@ -15,10 +15,17 @@ export async function signIn(prevState: any, formData: FormData) {
     return { error: "El correo y la contraseña son obligatorios" }
   }
 
+<<<<<<< HEAD
+  const supabase = await createClient()
+
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+=======
   const supabase = createClient()
 
   try {
     const { error } = await supabase.auth.signInWithPassword({
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
       email: email.toString(),
       password: password.toString(),
     })
@@ -27,11 +34,22 @@ export async function signIn(prevState: any, formData: FormData) {
       return { error: error.message }
     }
 
+<<<<<<< HEAD
+    if (!data.session || !data.user) {
+      return { error: "Error al establecer la sesión" }
+    }
+=======
     return { success: true }
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
   } catch (error) {
     console.error("Error de inicio de sesión:", error)
     return { error: "Ocurrió un error inesperado. Inténtalo de nuevo." }
   }
+<<<<<<< HEAD
+
+  redirect("/")
+=======
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
 }
 
 export async function signUp(prevState: any, formData: FormData) {
@@ -67,7 +85,11 @@ export async function signUp(prevState: any, formData: FormData) {
     return { error: "La contraseña debe tener al menos 6 caracteres" }
   }
 
+<<<<<<< HEAD
+  const supabase = await createClient()
+=======
   const supabase = createClient()
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
 
   try {
     const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -77,6 +99,13 @@ export async function signUp(prevState: any, formData: FormData) {
         data: {
           first_name: firstName.toString(),
           last_name: lastName.toString(),
+<<<<<<< HEAD
+          full_name: `${firstName.toString()} ${lastName.toString()}`,
+          weight: weightNum,
+          height: heightNum,
+          email_confirmed: true, // Force email as confirmed
+=======
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
         },
       },
     })
@@ -85,6 +114,17 @@ export async function signUp(prevState: any, formData: FormData) {
       return { error: authError.message }
     }
 
+<<<<<<< HEAD
+    if (authData.user && !authData.session) {
+      // If no session was created, it means email confirmation is required
+      // But since we want to skip confirmation, we'll show a success message
+      return { success: true, message: "Registro exitoso. Puedes iniciar sesión ahora." }
+    }
+
+    if (authData.user && authData.session) {
+      // User is automatically signed in
+      return { success: true }
+=======
     if (authData.user) {
       const { error: profileError } = await supabase.from("user_profiles").insert({
         id: authData.user.id,
@@ -106,6 +146,7 @@ export async function signUp(prevState: any, formData: FormData) {
         }
         return { error: "Error al crear el perfil de usuario" }
       }
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
     }
 
     return { success: true }
@@ -116,7 +157,11 @@ export async function signUp(prevState: any, formData: FormData) {
 }
 
 export async function signOut() {
+<<<<<<< HEAD
+  const supabase = await createClient()
+=======
   const supabase = createClient()
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
   await supabase.auth.signOut()
   redirect("/auth/login")
 }
