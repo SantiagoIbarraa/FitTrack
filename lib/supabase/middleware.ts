@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 
@@ -27,6 +28,30 @@ export async function updateSession(request: NextRequest) {
       },
     },
   })
+=======
+import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs"
+import { NextResponse, type NextRequest } from "next/server"
+
+// Check if Supabase environment variables are available
+export const isSupabaseConfigured =
+  typeof process.env.NEXT_PUBLIC_SUPABASE_URL === "string" &&
+  process.env.NEXT_PUBLIC_SUPABASE_URL.length > 0 &&
+  typeof process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY === "string" &&
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.length > 0
+
+export async function updateSession(request: NextRequest) {
+  // If Supabase is not configured, just continue without auth
+  if (!isSupabaseConfigured) {
+    return NextResponse.next({
+      request,
+    })
+  }
+
+  const res = NextResponse.next()
+
+  // Create a Supabase client configured to use cookies
+  const supabase = createMiddlewareClient({ req: request, res })
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
 
   // Check if this is an auth callback
   const requestUrl = new URL(request.url)
@@ -61,5 +86,9 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
+<<<<<<< HEAD
   return supabaseResponse
+=======
+  return res
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
 }

@@ -51,7 +51,11 @@ export default function RegisterForm() {
             <Dumbbell className="h-8 w-8 text-white" />
           </div>
         </div>
+<<<<<<< HEAD
         <h1 className="text-4xl font-bold tracking-tight text-white">FitTrack</h1>
+=======
+        <h1 className="text-4xl font-bold tracking-tight text-white">PRegister</h1>
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
         <p className="text-lg text-gray-400">Crea tu cuenta para comenzar</p>
       </div>
 

@@ -27,7 +27,11 @@ export async function createRunningSession(prevState: any, formData: FormData) {
     calculatedPace = durationNum / distanceNum
   }
 
+<<<<<<< HEAD
   const supabase = await createClient()
+=======
+  const supabase = createClient()
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -37,6 +41,7 @@ export async function createRunningSession(prevState: any, formData: FormData) {
   }
 
   try {
+<<<<<<< HEAD
     const insertData = {
       user_id: user.id,
       duration_minutes: durationNum,
@@ -45,6 +50,14 @@ export async function createRunningSession(prevState: any, formData: FormData) {
     }
 
     const { error } = await supabase.from("running_sessions").insert(insertData)
+=======
+    const { error } = await supabase.from("running_sessions").insert({
+      user_id: user.id,
+      duration: durationNum,
+      distance: distanceNum,
+      pace: calculatedPace,
+    })
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
 
     if (error) {
       console.error("Database error:", error)
@@ -60,7 +73,11 @@ export async function createRunningSession(prevState: any, formData: FormData) {
 }
 
 export async function getRunningSessions() {
+<<<<<<< HEAD
   const supabase = await createClient()
+=======
+  const supabase = createClient()
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -89,7 +106,11 @@ export async function getRunningSessions() {
 }
 
 export async function deleteRunningSession(sessionId: string) {
+<<<<<<< HEAD
   const supabase = await createClient()
+=======
+  const supabase = createClient()
+>>>>>>> 3c2d00e9b5a67d4195bd151582ac6aaa2a4ff7ba
   const {
     data: { user },
   } = await supabase.auth.getUser()
