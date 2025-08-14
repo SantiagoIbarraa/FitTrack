@@ -1,7 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { Dumbbell } from "lucide-react"
+import { Dumbbell, ArrowLeft } from "lucide-react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
 import WorkoutForm from "@/components/gym/workout-form"
 import WorkoutList from "@/components/gym/workout-list"
 import RoutineList from "@/components/gym/routine-list"
@@ -61,6 +63,14 @@ export default function GymPage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="mb-8">
+        <div className="flex items-center gap-4 mb-4">
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Volver
+            </Link>
+          </Button>
+        </div>
         <div className="flex items-center gap-3 mb-2">
           <Dumbbell className="h-8 w-8 text-blue-600" />
           <h1 className="text-3xl font-bold">Gimnasio</h1>

@@ -4,7 +4,7 @@ import LoginForm from "@/components/auth/login-form"
 
 export default async function LoginPage() {
   // Check if user is already logged in
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { session },
   } = await supabase.auth.getSession()

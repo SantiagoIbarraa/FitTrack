@@ -7,7 +7,7 @@ import { redirect } from "next/navigation"
 
 export default async function WelcomePage() {
   // Check if user is already logged in
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { session },
   } = await supabase.auth.getSession()
@@ -27,7 +27,7 @@ export default async function WelcomePage() {
               <Dumbbell className="h-16 w-16 text-white" />
             </div>
           </div>
-          <h1 className="text-6xl font-bold text-white mb-4">PRegister</h1>
+          <h1 className="text-6xl font-bold text-white mb-4">FitTrack</h1>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
             Tu aplicación integral de seguimiento fitness. Registra entrenamientos, sesiones de running y obtén consejos
             nutricionales personalizados.
@@ -60,7 +60,7 @@ export default async function WelcomePage() {
             <CardHeader className="text-center">
               <UserPlus className="h-12 w-12 text-orange-400 mx-auto mb-4" />
               <CardTitle className="text-2xl text-white">Crear Cuenta</CardTitle>
-              <CardDescription className="text-gray-400">¿Nuevo en PRegister? Crea tu cuenta gratuita</CardDescription>
+              <CardDescription className="text-gray-400">¿Nuevo en FitTrack? Crea tu cuenta gratuita</CardDescription>
             </CardHeader>
             <CardContent>
               <Button asChild className="w-full bg-orange-600 hover:bg-orange-700 text-white py-6 text-lg" size="lg">

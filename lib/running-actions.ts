@@ -27,7 +27,7 @@ export async function createRunningSession(prevState: any, formData: FormData) {
     calculatedPace = durationNum / distanceNum
   }
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -37,12 +37,14 @@ export async function createRunningSession(prevState: any, formData: FormData) {
   }
 
   try {
-    const { error } = await supabase.from("running_sessions").insert({
+    const insertData = {
       user_id: user.id,
-      duration: durationNum,
-      distance: distanceNum,
-      pace: calculatedPace,
-    })
+      duration_minutes: durationNum,
+      distance_km: distanceNum,
+      pace_min_km: calculatedPace,
+    }
+
+    const { error } = await supabase.from("running_sessions").insert(insertData)
 
     if (error) {
       console.error("Database error:", error)
@@ -58,7 +60,7 @@ export async function createRunningSession(prevState: any, formData: FormData) {
 }
 
 export async function getRunningSessions() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -87,7 +89,7 @@ export async function getRunningSessions() {
 }
 
 export async function deleteRunningSession(sessionId: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()

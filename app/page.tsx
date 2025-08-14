@@ -1,15 +1,16 @@
 import Link from "next/link"
-import { Dumbbell, Timer, MessageCircle, LogOut, User } from "lucide-react"
+import { Dumbbell, Timer, MessageCircle, LogOut, User, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import QuickStats from "@/components/dashboard/quick-stats"
 import RecentActivity from "@/components/dashboard/recent-activity"
+import ProfileForm from "@/components/user/profile-form"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { signOut } from "@/lib/auth-actions"
 
 export default async function Home() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -18,8 +19,11 @@ export default async function Home() {
     redirect("/welcome")
   }
 
-  // Get user profile data
-  const { data: profile } = await supabase.from("user_profiles").select("*").eq("id", user.id).single()
+  // Get user data from user_metadata (stored during registration)
+  const userMetadata = user.user_metadata
+  const fullName = userMetadata?.full_name || `${userMetadata?.first_name || ''} ${userMetadata?.last_name || ''}`.trim() || user.email
+  const weight = userMetadata?.weight
+  const height = userMetadata?.height
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -29,7 +33,7 @@ export default async function Home() {
           <div className="text-center flex-1">
             <div className="flex items-center justify-center gap-3 mb-4">
               <Dumbbell className="h-12 w-12 text-blue-600" />
-              <h1 className="text-4xl font-bold text-gray-900">PRegister</h1>
+              <h1 className="text-4xl font-bold text-gray-900">FitTrack</h1>
             </div>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">Tu aplicación integral de seguimiento fitness</p>
           </div>
@@ -38,24 +42,37 @@ export default async function Home() {
             <div className="text-right">
               <div className="flex items-center gap-2 text-gray-700">
                 <User className="h-5 w-5" />
-                <span className="font-medium">
-                  {profile ? `${profile.first_name} ${profile.last_name}` : user.email}
-                </span>
+                <span className="font-medium text-lg">{fullName}</span>
               </div>
-              {profile && (
+              {weight && height && (
                 <div className="text-sm text-gray-500">
-                  {profile.weight}kg • {profile.height}cm
+                  {weight}kg • {height}cm
                 </div>
               )}
             </div>
-            <form action={signOut}>
-              <Button type="submit" variant="outline" size="sm">
-                <LogOut className="h-4 w-4 mr-2" />
-                Salir
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/profile">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Perfil
+                </Link>
               </Button>
-            </form>
+              <form action={signOut}>
+                <Button type="submit" variant="outline" size="sm">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Salir
+                </Button>
+              </form>
+            </div>
           </div>
         </div>
+
+        {fullName && fullName !== user.email && (
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">¡Bienvenido, {fullName}!</h2>
+            <p className="text-lg text-gray-600">¿Listo para tu próximo entrenamiento?</p>
+          </div>
+        )}
 
         {/* Quick Stats */}
         <div className="mb-8">

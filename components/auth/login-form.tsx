@@ -51,7 +51,7 @@ export default function LoginForm() {
             <Dumbbell className="h-8 w-8 text-white" />
           </div>
         </div>
-        <h1 className="text-4xl font-bold tracking-tight text-white">PRegister</h1>
+        <h1 className="text-4xl font-bold tracking-tight text-white">FitTrack</h1>
         <p className="text-lg text-gray-400">Inicia sesión en tu cuenta</p>
       </div>
 

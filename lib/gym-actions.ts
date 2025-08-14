@@ -13,7 +13,7 @@ export async function createWorkout(prevState: any, formData: FormData) {
     return { error: "El nombre del ejercicio es requerido" }
   }
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -23,13 +23,15 @@ export async function createWorkout(prevState: any, formData: FormData) {
   }
 
   try {
-    const { error } = await supabase.from("gym_workouts").insert({
+    const insertData = {
       user_id: user.id,
       exercise_name,
-      weight: weight_kg ? Number.parseFloat(weight_kg) : 0,
-      repetitions: repetitions ? Number.parseInt(repetitions) : 0,
-      sets: sets ? Number.parseInt(sets) : 0,
-    })
+      weight_kg: weight_kg && weight_kg.trim() !== "" ? Number.parseFloat(weight_kg) : null,
+      repetitions: repetitions && repetitions.trim() !== "" ? Number.parseInt(repetitions) : null,
+      sets: sets && sets.trim() !== "" ? Number.parseInt(sets) : null,
+    }
+
+    const { error } = await supabase.from("gym_workouts").insert(insertData)
 
     if (error) {
       console.error("Database error:", error)
@@ -55,7 +57,7 @@ export async function updateWorkout(prevState: any, formData: FormData) {
     return { error: "ID y nombre del ejercicio son requeridos" }
   }
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -69,9 +71,9 @@ export async function updateWorkout(prevState: any, formData: FormData) {
       .from("gym_workouts")
       .update({
         exercise_name,
-        weight: weight_kg ? Number.parseFloat(weight_kg) : 0,
-        repetitions: repetitions ? Number.parseInt(repetitions) : 0,
-        sets: sets ? Number.parseInt(sets) : 0,
+        weight_kg: weight_kg && weight_kg.trim() !== "" ? Number.parseFloat(weight_kg) : null,
+        repetitions: repetitions && repetitions.trim() !== "" ? Number.parseInt(repetitions) : null,
+        sets: sets && sets.trim() !== "" ? Number.parseInt(sets) : null,
       })
       .eq("id", id)
       .eq("user_id", user.id)
@@ -90,7 +92,7 @@ export async function updateWorkout(prevState: any, formData: FormData) {
 }
 
 export async function getWorkouts() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -119,7 +121,7 @@ export async function getWorkouts() {
 }
 
 export async function deleteWorkout(workoutId: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()

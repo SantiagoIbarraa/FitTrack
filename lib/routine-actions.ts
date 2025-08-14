@@ -11,7 +11,7 @@ export async function createRoutine(prevState: any, formData: FormData) {
     return { error: "El nombre de la rutina es requerido" }
   }
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -41,7 +41,7 @@ export async function createRoutine(prevState: any, formData: FormData) {
 }
 
 export async function getRoutines() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -73,7 +73,7 @@ export async function getRoutines() {
 }
 
 export async function deleteRoutine(routineId: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -99,7 +99,7 @@ export async function deleteRoutine(routineId: string) {
 }
 
 export async function getRoutineExercises(routineId: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -128,7 +128,7 @@ export async function getRoutineExercises(routineId: string) {
 }
 
 export async function addExerciseToRoutine(routineId: string, exerciseData: any) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -171,7 +171,7 @@ export async function addExerciseToRoutine(routineId: string, exerciseData: any)
 }
 
 export async function updateExerciseInRoutine(exerciseId: string, exerciseData: any) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -205,7 +205,7 @@ export async function updateExerciseInRoutine(exerciseId: string, exerciseData: 
 }
 
 export async function deleteExerciseFromRoutine(exerciseId: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
