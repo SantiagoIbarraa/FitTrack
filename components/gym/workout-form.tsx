@@ -16,6 +16,7 @@ interface Workout {
   weight_kg: number | null
   repetitions: number | null
   sets: number | null
+  image_url: string | null
   created_at: string
 }
 
@@ -50,6 +51,7 @@ export default function WorkoutForm({ onWorkoutAdded, editWorkout, onEditComplet
           ? Number.parseInt(formData.get("repetitions")?.toString() || "0")
           : null,
         sets: formData.get("sets") ? Number.parseInt(formData.get("sets")?.toString() || "0") : null,
+        image_url: formData.get("image_url")?.toString() || null,
       }
 
       let result
@@ -138,6 +140,19 @@ export default function WorkoutForm({ onWorkoutAdded, editWorkout, onEditComplet
               />
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="image_url">URL de la Imagen (opcional)</Label>
+              <Input
+                id="image_url"
+                name="image_url"
+                type="url"
+                placeholder="https://ejemplo.com/imagen-ejercicio.jpg"
+                defaultValue={editWorkout?.image_url || ""}
+              />
+              <p className="text-xs text-gray-500">
+                Agrega una URL de imagen para visualizar el ejercicio
+              </p>
+            </div>
             <div className="grid grid-cols-3 gap-2">
               <div className="space-y-2">
                 <Label htmlFor="weight_kg">Peso (kg)</Label>

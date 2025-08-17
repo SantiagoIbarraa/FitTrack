@@ -154,6 +154,7 @@ export async function addExerciseToRoutine(routineId: string, exerciseData: any)
       weight: exerciseData.weight_kg || 0,
       repetitions: exerciseData.repetitions || 0,
       sets: exerciseData.sets || 0,
+      image_url: exerciseData.image_url || null,
       order_index: nextOrderIndex,
     })
 
@@ -188,6 +189,7 @@ export async function updateExerciseInRoutine(exerciseId: string, exerciseData: 
         weight: exerciseData.weight_kg || 0,
         repetitions: exerciseData.repetitions || 0,
         sets: exerciseData.sets || 0,
+        image_url: exerciseData.image_url || null,
       })
       .eq("id", exerciseId)
 

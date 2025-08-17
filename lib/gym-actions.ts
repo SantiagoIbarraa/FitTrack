@@ -8,6 +8,7 @@ export async function createWorkout(prevState: any, formData: FormData) {
   const weight_kg = formData.get("weight_kg")?.toString()
   const repetitions = formData.get("repetitions")?.toString()
   const sets = formData.get("sets")?.toString()
+  const image_url = formData.get("image_url")?.toString()
 
   if (!exercise_name) {
     return { error: "El nombre del ejercicio es requerido" }
@@ -29,6 +30,7 @@ export async function createWorkout(prevState: any, formData: FormData) {
       weight_kg: weight_kg && weight_kg.trim() !== "" ? Number.parseFloat(weight_kg) : null,
       repetitions: repetitions && repetitions.trim() !== "" ? Number.parseInt(repetitions) : null,
       sets: sets && sets.trim() !== "" ? Number.parseInt(sets) : null,
+      image_url: image_url && image_url.trim() !== "" ? image_url.trim() : null,
     }
 
     const { error } = await supabase.from("gym_workouts").insert(insertData)
@@ -52,6 +54,7 @@ export async function updateWorkout(prevState: any, formData: FormData) {
   const weight_kg = formData.get("weight_kg")?.toString()
   const repetitions = formData.get("repetitions")?.toString()
   const sets = formData.get("sets")?.toString()
+  const image_url = formData.get("image_url")?.toString()
 
   if (!id || !exercise_name) {
     return { error: "ID y nombre del ejercicio son requeridos" }
@@ -74,6 +77,7 @@ export async function updateWorkout(prevState: any, formData: FormData) {
         weight_kg: weight_kg && weight_kg.trim() !== "" ? Number.parseFloat(weight_kg) : null,
         repetitions: repetitions && repetitions.trim() !== "" ? Number.parseInt(repetitions) : null,
         sets: sets && sets.trim() !== "" ? Number.parseInt(sets) : null,
+        image_url: image_url && image_url.trim() !== "" ? image_url.trim() : null,
       })
       .eq("id", id)
       .eq("user_id", user.id)
