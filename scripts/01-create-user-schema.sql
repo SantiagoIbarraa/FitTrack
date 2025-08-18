@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS public.gym_workouts (
   weight DECIMAL(6,2) NOT NULL CHECK (weight >= 0),
   repetitions INTEGER NOT NULL CHECK (repetitions > 0),
   sets INTEGER NOT NULL CHECK (sets > 0),
+  image_url TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
@@ -51,6 +52,7 @@ CREATE TABLE IF NOT EXISTS public.routine_exercises (
   weight DECIMAL(6,2) NOT NULL CHECK (weight >= 0),
   repetitions INTEGER NOT NULL CHECK (repetitions > 0),
   sets INTEGER NOT NULL CHECK (sets > 0),
+  image_url TEXT,
   order_index INTEGER NOT NULL DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );

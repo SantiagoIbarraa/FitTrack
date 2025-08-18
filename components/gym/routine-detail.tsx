@@ -33,6 +33,7 @@ export default function RoutineDetail({ routineId, routineName, onBack }: Routin
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
 
+
   const loadExercises = async () => {
     try {
       const data = await getRoutineExercises(routineId)
@@ -67,6 +68,8 @@ export default function RoutineDetail({ routineId, routineName, onBack }: Routin
     setEditingExercise(null)
     setRefreshTrigger((prev) => prev + 1)
   }
+
+
 
   if (loading) {
     return (
@@ -194,6 +197,8 @@ export default function RoutineDetail({ routineId, routineName, onBack }: Routin
           ))}
         </div>
       )}
+      
+
     </div>
   )
 }

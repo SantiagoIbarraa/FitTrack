@@ -28,6 +28,7 @@ export default function WorkoutList({ refreshTrigger, onEditWorkout }: WorkoutLi
   const [workouts, setWorkouts] = useState<Workout[]>([])
   const [loading, setLoading] = useState(true)
 
+
   const loadWorkouts = async () => {
     try {
       const data = await getWorkouts()
@@ -55,6 +56,8 @@ export default function WorkoutList({ refreshTrigger, onEditWorkout }: WorkoutLi
   const handleEdit = (workout: Workout) => {
     onEditWorkout?.(workout)
   }
+
+
 
   if (loading) {
     return (
@@ -151,6 +154,8 @@ export default function WorkoutList({ refreshTrigger, onEditWorkout }: WorkoutLi
           </CardContent>
         </Card>
       ))}
+      
+
     </div>
   )
 }

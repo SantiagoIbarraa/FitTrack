@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -142,6 +142,8 @@ const extractBMIData = (message: string): { weight?: number; height?: number } =
 }
 
 export default function ChatInterface() {
+  const messageIdCounter = useRef(1)
+  
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -216,7 +218,7 @@ export default function ChatInterface() {
     if (!inputValue.trim()) return
 
     const userMessage: Message = {
-      id: Date.now().toString(),
+      id: (++messageIdCounter.current).toString(),
       content: inputValue,
       isUser: true,
       timestamp: new Date(),
@@ -229,7 +231,7 @@ export default function ChatInterface() {
     // Simulate AI response delay
     setTimeout(() => {
       const aiResponse: Message = {
-        id: (Date.now() + 1).toString(),
+        id: (++messageIdCounter.current).toString(),
         content: generateResponse(inputValue),
         isUser: false,
         timestamp: new Date(),

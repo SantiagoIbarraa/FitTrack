@@ -40,73 +40,73 @@ export default function QuickStats() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[...Array(4)].map((_, i) => (
-          <Card key={i}>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <div className="h-5 w-5 bg-gray-200 rounded animate-pulse" />
-                <div>
-                  <div className="h-8 w-12 bg-gray-200 rounded animate-pulse mb-1" />
-                  <div className="h-4 w-20 bg-gray-200 rounded animate-pulse" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                 {[...Array(4)].map((_, i) => (
+           <Card key={i} className="dark:bg-gray-800 dark:border-gray-700">
+             <CardContent className="p-3 sm:p-4">
+               <div className="flex items-center gap-2">
+                 <div className="h-4 w-4 sm:h-5 sm:w-5 bg-gray-200 dark:bg-gray-600 rounded animate-pulse" />
+                 <div>
+                   <div className="h-6 w-10 sm:h-8 sm:w-12 bg-gray-200 dark:bg-gray-600 rounded animate-pulse mb-1" />
+                   <div className="h-3 w-16 sm:h-4 sm:w-20 bg-gray-200 dark:bg-gray-600 rounded animate-pulse" />
+                 </div>
+               </div>
+             </CardContent>
+           </Card>
+         ))}
       </div>
     )
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center gap-2">
-            <Dumbbell className="h-5 w-5 text-blue-600" />
-            <div>
-              <p className="text-2xl font-bold">{stats.totalWorkouts}</p>
-              <p className="text-sm text-muted-foreground">Entrenamientos</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+             <Card className="dark:bg-gray-800 dark:border-gray-700">
+         <CardContent className="p-3 sm:p-4">
+           <div className="flex items-center gap-2">
+             <Dumbbell className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400" />
+             <div>
+               <p className="text-xl sm:text-2xl font-bold dark:text-white">{stats.totalWorkouts}</p>
+               <p className="text-xs sm:text-sm text-muted-foreground dark:text-gray-300">Entrenamientos</p>
+             </div>
+           </div>
+         </CardContent>
+       </Card>
 
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center gap-2">
-            <Timer className="h-5 w-5 text-green-600" />
-            <div>
-              <p className="text-2xl font-bold">{stats.totalRuns}</p>
-              <p className="text-sm text-muted-foreground">Sesiones Running</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+       <Card className="dark:bg-gray-800 dark:border-gray-700">
+         <CardContent className="p-3 sm:p-4">
+           <div className="flex items-center gap-2">
+             <Timer className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 dark:text-green-400" />
+             <div>
+               <p className="text-xl sm:text-2xl font-bold dark:text-white">{stats.totalRuns}</p>
+               <p className="text-xs sm:text-sm text-muted-foreground dark:text-gray-300">Sesiones Running</p>
+             </div>
+           </div>
+         </CardContent>
+       </Card>
 
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center gap-2">
-            <Target className="h-5 w-5 text-purple-600" />
-            <div>
-              <p className="text-2xl font-bold">{stats.totalDistance.toFixed(1)}</p>
-              <p className="text-sm text-muted-foreground">km Recorridos</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+       <Card className="dark:bg-gray-800 dark:border-gray-700">
+         <CardContent className="p-3 sm:p-4">
+           <div className="flex items-center gap-2">
+             <Target className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 dark:text-purple-400" />
+             <div>
+               <p className="text-xl sm:text-2xl font-bold dark:text-white">{stats.totalDistance.toFixed(1)}</p>
+               <p className="text-xs sm:text-sm text-muted-foreground dark:text-gray-300">km Recorridos</p>
+             </div>
+           </div>
+         </CardContent>
+       </Card>
 
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-orange-600" />
-            <div>
-              <p className="text-2xl font-bold">{stats.thisWeekWorkouts}</p>
-              <p className="text-sm text-muted-foreground">Esta Semana</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+       <Card className="dark:bg-gray-800 dark:border-gray-700">
+         <CardContent className="p-3 sm:p-4">
+           <div className="flex items-center gap-2">
+             <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600 dark:text-orange-400" />
+             <div>
+               <p className="text-xl sm:text-2xl font-bold dark:text-white">{stats.thisWeekWorkouts}</p>
+               <p className="text-xs sm:text-sm text-muted-foreground dark:text-gray-300">Esta Semana</p>
+             </div>
+           </div>
+         </CardContent>
+       </Card>
     </div>
   )
 }
