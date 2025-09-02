@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -142,19 +142,25 @@ const extractBMIData = (message: string): { weight?: number; height?: number } =
 }
 
 export default function ChatInterface() {
-  const messageIdCounter = useRef(1)
-  
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      content:
-        "¡Hola! Soy tu asistente nutricional avanzado de PRegister. Puedo ayudarte con consejos sobre alimentación, calcular tu IMC, recetas saludables y planificación de comidas. Para calcular tu IMC, dime tu peso y altura (ej: 'peso 70kg altura 175cm'). ¿En qué puedo ayudarte hoy?",
-      isUser: false,
-      timestamp: new Date(),
-    },
-  ])
+  const messageIdCounter = useRef(0)
+  const [messages, setMessages] = useState<Message[]>([])
   const [inputValue, setInputValue] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [isClient, setIsClient] = useState(false)
+
+  // Initialize messages only on client side to avoid hydration mismatch
+  useEffect(() => {
+    setIsClient(true)
+    setMessages([
+      {
+        id: (++messageIdCounter.current).toString(),
+        content:
+          "¡Hola! Soy tu asistente nutricional avanzado de PRegister. Puedo ayudarte con consejos sobre alimentación, calcular tu IMC, recetas saludables y planificación de comidas. Para calcular tu IMC, dime tu peso y altura (ej: 'peso 70kg altura 175cm'). ¿En qué puedo ayudarte hoy?",
+        isUser: false,
+        timestamp: new Date(),
+      },
+    ])
+  }, [])
 
   const generateResponse = (userMessage: string): string => {
     const lowerMessage = userMessage.toLowerCase()
@@ -248,118 +254,140 @@ export default function ChatInterface() {
     }
   }
 
-  return (
-    <div className="max-w-4xl mx-auto">
-      {/* Quick Suggestions */}
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-          <Utensils className="h-5 w-5" />
-          Temas populares
-        </h3>
-        <div className="flex flex-wrap gap-2">
-          {[
-            "Calcular IMC",
-            "Subir de peso",
-            "Bajar de peso",
-            "Ganar músculo",
-            "Plan alimentario",
-            "Recetas saludables",
-            "Metabolismo",
-            "Antioxidantes",
-            "Omega-3",
-            "Digestión",
-            "Energía",
-            "Inmunidad",
-          ].map((topic) => (
-            <Badge
-              key={topic}
-              variant="outline"
-              className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
-              onClick={() => setInputValue(topic)}
-            >
-              {topic}
-            </Badge>
-          ))}
+  // Don't render anything until client-side hydration is complete
+  if (!isClient) {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <div className="space-y-6">
+          <div className="text-center py-8">
+            <div className="text-gray-500">Cargando chat nutricional...</div>
+          </div>
         </div>
       </div>
+    )
+  }
 
-      {/* Chat Messages */}
-      <Card className="mb-4">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageCircle className="h-5 w-5" />
-            Chat Nutricional Avanzado
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4 max-h-96 overflow-y-auto mb-4">
-            {messages.map((message) => (
-              <div key={message.id} className={`flex ${message.isUser ? "justify-end" : "justify-start"}`}>
-                <div
-                  className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                    message.isUser ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                  <p className="text-xs opacity-70 mt-1">{message.timestamp.toLocaleTimeString()}</p>
-                </div>
-              </div>
+  return (
+    <div className="max-w-4xl mx-auto">
+      <div className="space-y-6">
+        {/* Welcome Section */}
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">
+            Asistente Nutricional IA
+          </h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
+            Obtén consejos personalizados sobre nutrición, calcula tu IMC y descubre recetas saludables
+          </p>
+        </div>
+
+        {/* Quick Topics */}
+        <div className="text-center">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Temas populares:</p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {[
+              "Proteínas",
+              "Carbohidratos",
+              "Grasas",
+              "IMC",
+              "Recetas",
+              "Antioxidantes",
+              "Omega-3",
+              "Digestión",
+              "Energía",
+              "Inmunidad",
+            ].map((topic) => (
+              <Badge
+                key={topic}
+                variant="outline"
+                className="cursor-pointer transition-colors border-gray-300 dark:border-gray-500 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 bg-white dark:bg-gray-700"
+                onClick={() => setInputValue(topic)}
+              >
+                {topic}
+              </Badge>
             ))}
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-muted text-muted-foreground px-4 py-2 rounded-lg">
-                  <p className="text-sm">Analizando y generando respuesta...</p>
+          </div>
+        </div>
+
+        {/* Chat Messages */}
+        <Card className="mb-4 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600 shadow-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-gray-800 dark:text-gray-100">
+              <MessageCircle className="h-5 w-5" />
+              Chat Nutricional Avanzado
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4 max-h-96 overflow-y-auto mb-4">
+              {messages.map((message) => (
+                <div key={message.id} className={`flex ${message.isUser ? "justify-end" : "justify-start"}`}>
+                  <div
+                    className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                      message.isUser 
+                        ? "bg-blue-500 text-white shadow-sm" 
+                        : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600"
+                    }`}
+                  >
+                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    <p className="text-xs opacity-60 mt-1">{message.timestamp.toLocaleTimeString()}</p>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
+              ))}
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600">
+                    <p className="text-sm">Analizando y generando respuesta...</p>
+                  </div>
+                </div>
+              )}
+            </div>
 
-          {/* Input Area */}
-          <div className="flex gap-2">
-            <Input
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Ej: 'peso 70kg altura 175cm', 'cómo subir de peso', 'recetas para ganar músculo'..."
-              className="flex-1"
-            />
-            <Button onClick={handleSendMessage} disabled={isLoading || !inputValue.trim()}>
-              <Send className="h-4 w-4" />
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+            {/* Input Area */}
+            <div className="flex gap-2">
+              <Input
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Ej: 'peso 70kg altura 175cm', 'cómo subir de peso', 'recetas para ganar músculo'..."
+                className="flex-1 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-500 text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <Button onClick={handleSendMessage} disabled={isLoading || !inputValue.trim()} className="bg-blue-500 hover:bg-blue-600 text-white shadow-sm">
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
-      {/* Enhanced Nutrition Tips */}
-      <div className="grid md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4 text-center">
-            <Calculator className="h-8 w-8 text-purple-500 mx-auto mb-2" />
-            <h4 className="font-semibold">Cálculo IMC</h4>
-            <p className="text-sm text-muted-foreground">Dime peso y altura</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <Apple className="h-8 w-8 text-red-500 mx-auto mb-2" />
-            <h4 className="font-semibold">Antioxidantes</h4>
-            <p className="text-sm text-muted-foreground">Frutas y verduras coloridas</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <Utensils className="h-8 w-8 text-blue-500 mx-auto mb-2" />
-            <h4 className="font-semibold">Proteínas</h4>
-            <p className="text-sm text-muted-foreground">1.6-2.2g por kg de peso</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <Coffee className="h-8 w-8 text-green-500 mx-auto mb-2" />
-            <h4 className="font-semibold">Hidratación</h4>
-            <p className="text-sm text-muted-foreground">2-3 litros de agua al día</p>
-          </CardContent>
-        </Card>
+        {/* Enhanced Nutrition Tips */}
+        <div className="grid md:grid-cols-4 gap-4">
+          <Card className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600 shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="p-4 text-center">
+              <Calculator className="h-8 w-8 text-purple-500 mx-auto mb-2" />
+              <h4 className="font-semibold text-gray-800 dark:text-gray-100">Cálculo IMC</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-300">Dime peso y altura</p>
+            </CardContent>
+          </Card>
+          <Card className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600 shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="p-4 text-center">
+              <Apple className="h-8 w-8 text-red-500 mx-auto mb-2" />
+              <h4 className="font-semibold text-gray-800 dark:text-gray-100">Antioxidantes</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-300">Frutas y verduras coloridas</p>
+            </CardContent>
+          </Card>
+          <Card className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600 shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="p-4 text-center">
+              <Utensils className="h-8 w-8 text-blue-500 mx-auto mb-2" />
+              <h4 className="font-semibold text-gray-800 dark:text-gray-100">Proteínas</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-300">1.6-2.2g por kg de peso</p>
+            </CardContent>
+          </Card>
+          <Card className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600 shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="p-4 text-center">
+              <Coffee className="h-8 w-8 text-green-500 mx-auto mb-2" />
+              <h4 className="font-semibold text-gray-800 dark:text-gray-100">Hidratación</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-300">2-3 litros de agua al día</p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   )

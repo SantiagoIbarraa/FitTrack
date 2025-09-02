@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Dumbbell, Timer, MessageCircle, LogOut, User, Settings } from "lucide-react"
+import { Dumbbell, Timer, MessageCircle, LogOut, User, Settings, Footprints, Utensils, BarChart3, Database } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import QuickStats from "@/components/dashboard/quick-stats"
@@ -91,48 +91,66 @@ export default async function Home() {
         {/* Services Grid */}
         <div className="mb-6 sm:mb-8">
                      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-4">Servicios</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {/* Gym Section */}
-                         <Card className="hover:shadow-lg transition-shadow dark:bg-gray-800 dark:border-gray-700">
-               <CardHeader className="text-center">
-                 <Dumbbell className="h-12 w-12 sm:h-16 sm:w-16 text-blue-600 dark:text-blue-400 mx-auto mb-3 sm:mb-4" />
-                 <CardTitle className="text-xl sm:text-2xl dark:text-white">Gimnasio</CardTitle>
-                 <CardDescription className="dark:text-gray-300">Registra tus entrenamientos, ejercicios y progreso en el gym</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button asChild className="w-full" size="lg">
-                  <Link href="/gym">Ir al Gimnasio</Link>
-                </Button>
-              </CardContent>
-            </Card>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <Link href="/gym" className="group">
+              <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                <CardHeader className="text-center">
+                  <Dumbbell className="h-12 w-12 mx-auto mb-4 text-blue-600 group-hover:scale-110 transition-transform" />
+                  <CardTitle className="text-gray-900 dark:text-white">Gimnasio</CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-gray-300">Rutinas y ejercicios personalizados</CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
 
-            {/* Running Section */}
-                         <Card className="hover:shadow-lg transition-shadow dark:bg-gray-800 dark:border-gray-700">
-               <CardHeader className="text-center">
-                 <Timer className="h-12 w-12 sm:h-16 sm:w-16 text-green-600 dark:text-green-400 mx-auto mb-3 sm:mb-4" />
-                 <CardTitle className="text-xl sm:text-2xl dark:text-white">Running</CardTitle>
-                 <CardDescription className="dark:text-gray-300">Registra tus sesiones de running, distancia y tiempos</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button asChild className="w-full bg-transparent" size="lg" variant="outline">
-                  <Link href="/running">Ir a Running</Link>
-                </Button>
-              </CardContent>
-            </Card>
+            <Link href="/running" className="group">
+              <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                <CardHeader className="text-center">
+                  <Footprints className="h-12 w-12 mx-auto mb-4 text-green-600 group-hover:scale-110 transition-transform" />
+                  <CardTitle className="text-gray-900 dark:text-white">Running</CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-gray-300">Seguimiento de carreras y entrenamientos</CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
 
-            {/* Meals Section */}
-                         <Card className="hover:shadow-lg transition-shadow dark:bg-gray-800 dark:border-gray-700 sm:col-span-2 lg:col-span-1">
-               <CardHeader className="text-center">
-                 <MessageCircle className="h-12 w-12 sm:h-16 sm:w-16 text-orange-600 dark:text-orange-400 mx-auto mb-3 sm:mb-4" />
-                 <CardTitle className="text-xl sm:text-2xl dark:text-white">Comidas</CardTitle>
-                 <CardDescription className="dark:text-gray-300">Chat con IA para consejos nutricionales y dietas personalizadas</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button asChild className="w-full bg-transparent" size="lg" variant="outline">
-                  <Link href="/meals">Ir a Comidas</Link>
-                </Button>
-              </CardContent>
-            </Card>
+            <Link href="/meals" className="group">
+              <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                <CardHeader className="text-center">
+                  <Utensils className="h-12 w-12 mx-auto mb-4 text-orange-600 group-hover:scale-110 transition-transform" />
+                  <CardTitle className="text-gray-900 dark:text-white">Comidas</CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-gray-300">Asistente de nutrición con IA</CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
+
+            <Link href="/profile" className="group">
+              <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                <CardHeader className="text-center">
+                  <User className="h-12 w-12 mx-auto mb-4 text-purple-600 group-hover:scale-110 transition-transform" />
+                  <CardTitle className="text-gray-900 dark:text-white">Perfil</CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-gray-300">Gestiona tu información personal</CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
+
+            <Link href="/stats" className="group">
+              <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                <CardHeader className="text-center">
+                  <BarChart3 className="h-12 w-12 mx-auto mb-4 text-indigo-600 group-hover:scale-110 transition-transform" />
+                  <CardTitle className="text-gray-900 dark:text-white">Estadísticas</CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-gray-300">Visualiza tu progreso</CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
+
+            <Link href="/test-db" className="group">
+              <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                <CardHeader className="text-center">
+                  <Database className="h-12 w-12 mx-auto mb-4 text-red-600 group-hover:scale-110 transition-transform" />
+                  <CardTitle className="text-gray-900 dark:text-white">Test DB</CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-gray-300">Prueba la conexión a la base de datos</CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
           </div>
         </div>
 
