@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Dumbbell, Timer, MessageCircle, LogOut, User, Settings, Footprints, Utensils, BarChart3, Database } from "lucide-react"
+import { Dumbbell, Timer, MessageCircle, LogOut, User, Settings, Footprints, Utensils, BarChart3 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import QuickStats from "@/components/dashboard/quick-stats"
@@ -142,15 +142,7 @@ export default async function Home() {
               </Card>
             </Link>
 
-            <Link href="/test-db" className="group">
-              <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-                <CardHeader className="text-center">
-                  <Database className="h-12 w-12 mx-auto mb-4 text-red-600 group-hover:scale-110 transition-transform" />
-                  <CardTitle className="text-gray-900 dark:text-white">Test DB</CardTitle>
-                  <CardDescription className="text-gray-600 dark:text-gray-300">Prueba la conexión a la base de datos</CardDescription>
-                </CardHeader>
-              </Card>
-            </Link>
+            
           </div>
         </div>
 

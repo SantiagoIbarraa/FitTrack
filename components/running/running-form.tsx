@@ -1,27 +1,59 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Plus, Loader2 } from "lucide-react"
-import { createRunningSession } from "@/lib/running-actions"
+import { createRunningSession, updateRunningSession } from "@/lib/running-actions"
 import { useActionState } from "react"
 
-export default function RunningForm({ onSessionAdded }: { onSessionAdded?: () => void }) {
+interface EditSession {
+  id: string
+  duration_minutes: number
+  distance_km: number
+  pace_min_km: number | null
+}
+
+export default function RunningForm({ onSessionAdded, editSession, onEditComplete }: { onSessionAdded?: () => void; editSession?: EditSession | null; onEditComplete?: () => void }) {
   const [state, formAction] = useActionState(createRunningSession, null)
   const [isOpen, setIsOpen] = useState(false)
 
+  useEffect(() => {
+    if (editSession) {
+      setIsOpen(true)
+    }
+  }, [editSession])
+
   const handleSubmit = async (formData: FormData) => {
-    const result = await formAction(formData)
+    if (editSession) {
+      const duration = Number.parseInt(formData.get("duration_minutes")?.toString() || "0")
+      const distance = Number.parseFloat(formData.get("distance_km")?.toString() || "0")
+      const paceStr = formData.get("pace_min_km")?.toString()
+      const pace = paceStr && paceStr.trim() !== "" ? Number.parseFloat(paceStr) : null
+
+      const result = await updateRunningSession(editSession.id, {
+        duration_minutes: duration,
+        distance_km: distance,
+        pace_min_km: pace,
+      })
+
+      if (result?.success) {
+        setIsOpen(false)
+        onEditComplete?.()
+      }
+      return
+    }
+
+    const result: any = await formAction(formData)
     if (result?.success) {
       setIsOpen(false)
       onSessionAdded?.()
     }
   }
 
-  if (!isOpen) {
+  if (!isOpen && !editSession) {
     return (
       <Button onClick={() => setIsOpen(true)} className="w-full bg-green-600 hover:bg-green-700">
         <Plus className="h-4 w-4 mr-2" />
@@ -33,8 +65,8 @@ export default function RunningForm({ onSessionAdded }: { onSessionAdded?: () =>
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Nueva Sesión de Running</CardTitle>
-        <CardDescription>Registra tu sesión de carrera</CardDescription>
+        <CardTitle>{editSession ? "Editar Sesión de Running" : "Nueva Sesión de Running"}</CardTitle>
+        <CardDescription>{editSession ? "Modifica los datos de tu sesión" : "Registra tu sesión de carrera"}</CardDescription>
       </CardHeader>
       <CardContent>
         <form action={handleSubmit} className="space-y-4">
@@ -54,6 +86,7 @@ export default function RunningForm({ onSessionAdded }: { onSessionAdded?: () =>
                   step="1"
                   placeholder="30"
                   required
+                  defaultValue={editSession?.duration_minutes ?? ""}
                 />
               </div>
               <div className="space-y-2">
@@ -66,13 +99,14 @@ export default function RunningForm({ onSessionAdded }: { onSessionAdded?: () =>
                   step="0.1"
                   placeholder="5.0"
                   required
+                  defaultValue={editSession?.distance_km ?? ""}
                 />
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="pace_min_km">Ritmo (min/km) - Opcional</Label>
-              <Input id="pace_min_km" name="pace_min_km" type="number" min="0" step="0.1" placeholder="6.0" />
+              <Input id="pace_min_km" name="pace_min_km" type="number" min="0" step="0.1" placeholder="6.0" defaultValue={editSession?.pace_min_km ?? ""} />
               <p className="text-xs text-gray-500">Se calculará automáticamente si no se especifica</p>
             </div>
           </div>
@@ -80,7 +114,7 @@ export default function RunningForm({ onSessionAdded }: { onSessionAdded?: () =>
           <div className="flex gap-2">
             <Button type="submit" className="flex-1 bg-green-600 hover:bg-green-700">
               <Loader2 className="h-4 w-4 mr-2 animate-spin hidden" />
-              Guardar Sesión
+              {editSession ? "Actualizar Sesión" : "Guardar Sesión"}
             </Button>
             <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
               Cancelar

@@ -13,7 +13,7 @@ import { es } from "date-fns/locale"
 interface Exercise {
   id: string
   exercise_name: string
-  weight_kg: number | null
+  weight: number | null
   repetitions: number | null
   sets: number | null
   image_url: string | null
@@ -99,7 +99,7 @@ export default function RoutineDetail({ routineId, routineName, onBack }: Routin
       {showAddForm && (
         <WorkoutForm
           onWorkoutAdded={handleFormComplete}
-          editWorkout={editingExercise}
+          editWorkout={editingExercise ? { ...editingExercise, weight_kg: editingExercise.weight } as any : null}
           onEditComplete={handleFormComplete}
           routineId={routineId}
         />
@@ -148,10 +148,10 @@ export default function RoutineDetail({ routineId, routineName, onBack }: Routin
                     <div className="flex-1">
                     <h4 className="font-semibold text-lg">{exercise.exercise_name}</h4>
                     <div className="flex flex-wrap gap-2 mt-2">
-                      {exercise.weight_kg && (
+                      {exercise.weight !== null && exercise.weight !== undefined && (
                         <Badge variant="secondary" className="flex items-center gap-1">
                           <Weight className="h-3 w-3" />
-                          {exercise.weight_kg} kg
+                          {exercise.weight} kg
                         </Badge>
                       )}
                       {exercise.repetitions && (
