@@ -148,9 +148,13 @@ export default function ProfileForm() {
 
             <div>
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Nombre Completo</Label>
+<<<<<<< HEAD
               <p className="text-lg font-semibold text-gray-900 dark:text-white">
                 {profile.fullName || "No especificado"}
               </p>
+=======
+              <p className="text-lg font-semibold text-gray-900 dark:text-white">{profile.fullName || "No especificado"}</p>
+>>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
             </div>
             <div>
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Email</Label>
@@ -159,6 +163,7 @@ export default function ProfileForm() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Peso</Label>
+<<<<<<< HEAD
                 <p className="text-lg text-gray-900 dark:text-white">
                   {profile.weight ? `${profile.weight} kg` : "No especificado"}
                 </p>
@@ -184,6 +189,15 @@ export default function ProfileForm() {
                 <p className="text-lg text-gray-900 dark:text-white capitalize">{profile.sex}</p>
               </div>
             )}
+=======
+                <p className="text-lg text-gray-900 dark:text-white">{profile.weight ? `${profile.weight} kg` : "No especificado"}</p>
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Estatura</Label>
+                <p className="text-lg text-gray-900 dark:text-white">{profile.height ? `${profile.height} cm` : "No especificado"}</p>
+              </div>
+            </div>
+>>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
             <Button onClick={() => setIsOpen(true)} className="w-full bg-blue-600 hover:bg-blue-700">
               <Edit className="h-4 w-4 mr-2" />
               Editar Perfil
@@ -201,13 +215,18 @@ export default function ProfileForm() {
           <Edit className="h-5 w-5" />
           Editar Perfil
         </CardTitle>
+<<<<<<< HEAD
         <CardDescription className="text-gray-600 dark:text-gray-300">
           Actualiza tu información personal
         </CardDescription>
+=======
+        <CardDescription className="text-gray-600 dark:text-gray-300">Actualiza tu información personal</CardDescription>
+>>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
       </CardHeader>
       <CardContent>
         <form action={handleSubmit} className="space-y-4">
           {state?.error && (
+<<<<<<< HEAD
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded text-sm">
               {state.error}
             </div>
@@ -217,6 +236,13 @@ export default function ProfileForm() {
             <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 px-4 py-3 rounded text-sm">
               {state.message}
             </div>
+=======
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded text-sm">{state.error}</div>
+          )}
+
+          {state?.success && (
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 px-4 py-3 rounded text-sm">{state.message}</div>
+>>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
           )}
 
           <div className="flex flex-col items-center gap-3">
@@ -253,9 +279,13 @@ export default function ProfileForm() {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
+<<<<<<< HEAD
               <Label htmlFor="firstName" className="text-gray-700 dark:text-gray-300">
                 Nombre
               </Label>
+=======
+              <Label htmlFor="firstName" className="text-gray-700 dark:text-gray-300">Nombre</Label>
+>>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
               <Input
                 id="firstName"
                 name="firstName"
@@ -266,9 +296,13 @@ export default function ProfileForm() {
               />
             </div>
             <div className="space-y-2">
+<<<<<<< HEAD
               <Label htmlFor="lastName" className="text-gray-700 dark:text-gray-300">
                 Apellido
               </Label>
+=======
+              <Label htmlFor="lastName" className="text-gray-700 dark:text-gray-300">Apellido</Label>
+>>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
               <Input
                 id="lastName"
                 name="lastName"
@@ -282,9 +316,13 @@ export default function ProfileForm() {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
+<<<<<<< HEAD
               <Label htmlFor="weight" className="text-gray-700 dark:text-gray-300">
                 Peso (kg)
               </Label>
+=======
+              <Label htmlFor="weight" className="text-gray-700 dark:text-gray-300">Peso (kg)</Label>
+>>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
               <Input
                 id="weight"
                 name="weight"
@@ -299,9 +337,13 @@ export default function ProfileForm() {
               />
             </div>
             <div className="space-y-2">
+<<<<<<< HEAD
               <Label htmlFor="height" className="text-gray-700 dark:text-gray-300">
                 Estatura (cm)
               </Label>
+=======
+              <Label htmlFor="height" className="text-gray-700 dark:text-gray-300">Estatura (cm)</Label>
+>>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
               <Input
                 id="height"
                 name="height"
@@ -352,12 +394,16 @@ export default function ProfileForm() {
               <Loader2 className="h-4 w-4 mr-2 animate-spin hidden" />
               Guardar Cambios
             </Button>
+<<<<<<< HEAD
             <Button
               type="button"
               variant="outline"
               onClick={() => setIsOpen(false)}
               className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
             >
+=======
+            <Button type="button" variant="outline" onClick={() => setIsOpen(false)} className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+>>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
               Cancelar
             </Button>
           </div>

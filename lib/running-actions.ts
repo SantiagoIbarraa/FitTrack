@@ -59,6 +59,58 @@ export async function createRunningSession(prevState: any, formData: FormData) {
   }
 }
 
+export async function updateRunningSession(
+  sessionId: string,
+  data: { duration_minutes: number; distance_km: number; pace_min_km?: number | null }
+) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: "Usuario no autenticado" }
+  }
+
+  const durationNum = Number.parseInt(String(data.duration_minutes))
+  const distanceNum = Number.parseFloat(String(data.distance_km))
+  const paceProvided = data.pace_min_km
+
+  if (!Number.isFinite(durationNum) || !Number.isFinite(distanceNum) || durationNum <= 0 || distanceNum <= 0) {
+    return { error: "Duración y distancia deben ser mayores a 0" }
+  }
+
+  let paceToSave: number | null = null
+  if (paceProvided !== undefined && paceProvided !== null && String(paceProvided).trim() !== "") {
+    paceToSave = Number.parseFloat(String(paceProvided))
+  } else {
+    paceToSave = durationNum / distanceNum
+  }
+
+  try {
+    const { error } = await supabase
+      .from("running_sessions")
+      .update({
+        duration_minutes: durationNum,
+        distance_km: distanceNum,
+        pace_min_km: paceToSave,
+      })
+      .eq("id", sessionId)
+      .eq("user_id", user.id)
+
+    if (error) {
+      console.error("Database error:", error)
+      return { error: "Error al actualizar la sesión" }
+    }
+
+    revalidatePath("/running")
+    return { success: true }
+  } catch (error) {
+    console.error("Error:", error)
+    return { error: "Error al actualizar la sesión" }
+  }
+}
+
 export async function getRunningSessions() {
   const supabase = await createClient()
   const {

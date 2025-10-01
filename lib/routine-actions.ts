@@ -180,17 +180,39 @@ export async function addExerciseToRoutine(routineId: string, exerciseData: any)
       .order("order_index", { ascending: false })
       .limit(1)
 
-    const nextOrderIndex = maxOrderData && maxOrderData.length > 0 ? maxOrderData[0].order_index + 1 : 0
+    const nextOrderIndex = maxOrderData && maxOrderData.length > 0 ? maxOrderData[0].order_index + 1 : 0;
 
-    const { error } = await supabase.from("routine_exercises").insert({
+    const insertData: any = {
       routine_id: routineId,
       exercise_name: exerciseData.exercise_name,
-      weight: exerciseData.weight_kg || 0,
-      repetitions: exerciseData.repetitions || 0,
-      sets: exerciseData.sets || 0,
       image_url: exerciseData.image_url || null,
       order_index: nextOrderIndex,
-    })
+    };
+
+    // Manejar peso
+    if (exerciseData.weight_kg !== undefined && exerciseData.weight_kg !== '') {
+      insertData.weight = parseFloat(exerciseData.weight_kg);
+    } else {
+      insertData.weight = null;
+    }
+
+    // Manejar repeticiones
+    if (exerciseData.repetitions !== undefined && exerciseData.repetitions !== '') {
+      insertData.repetitions = parseInt(exerciseData.repetitions);
+    } else {
+      insertData.repetitions = null;
+    }
+
+    // Manejar series
+    if (exerciseData.sets !== undefined && exerciseData.sets !== '') {
+      insertData.sets = parseInt(exerciseData.sets);
+    } else {
+      insertData.sets = null;
+    }
+
+    const { error } = await supabase
+      .from("routine_exercises")
+      .insert(insertData)
 
     if (error) {
       console.error("Database error:", error)
@@ -216,15 +238,35 @@ export async function updateExerciseInRoutine(exerciseId: string, exerciseData: 
   }
 
   try {
+    const updateData: any = {
+      exercise_name: exerciseData.exercise_name,
+      image_url: exerciseData.image_url || null,
+    };
+
+    // Solo actualizar peso si se proporciona un valor
+    if (exerciseData.weight_kg !== undefined && exerciseData.weight_kg !== '') {
+      updateData.weight = parseFloat(exerciseData.weight_kg);
+    } else {
+      updateData.weight = null;
+    }
+
+    // Solo actualizar repeticiones si se proporciona un valor
+    if (exerciseData.repetitions !== undefined && exerciseData.repetitions !== '') {
+      updateData.repetitions = parseInt(exerciseData.repetitions);
+    } else {
+      updateData.repetitions = null;
+    }
+
+    // Solo actualizar series si se proporciona un valor
+    if (exerciseData.sets !== undefined && exerciseData.sets !== '') {
+      updateData.sets = parseInt(exerciseData.sets);
+    } else {
+      updateData.sets = null;
+    }
+
     const { error } = await supabase
       .from("routine_exercises")
-      .update({
-        exercise_name: exerciseData.exercise_name,
-        weight: exerciseData.weight_kg || 0,
-        repetitions: exerciseData.repetitions || 0,
-        sets: exerciseData.sets || 0,
-        image_url: exerciseData.image_url || null,
-      })
+      .update(updateData)
       .eq("id", exerciseId)
 
     if (error) {

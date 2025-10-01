@@ -237,22 +237,33 @@ export default function ChatInterface() {
   const [inputValue, setInputValue] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [isClient, setIsClient] = useState(false)
+<<<<<<< HEAD
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+=======
+>>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
 
   // Initialize messages only on client side to avoid hydration mismatch
   useEffect(() => {
     setIsClient(true)
+<<<<<<< HEAD
     loadUserProfile()
+=======
+>>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
     setMessages([
       {
         id: (++messageIdCounter.current).toString(),
         content:
+<<<<<<< HEAD
           "¡Hola! Soy tu asistente nutricional avanzado de PRegister. Puedo ayudarte con consejos sobre alimentación personalizados según tu perfil, calcular tu IMC, recetas saludables y planificación de comidas. Para calcular tu IMC, dime tu peso y altura (ej: 'peso 70kg altura 175cm'). ¿En qué puedo ayudarte hoy?",
+=======
+          "¡Hola! Soy tu asistente nutricional avanzado de PRegister. Puedo ayudarte con consejos sobre alimentación, calcular tu IMC, recetas saludables y planificación de comidas. Para calcular tu IMC, dime tu peso y altura (ej: 'peso 70kg altura 175cm'). ¿En qué puedo ayudarte hoy?",
+>>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
         isUser: false,
         timestamp: new Date(),
       },
     ])
   }, [])
+<<<<<<< HEAD
 
   const loadUserProfile = async () => {
     try {
@@ -287,6 +298,8 @@ export default function ChatInterface() {
       console.error("Error loading user profile:", error)
     }
   }
+=======
+>>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
 
   const generateResponse = (userMessage: string): string => {
     const lowerMessage = userMessage.toLowerCase()
@@ -533,6 +546,7 @@ export default function ChatInterface() {
         {/* Welcome Section */}
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">
+<<<<<<< HEAD
             Asistente Nutricional IA Personalizado
           </h2>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
@@ -546,6 +560,13 @@ export default function ChatInterface() {
               </span>
             </div>
           )}
+=======
+            Asistente Nutricional IA
+          </h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
+            Obtén consejos personalizados sobre nutrición, calcula tu IMC y descubre recetas saludables
+          </p>
+>>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
         </div>
 
         {/* Quick Topics */}
@@ -553,6 +574,7 @@ export default function ChatInterface() {
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">Temas populares:</p>
           <div className="flex flex-wrap justify-center gap-2">
             {[
+<<<<<<< HEAD
               "Mi perfil",
               "Calorías",
               "Proteínas",
@@ -565,6 +587,18 @@ export default function ChatInterface() {
               "Batido de proteínas",
               "Déficit calórico",
               "Ganar músculo",
+=======
+              "Proteínas",
+              "Carbohidratos",
+              "Grasas",
+              "IMC",
+              "Recetas",
+              "Antioxidantes",
+              "Omega-3",
+              "Digestión",
+              "Energía",
+              "Inmunidad",
+>>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
             ].map((topic) => (
               <Badge
                 key={topic}
@@ -592,8 +626,13 @@ export default function ChatInterface() {
                 <div key={message.id} className={`flex ${message.isUser ? "justify-end" : "justify-start"}`}>
                   <div
                     className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+<<<<<<< HEAD
                       message.isUser
                         ? "bg-blue-500 text-white shadow-sm"
+=======
+                      message.isUser 
+                        ? "bg-blue-500 text-white shadow-sm" 
+>>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
                         : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600"
                     }`}
                   >
@@ -605,7 +644,11 @@ export default function ChatInterface() {
               {isLoading && (
                 <div className="flex justify-start">
                   <div className="bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600">
+<<<<<<< HEAD
                     <p className="text-sm">Analizando y generando respuesta personalizada...</p>
+=======
+                    <p className="text-sm">Analizando y generando respuesta...</p>
+>>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
                   </div>
                 </div>
               )}
@@ -617,6 +660,7 @@ export default function ChatInterface() {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
+<<<<<<< HEAD
                 placeholder="Ej: 'mi perfil', 'cuántas calorías necesito', 'recetas para ganar músculo'..."
                 className="flex-1 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-500 text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
@@ -625,6 +669,12 @@ export default function ChatInterface() {
                 disabled={isLoading || !inputValue.trim()}
                 className="bg-blue-500 hover:bg-blue-600 text-white shadow-sm"
               >
+=======
+                placeholder="Ej: 'peso 70kg altura 175cm', 'cómo subir de peso', 'recetas para ganar músculo'..."
+                className="flex-1 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-500 text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <Button onClick={handleSendMessage} disabled={isLoading || !inputValue.trim()} className="bg-blue-500 hover:bg-blue-600 text-white shadow-sm">
+>>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
                 <Send className="h-4 w-4" />
               </Button>
             </div>
@@ -636,29 +686,49 @@ export default function ChatInterface() {
           <Card className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600 shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-4 text-center">
               <Calculator className="h-8 w-8 text-purple-500 mx-auto mb-2" />
+<<<<<<< HEAD
               <h4 className="font-semibold text-gray-800 dark:text-gray-100">Cálculo Personalizado</h4>
               <p className="text-sm text-gray-600 dark:text-gray-300">IMC y calorías según tu perfil</p>
+=======
+              <h4 className="font-semibold text-gray-800 dark:text-gray-100">Cálculo IMC</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-300">Dime peso y altura</p>
+>>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
             </CardContent>
           </Card>
           <Card className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600 shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-4 text-center">
               <Apple className="h-8 w-8 text-red-500 mx-auto mb-2" />
+<<<<<<< HEAD
               <h4 className="font-semibold text-gray-800 dark:text-gray-100">100+ Alimentos</h4>
               <p className="text-sm text-gray-600 dark:text-gray-300">Base de datos nutricional</p>
+=======
+              <h4 className="font-semibold text-gray-800 dark:text-gray-100">Antioxidantes</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-300">Frutas y verduras coloridas</p>
+>>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
             </CardContent>
           </Card>
           <Card className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600 shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-4 text-center">
               <Utensils className="h-8 w-8 text-blue-500 mx-auto mb-2" />
+<<<<<<< HEAD
               <h4 className="font-semibold text-gray-800 dark:text-gray-100">Planes Personalizados</h4>
               <p className="text-sm text-gray-600 dark:text-gray-300">Según tus objetivos</p>
+=======
+              <h4 className="font-semibold text-gray-800 dark:text-gray-100">Proteínas</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-300">1.6-2.2g por kg de peso</p>
+>>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
             </CardContent>
           </Card>
           <Card className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600 shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-4 text-center">
               <Coffee className="h-8 w-8 text-green-500 mx-auto mb-2" />
+<<<<<<< HEAD
               <h4 className="font-semibold text-gray-800 dark:text-gray-100">Consejos Expertos</h4>
               <p className="text-sm text-gray-600 dark:text-gray-300">Basados en ciencia</p>
+=======
+              <h4 className="font-semibold text-gray-800 dark:text-gray-100">Hidratación</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-300">2-3 litros de agua al día</p>
+>>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
             </CardContent>
           </Card>
         </div>

@@ -11,7 +11,7 @@ La sección de rutinas está fallando al intentar crear nuevas rutinas. Esto pue
 ### Paso 1: Ejecutar Script SQL en Supabase
 Ve a tu proyecto de Supabase → SQL Editor y ejecuta el siguiente script:
 
-\`\`\`sql
+```sql
 -- Verificar y crear las tablas de rutinas si no existen
 -- Este script debe ejecutarse en Supabase SQL Editor
 
@@ -116,12 +116,12 @@ BEGIN
             ));
     END IF;
 END $$;
-\`\`\`
+```
 
 ### Paso 2: Verificar la Configuración
 Después de ejecutar el script, verifica que las tablas se crearon correctamente:
 
-\`\`\`sql
+```sql
 -- Verificar que las tablas existen y tienen la estructura correcta
 SELECT 
     table_name,
@@ -146,7 +146,7 @@ SELECT
 FROM pg_policies 
 WHERE schemaname = 'public' 
 AND tablename IN ('routines', 'routine_exercises');
-\`\`\`
+```
 
 ### Paso 3: Probar la Funcionalidad
 1. Ve a tu aplicación

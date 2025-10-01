@@ -4,10 +4,11 @@ import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Trash2, Calendar, Clock, MapPin, Zap } from "lucide-react"
+import { Trash2, Calendar, Clock, MapPin, Zap, Edit } from "lucide-react"
 import { deleteRunningSession, getRunningSessions } from "@/lib/running-actions"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
+import RunningForm from "@/components/running/running-form"
 
 interface RunningSession {
   id: string
@@ -20,6 +21,7 @@ interface RunningSession {
 export default function RunningList({ refreshTrigger }: { refreshTrigger?: number }) {
   const [sessions, setSessions] = useState<RunningSession[]>([])
   const [loading, setLoading] = useState(true)
+  const [editingSession, setEditingSession] = useState<RunningSession | null>(null)
 
   const loadSessions = async () => {
     try {
@@ -43,6 +45,15 @@ export default function RunningList({ refreshTrigger }: { refreshTrigger?: numbe
         loadSessions()
       }
     }
+  }
+
+  const handleEdit = (session: RunningSession) => {
+    setEditingSession(session)
+  }
+
+  const handleEditComplete = () => {
+    setEditingSession(null)
+    loadSessions()
   }
 
   const formatPace = (pace: number | null) => {
@@ -79,6 +90,17 @@ export default function RunningList({ refreshTrigger }: { refreshTrigger?: numbe
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">Historial de Running</h3>
+      {editingSession && (
+        <RunningForm
+          editSession={{
+            id: editingSession.id,
+            duration_minutes: editingSession.duration_minutes,
+            distance_km: editingSession.distance_km,
+            pace_min_km: editingSession.pace_min_km,
+          }}
+          onEditComplete={handleEditComplete}
+        />
+      )}
       {sessions.map((session) => (
         <Card key={session.id}>
           <CardContent className="p-4">
@@ -106,6 +128,14 @@ export default function RunningList({ refreshTrigger }: { refreshTrigger?: numbe
                 </div>
               </div>
               <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleEdit(session)}
+                  className="text-blue-600 hover:text-blue-700"
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"
