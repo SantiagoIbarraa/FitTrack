@@ -1,4 +1,5 @@
 "use client"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -6,7 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label"
 import { Plus, Loader2 } from "lucide-react"
 import { createRoutine } from "@/lib/routine-actions"
-import { useActionState } from "react"
 
 interface RoutineFormProps {
   onRoutineCreated?: () => void
@@ -14,13 +14,44 @@ interface RoutineFormProps {
 }
 
 export default function RoutineForm({ onRoutineCreated, onCancel }: RoutineFormProps) {
-  const [state, formAction] = useActionState(createRoutine, null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [formData, setFormData] = useState({
+    name: "",
+    description: ""
+  })
 
-  const handleSubmit = async (formData: FormData) => {
-    const result = await formAction(formData)
-    if (result?.success) {
-      onRoutineCreated?.()
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    try {
+      const formDataObj = new FormData()
+      formDataObj.append("name", formData.name)
+      formDataObj.append("description", formData.description)
+
+      const result = await createRoutine(null, formDataObj)
+      
+      if (result?.success) {
+        onRoutineCreated?.()
+      } else if (result?.error) {
+        setError(result.error)
+      }
+    } catch (err) {
+      setError("Error inesperado al crear la rutina")
+      console.error("Error creating routine:", err)
+    } finally {
+      setLoading(false)
     }
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
   }
 
   return (
@@ -33,15 +64,22 @@ export default function RoutineForm({ onRoutineCreated, onCancel }: RoutineFormP
         <CardDescription>Crea una rutina para organizar tus ejercicios</CardDescription>
       </CardHeader>
       <CardContent>
-        <form action={handleSubmit} className="space-y-4">
-          {state?.error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">{state.error}</div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">{error}</div>
           )}
 
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Nombre de la Rutina</Label>
-              <Input id="name" name="name" placeholder="Ej: Rutina de Pecho y Tríceps, Día de Piernas..." required />
+              <Input 
+                id="name" 
+                name="name" 
+                value={formData.name}
+                onChange={handleInputChange}
+                placeholder="Ej: Rutina de Pecho y Tríceps, Día de Piernas..." 
+                required 
+              />
             </div>
 
             <div className="space-y-2">
@@ -49,6 +87,8 @@ export default function RoutineForm({ onRoutineCreated, onCancel }: RoutineFormP
               <Textarea
                 id="description"
                 name="description"
+                value={formData.description}
+                onChange={handleInputChange}
                 placeholder="Describe el enfoque de esta rutina..."
                 rows={3}
               />
@@ -56,11 +96,17 @@ export default function RoutineForm({ onRoutineCreated, onCancel }: RoutineFormP
           </div>
 
           <div className="flex gap-2">
-            <Button type="submit" className="flex-1 bg-green-600 hover:bg-green-700">
-              <Loader2 className="h-4 w-4 mr-2 animate-spin hidden" />
-              Crear Rutina
+            <Button type="submit" className="flex-1 bg-green-600 hover:bg-green-700" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Creando...
+                </>
+              ) : (
+                "Crear Rutina"
+              )}
             </Button>
-            <Button type="button" variant="outline" onClick={onCancel}>
+            <Button type="button" variant="outline" onClick={onCancel} disabled={loading}>
               Cancelar
             </Button>
           </div>

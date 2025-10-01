@@ -40,7 +40,7 @@ Estás experimentando un error al guardar ejercicios. Esto probablemente se debe
 ## Estructura Esperada de las Tablas
 
 ### Tabla `gym_workouts`
-```sql
+\`\`\`sql
 Column Name    | Data Type                    | Nullable | Default
 ---------------|------------------------------|----------|----------
 id             | uuid                         | NOT NULL | uuid_generate_v4()
@@ -50,10 +50,10 @@ weight_kg      | numeric(5,2)                 | NULL     |
 repetitions    | integer                      | NULL     | 
 sets           | integer                      | NULL     | 
 created_at     | timestamp with time zone     | NOT NULL | now()
-```
+\`\`\`
 
 ### Tabla `running_sessions`
-```sql
+\`\`\`sql
 Column Name      | Data Type                    | Nullable | Default
 -----------------|------------------------------|----------|----------
 id               | uuid                         | NOT NULL | uuid_generate_v4()
@@ -62,7 +62,7 @@ duration_minutes | integer                      | NOT NULL |
 distance_km      | numeric(5,2)                 | NOT NULL | 
 pace_min_km      | numeric(5,2)                 | NULL     | 
 created_at       | timestamp with time zone     | NOT NULL | now()
-```
+\`\`\`
 
 ## Si el Problema Persiste
 
@@ -84,7 +84,7 @@ Si tu nombre no aparece correctamente en la aplicación:
 
 Puedes ejecutar estos comandos en el SQL Editor de Supabase para verificar:
 
-```sql
+\`\`\`sql
 -- Verificar si las tablas existen
 SELECT 
     table_name,
@@ -116,4 +116,4 @@ FROM information_schema.columns
 WHERE table_schema = 'public' 
 AND table_name = 'running_sessions'
 ORDER BY ordinal_position;
-```
+\`\`\`
