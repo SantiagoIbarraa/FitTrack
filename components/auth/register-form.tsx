@@ -1,14 +1,13 @@
 "use client"
 
-import { useActionState } from "react"
+import { useActionState, useEffect, useState } from "react"
 import { useFormStatus } from "react-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Loader2, Dumbbell, Database } from "lucide-react"
+import { Loader2, Dumbbell, Database, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useEffect } from "react"
 import { signUp } from "@/lib/auth-actions"
 
 function SubmitButton() {
@@ -35,6 +34,9 @@ function SubmitButton() {
 export default function RegisterForm() {
   const router = useRouter()
   const [state, formAction] = useActionState(signUp, null)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [passwordError, setPasswordError] = useState<string | null>(null)
 
   // Handle successful registration by redirecting
   useEffect(() => {
@@ -55,7 +57,24 @@ export default function RegisterForm() {
         <p className="text-lg text-gray-400">Crea tu cuenta para comenzar</p>
       </div>
 
-      <form action={formAction} className="space-y-6">
+            <form
+        action={(formData) => {
+          const password = formData.get("password") as string
+          const confirmPassword = formData.get("confirmPassword") as string
+          if (password !== confirmPassword) {
+            setPasswordError("Las contraseñas no coinciden.")
+            return
+          }
+          setPasswordError(null)
+          formAction(formData)
+        }}
+        className="space-y-6"
+      >
+                {passwordError && (
+          <div className="border px-4 py-3 rounded-lg bg-red-500/10 border-red-500/50 text-red-400">
+            {passwordError}
+          </div>
+        )}
         {state?.error && (
           <div
             className={`border px-4 py-3 rounded-lg ${
@@ -125,19 +144,82 @@ export default function RegisterForm() {
             />
           </div>
 
-          <div className="space-y-2">
+                    <div className="space-y-2">
             <Label htmlFor="password" className="text-sm font-medium text-gray-300">
               Contraseña *
             </Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="Mínimo 6 caracteres"
-              required
-              minLength={6}
-              className="bg-gray-800 border-gray-700 text-white"
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Mínimo 6 caracteres"
+                required
+                minLength={6}
+                className="bg-gray-800 border-gray-700 text-white pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-white"
+                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-300">
+              Confirmar Contraseña *
+            </Label>
+            <div className="relative">
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="Repite la contraseña"
+                required
+                minLength={6}
+                className="bg-gray-800 border-gray-700 text-white pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-white"
+                aria-label={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+              >
+                {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-gray-300 block mb-2">
+              Sexo *
+            </Label>
+            <div className="flex gap-6">
+              <label className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  name="gender"
+                  value="hombre"
+                  required
+                  className="h-4 w-4 text-orange-600 border-gray-600 focus:ring-orange-500 bg-gray-800"
+                />
+                <span className="text-gray-300">Hombre</span>
+              </label>
+              <label className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  name="gender"
+                  value="mujer"
+                  required
+                  className="h-4 w-4 text-orange-600 border-gray-600 focus:ring-orange-500 bg-gray-800"
+                />
+                <span className="text-gray-300">Mujer</span>
+              </label>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

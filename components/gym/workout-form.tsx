@@ -24,7 +24,7 @@ interface WorkoutFormProps {
   onWorkoutAdded?: () => void
   editWorkout?: Workout | null
   onEditComplete?: () => void
-  routineId?: string // Added routineId prop for routine integration
+  routineId?: string
 }
 
 export default function WorkoutForm({ onWorkoutAdded, editWorkout, onEditComplete, routineId }: WorkoutFormProps) {
@@ -50,7 +50,6 @@ export default function WorkoutForm({ onWorkoutAdded, editWorkout, onEditComplet
         repetitions: formData.get("repetitions")
           ? Number.parseInt(formData.get("repetitions")?.toString() || "0")
           : null,
-        sets: formData.get("sets") ? Number.parseInt(formData.get("sets")?.toString() || "0") : null,
         image_url: formData.get("image_url")?.toString() || null,
       }
 
@@ -149,11 +148,9 @@ export default function WorkoutForm({ onWorkoutAdded, editWorkout, onEditComplet
                 placeholder="https://ejemplo.com/imagen-ejercicio.jpg"
                 defaultValue={editWorkout?.image_url || ""}
               />
-              <p className="text-xs text-gray-500">
-                Agrega una URL de imagen para visualizar el ejercicio
-              </p>
+              <p className="text-xs text-gray-500">Agrega una URL de imagen para visualizar el ejercicio</p>
             </div>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="weight_kg">Peso (kg)</Label>
                 <Input
@@ -175,17 +172,6 @@ export default function WorkoutForm({ onWorkoutAdded, editWorkout, onEditComplet
                   min="1"
                   placeholder="12"
                   defaultValue={editWorkout?.repetitions || ""}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="sets">Series</Label>
-                <Input
-                  id="sets"
-                  name="sets"
-                  type="number"
-                  min="1"
-                  placeholder="3"
-                  defaultValue={editWorkout?.sets || ""}
                 />
               </div>
             </div>

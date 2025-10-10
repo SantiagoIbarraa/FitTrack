@@ -1,9 +1,5 @@
 import Link from "next/link"
-<<<<<<< HEAD
 import { Dumbbell, LogOut, User, Settings, Footprints, Utensils, BarChart3, Database } from "lucide-react"
-=======
-import { Dumbbell, Timer, MessageCircle, LogOut, User, Settings, Footprints, Utensils, BarChart3 } from "lucide-react"
->>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
 import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import QuickStats from "@/components/dashboard/quick-stats"
@@ -100,24 +96,16 @@ export default async function Home() {
 
         {/* Services Grid */}
         <div className="mb-6 sm:mb-8">
-<<<<<<< HEAD
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-4">Servicios</h2>
-=======
-                     <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-4">Servicios</h2>
->>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             <Link href="/gym" className="group">
               <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                 <CardHeader className="text-center">
                   <Dumbbell className="h-12 w-12 mx-auto mb-4 text-blue-600 group-hover:scale-110 transition-transform" />
                   <CardTitle className="text-gray-900 dark:text-white">Gimnasio</CardTitle>
-<<<<<<< HEAD
                   <CardDescription className="text-gray-700 dark:text-gray-50">
                     Rutinas y ejercicios personalizados
                   </CardDescription>
-=======
-                  <CardDescription className="text-gray-600 dark:text-gray-300">Rutinas y ejercicios personalizados</CardDescription>
->>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
                 </CardHeader>
               </Card>
             </Link>
@@ -127,13 +115,9 @@ export default async function Home() {
                 <CardHeader className="text-center">
                   <Footprints className="h-12 w-12 mx-auto mb-4 text-green-600 group-hover:scale-110 transition-transform" />
                   <CardTitle className="text-gray-900 dark:text-white">Running</CardTitle>
-<<<<<<< HEAD
                   <CardDescription className="text-gray-700 dark:text-gray-50">
                     Seguimiento de carreras y entrenamientos
                   </CardDescription>
-=======
-                  <CardDescription className="text-gray-600 dark:text-gray-300">Seguimiento de carreras y entrenamientos</CardDescription>
->>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
                 </CardHeader>
               </Card>
             </Link>
@@ -143,13 +127,9 @@ export default async function Home() {
                 <CardHeader className="text-center">
                   <Utensils className="h-12 w-12 mx-auto mb-4 text-orange-600 group-hover:scale-110 transition-transform" />
                   <CardTitle className="text-gray-900 dark:text-white">Comidas</CardTitle>
-<<<<<<< HEAD
                   <CardDescription className="text-gray-700 dark:text-gray-50">
                     Asistente de nutrición con IA
                   </CardDescription>
-=======
-                  <CardDescription className="text-gray-600 dark:text-gray-300">Asistente de nutrición con IA</CardDescription>
->>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
                 </CardHeader>
               </Card>
             </Link>
@@ -159,13 +139,9 @@ export default async function Home() {
                 <CardHeader className="text-center">
                   <User className="h-12 w-12 mx-auto mb-4 text-purple-600 group-hover:scale-110 transition-transform" />
                   <CardTitle className="text-gray-900 dark:text-white">Perfil</CardTitle>
-<<<<<<< HEAD
                   <CardDescription className="text-gray-700 dark:text-gray-50">
                     Gestiona tu información personal
                   </CardDescription>
-=======
-                  <CardDescription className="text-gray-600 dark:text-gray-300">Gestiona tu información personal</CardDescription>
->>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
                 </CardHeader>
               </Card>
             </Link>
@@ -175,16 +151,11 @@ export default async function Home() {
                 <CardHeader className="text-center">
                   <BarChart3 className="h-12 w-12 mx-auto mb-4 text-indigo-600 group-hover:scale-110 transition-transform" />
                   <CardTitle className="text-gray-900 dark:text-white">Estadísticas</CardTitle>
-<<<<<<< HEAD
                   <CardDescription className="text-gray-700 dark:text-gray-50">Visualiza tu progreso</CardDescription>
-=======
-                  <CardDescription className="text-gray-600 dark:text-gray-300">Visualiza tu progreso</CardDescription>
->>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
                 </CardHeader>
               </Card>
             </Link>
 
-<<<<<<< HEAD
             <Link href="/test-db" className="group">
               <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                 <CardHeader className="text-center">
@@ -208,9 +179,6 @@ export default async function Home() {
                 </CardHeader>
               </Card>
             </Link>
-=======
-            
->>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
           </div>
         </div>
 

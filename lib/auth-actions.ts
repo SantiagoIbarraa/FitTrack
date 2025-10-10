@@ -49,9 +49,10 @@ export async function signUp(prevState: any, formData: FormData) {
   const lastName = formData.get("lastName")
   const weight = formData.get("weight")
   const height = formData.get("height")
+  const gender = formData.get("gender")
 
   // Validate required fields
-  if (!email || !password || !firstName || !lastName || !weight || !height) {
+  if (!email || !password || !firstName || !lastName || !weight || !height || !gender) {
     return { error: "Todos los campos son obligatorios" }
   }
 
@@ -84,6 +85,7 @@ export async function signUp(prevState: any, formData: FormData) {
           full_name: `${firstName.toString()} ${lastName.toString()}`,
           weight: weightNum,
           height: heightNum,
+          gender: gender.toString(),
           email_confirmed: true, // Force email as confirmed
         },
       },

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 "use client"
 
 import { useState } from "react"
@@ -48,10 +47,4 @@ export default function TestDBPage() {
       </Card>
     </div>
   )
-=======
-import { redirect } from "next/navigation"
-
-export default function TestDBPage() {
-  redirect("/")
->>>>>>> 07358bd3bf1e922122fee28f9fb11ce208c8d0af
 }
