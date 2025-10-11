@@ -21,7 +21,10 @@ import {
 } from "@/lib/messaging-actions"
 import { getApprovedProfessionals } from "@/lib/role-actions"
 import { toast } from "sonner"
+<<<<<<< HEAD
 import FoodImageAnalyzer from "@/components/image-analyzer" // Asegúrate que la ruta sea correcta
+=======
+>>>>>>> 5e0a6947f356c7850320b506c7beffbc7fb36cd2
 
 export default function MessagesPage() {
   const [conversations, setConversations] = useState<Conversation[]>([])
@@ -276,6 +279,7 @@ export default function MessagesPage() {
     </div>
   )
 }
+<<<<<<< HEAD
 
 export async function POST(request: Request) {
   try {
@@ -307,3 +311,5 @@ export async function POST(request: Request) {
     )
   }
 }
+=======
+>>>>>>> 5e0a6947f356c7850320b506c7beffbc7fb36cd2
