@@ -5,9 +5,9 @@ import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.app',
+  title: 'FitTrack - Tu Asistente de Fitness',
+  description: 'Aplicación completa para seguimiento de fitness, nutrición y salud',
+  generator: 'Next.js',
 }
 
 export default function RootLayout({
@@ -16,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="es" suppressHydrationWarning>
       <head>
         <style>{`
 html {
@@ -25,9 +25,8 @@ html {
   --font-mono: ${GeistMono.variable};
 }
         `}</style>
-
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

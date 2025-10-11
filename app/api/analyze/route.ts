@@ -58,10 +58,12 @@ Si la imagen no contiene comida o no es clara, indícalo amablemente y pide una 
       }
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" })
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     // Remove data URL prefix if present
     const base64Image = image.replace(/^data:image\/\w+;base64,/, "")
+
+    
 
     const result = await model.generateContent([
       systemPrompt,
