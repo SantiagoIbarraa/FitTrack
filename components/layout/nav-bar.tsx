@@ -1,11 +1,23 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Dumbbell, Activity, Utensils, User, LogOut, Home, Heart } from "lucide-react"
+import { Dumbbell, Activity, Utensils, User, LogOut, Home, Heart, MessageCircle, Shield } from "lucide-react"
 import { usePathname } from "next/navigation"
+import { isAdmin } from "@/lib/role-actions"
 
 const NavBar = () => {
   const pathname = usePathname()
+  const [showAdmin, setShowAdmin] = useState(false)
+
+  useEffect(() => {
+    checkAdmin()
+  }, [])
+
+  const checkAdmin = async () => {
+    const admin = await isAdmin()
+    setShowAdmin(admin)
+  }
 
   return (
     <nav className="bg-white dark:bg-gray-800">
@@ -81,6 +93,30 @@ const NavBar = () => {
               <Heart className="h-5 w-5" />
               <span>Salud</span>
             </Link>
+            <Link
+              href="/messages"
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                pathname === "/messages"
+                  ? "bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300"
+                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+              }`}
+            >
+              <MessageCircle className="h-5 w-5" />
+              <span>Mensajes</span>
+            </Link>
+            {showAdmin && (
+              <Link
+                href="/admin"
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                  pathname === "/admin"
+                    ? "bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                }`}
+              >
+                <Shield className="h-5 w-5" />
+                <span>Admin</span>
+              </Link>
+            )}
             <Link
               href="/logout"
               className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
