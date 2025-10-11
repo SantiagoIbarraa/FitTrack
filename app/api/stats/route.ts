@@ -17,7 +17,7 @@ export async function GET() {
 
     const [workoutsResult, runsResult, thisWeekWorkoutsResult] = await Promise.all([
       supabase.from("gym_workouts").select("*", { count: "exact", head: true }).eq("user_id", user.id),
-      supabase.from("running_sessions").select("distance", { count: "exact" }).eq("user_id", user.id),
+      supabase.from("running_sessions").select("distance_km", { count: "exact" }).eq("user_id", user.id),
       supabase
         .from("gym_workouts")
         .select("*", { count: "exact", head: true })
@@ -25,8 +25,7 @@ export async function GET() {
         .gte("created_at", oneWeekAgo.toISOString()),
     ])
 
-    // Calculate total distance from runs
-    const totalDistance = runsResult.data?.reduce((sum, run) => sum + (run.distance || 0), 0) || 0
+    const totalDistance = runsResult.data?.reduce((sum, run) => sum + (run.distance_km || 0), 0) || 0
 
     return NextResponse.json({
       totalWorkouts: workoutsResult.count || 0,

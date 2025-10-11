@@ -10,6 +10,7 @@ import RoutineList from "@/components/gym/routine-list"
 import RoutineForm from "@/components/gym/routine-form"
 import RoutineDetail from "@/components/gym/routine-detail"
 import ExerciseHistory from "@/components/gym/exercise-history"
+import GymMetrics from "@/components/gym/gym-metrics"
 
 interface Workout {
   id: string
@@ -20,7 +21,7 @@ interface Workout {
   created_at: string
 }
 
-type ViewMode = "routines" | "individual" | "routine-detail" | "create-routine" | "history"
+type ViewMode = "routines" | "individual" | "routine-detail" | "create-routine" | "history" | "metrics"
 
 export default function GymPage() {
   const [refreshTrigger, setRefreshTrigger] = useState(0)
@@ -80,7 +81,7 @@ export default function GymPage() {
       </div>
 
       {/* Navigation tabs */}
-      <div className="flex gap-2 mb-6">
+      <div className="flex gap-2 mb-6 flex-wrap">
         <button
           onClick={() => setViewMode("routines")}
           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -106,6 +107,14 @@ export default function GymPage() {
           }`}
         >
           Historial
+        </button>
+        <button
+          onClick={() => setViewMode("metrics")}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            viewMode === "metrics" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+          }`}
+        >
+          Métricas
         </button>
       </div>
 
@@ -143,6 +152,7 @@ export default function GymPage() {
         )}
 
         {viewMode === "history" && <ExerciseHistory />}
+        {viewMode === "metrics" && <GymMetrics />}
       </div>
     </div>
   )

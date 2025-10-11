@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Calculator, Info } from "lucide-react"
+import { Calculator, Info, User } from "lucide-react"
 import { getUserProfile } from "@/lib/user-actions"
 import { calculateBMI } from "@/lib/health-actions"
 import { Badge } from "@/components/ui/badge"
@@ -15,12 +15,14 @@ interface BMIResult {
   advice: string
   healthyWeightRange: { min: number; max: number }
   source: string
+  genderNote?: string
 }
 
 export default function BMICalculator() {
   const [bmiResult, setBmiResult] = useState<BMIResult | null>(null)
   const [loading, setLoading] = useState(true)
   const [userAge, setUserAge] = useState<number | null>(null)
+  const [userSex, setUserSex] = useState<string | null>(null)
 
   useEffect(() => {
     const loadBMI = async () => {
@@ -33,6 +35,8 @@ export default function BMICalculator() {
             age = new Date().getFullYear() - birthDate.getFullYear()
             setUserAge(age)
           }
+
+          setUserSex(profile.sex || null)
 
           const result = await calculateBMI(profile.weight, profile.height, age, profile.sex || undefined)
           setBmiResult(result)
@@ -111,7 +115,8 @@ export default function BMICalculator() {
           Tu Índice de Masa Corporal (IMC)
         </CardTitle>
         <CardDescription className="text-gray-600 dark:text-gray-300">
-          Calculado automáticamente según tu peso, estatura{userAge && ", edad"} y sexo
+          Calculado según tu peso, estatura{userAge && ", edad"}
+          {userSex && " y sexo"}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -121,6 +126,12 @@ export default function BMICalculator() {
           <Badge variant={getCategoryBadgeVariant(bmiResult.category)} className="text-sm px-3 py-1">
             {bmiResult.category}
           </Badge>
+          {userSex && (
+            <div className="flex items-center justify-center gap-1 mt-2 text-sm text-gray-600 dark:text-gray-400">
+              <User className="h-4 w-4" />
+              <span>{userSex === "male" ? "Hombre" : userSex === "female" ? "Mujer" : "No especificado"}</span>
+            </div>
+          )}
         </div>
 
         {/* IMC Scale */}
@@ -155,9 +166,19 @@ export default function BMICalculator() {
           </div>
         </div>
 
+        {/* Gender Note */}
+        {bmiResult.genderNote && (
+          <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+            <div className="flex items-start gap-2">
+              <User className="h-5 w-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+              <p className="text-sm text-purple-900 dark:text-purple-300">{bmiResult.genderNote}</p>
+            </div>
+          </div>
+        )}
+
         {/* Advice */}
         <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
-          <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Recomendaciones</h4>
+          <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Recomendaciones Personalizadas</h4>
           <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{bmiResult.advice}</p>
         </div>
 

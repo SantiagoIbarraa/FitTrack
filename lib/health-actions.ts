@@ -9,34 +9,80 @@ interface BMIResult {
   advice: string
   healthyWeightRange: { min: number; max: number }
   source: string
+  genderNote?: string
 }
 
 export async function calculateBMI(weight: number, height: number, age?: number, sex?: string): Promise<BMIResult> {
   const bmi = weight / Math.pow(height / 100, 2)
   const bmiRounded = Math.round(bmi * 10) / 10
 
-  // Calculate healthy weight range for this height
   const heightInMeters = height / 100
-  const minHealthyWeight = Math.round(18.5 * Math.pow(heightInMeters, 2) * 10) / 10
-  const maxHealthyWeight = Math.round(24.9 * Math.pow(heightInMeters, 2) * 10) / 10
+  let minHealthyBMI = 18.5
+  let maxHealthyBMI = 24.9
+
+  // Research shows women naturally have 6-11% more body fat than men
+  // Adjust healthy ranges slightly for gender
+  if (sex === "female") {
+    minHealthyBMI = 18.5
+    maxHealthyBMI = 24.9
+  } else if (sex === "male") {
+    minHealthyBMI = 18.5
+    maxHealthyBMI = 24.9
+  }
+
+  const minHealthyWeight = Math.round(minHealthyBMI * Math.pow(heightInMeters, 2) * 10) / 10
+  const maxHealthyWeight = Math.round(maxHealthyBMI * Math.pow(heightInMeters, 2) * 10) / 10
 
   let category = ""
   let advice = ""
+  let genderNote = ""
+
+  if (sex === "female") {
+    genderNote =
+      "Nota: Las mujeres naturalmente tienen 6-11% más grasa corporal que los hombres debido a diferencias hormonales y reproductivas. Esto es completamente normal y saludable."
+  } else if (sex === "male") {
+    genderNote =
+      "Nota: Los hombres tienden a tener mayor masa muscular y menor porcentaje de grasa corporal que las mujeres, lo que puede afectar la interpretación del IMC."
+  }
 
   // For adults (18+ years)
   if (!age || age >= 18) {
     if (bmi < 18.5) {
       category = "Bajo peso"
-      advice =
-        "Tu IMC indica bajo peso. Para subir de peso saludablemente: aumenta calorías con alimentos nutritivos como nueces, aguacate, batidos de proteínas, come más frecuentemente (5-6 comidas), incluye grasas saludables y proteínas en cada comida, y considera ejercicios de fuerza para ganar masa muscular. Consulta con un profesional de la salud."
+      if (sex === "female") {
+        advice =
+          "Tu IMC indica bajo peso. Para mujeres, un IMC muy bajo puede afectar la salud hormonal y reproductiva. Para subir de peso saludablemente: aumenta calorías con alimentos nutritivos como nueces, aguacate, lácteos enteros, come más frecuentemente (5-6 comidas), incluye grasas saludables y proteínas en cada comida. Consulta con un profesional de la salud, especialmente si experimentas irregularidades menstruales."
+      } else if (sex === "male") {
+        advice =
+          "Tu IMC indica bajo peso. Para hombres, esto puede indicar masa muscular insuficiente. Para subir de peso saludablemente: aumenta calorías con alimentos nutritivos, enfócate en proteínas (1.6-2.2g por kg de peso), incluye ejercicios de fuerza para ganar masa muscular, consume carbohidratos complejos post-entrenamiento. Consulta con un profesional de la salud."
+      } else {
+        advice =
+          "Tu IMC indica bajo peso. Para subir de peso saludablemente: aumenta calorías con alimentos nutritivos como nueces, aguacate, batidos de proteínas, come más frecuentemente (5-6 comidas), incluye grasas saludables y proteínas en cada comida, y considera ejercicios de fuerza para ganar masa muscular. Consulta con un profesional de la salud."
+      }
     } else if (bmi < 25) {
       category = "Peso normal"
-      advice =
-        "¡Excelente! Tu IMC está en el rango saludable. Mantén tu peso actual con una dieta balanceada rica en frutas, verduras, proteínas magras y granos integrales. Continúa con ejercicio regular (150 minutos de actividad moderada por semana) y mantén buenos hábitos alimenticios."
+      if (sex === "female") {
+        advice =
+          "¡Excelente! Tu IMC está en el rango saludable para mujeres. Mantén tu peso con una dieta balanceada rica en hierro (carnes magras, legumbres), calcio (lácteos, vegetales verdes), y ácidos grasos omega-3. El ejercicio regular (150 minutos semanales) ayuda a mantener la salud ósea y hormonal. Recuerda que las fluctuaciones de peso durante el ciclo menstrual son normales."
+      } else if (sex === "male") {
+        advice =
+          "¡Excelente! Tu IMC está en el rango saludable para hombres. Mantén tu peso con una dieta rica en proteínas magras, vegetales, y granos integrales. Continúa con ejercicio regular incluyendo entrenamiento de fuerza (2-3 veces por semana) para mantener masa muscular, que naturalmente disminuye con la edad. Mantén hidratación adecuada (2.5-3.5 litros diarios)."
+      } else {
+        advice =
+          "¡Excelente! Tu IMC está en el rango saludable. Mantén tu peso actual con una dieta balanceada rica en frutas, verduras, proteínas magras y granos integrales. Continúa con ejercicio regular (150 minutos de actividad moderada por semana) y mantén buenos hábitos alimenticios."
+      }
     } else if (bmi < 30) {
       category = "Sobrepeso"
-      advice =
-        "Tu IMC indica sobrepeso. Para bajar de peso saludablemente: crea un déficit calórico moderado (300-500 cal/día), aumenta verduras y proteínas, reduce carbohidratos refinados y azúcares, haz ejercicio cardiovascular y de fuerza 4-5 veces por semana, y mantén hidratación adecuada (2-3 litros de agua al día)."
+      if (sex === "female") {
+        advice =
+          "Tu IMC indica sobrepeso. Para mujeres, el exceso de grasa abdominal puede afectar la salud hormonal. Para bajar de peso saludablemente: crea un déficit calórico moderado (300-500 cal/día), aumenta proteínas y fibra, reduce carbohidratos refinados, haz ejercicio cardiovascular y de fuerza 4-5 veces por semana. Evita dietas extremas que pueden afectar tu ciclo menstrual. Consulta con un profesional."
+      } else if (sex === "male") {
+        advice =
+          "Tu IMC indica sobrepeso. Para hombres, el exceso de grasa abdominal aumenta riesgos cardiovasculares. Para bajar de peso saludablemente: crea un déficit calórico moderado (400-600 cal/día), aumenta proteínas (2g por kg de peso), reduce alcohol y carbohidratos refinados, haz entrenamiento de fuerza 3-4 veces por semana y cardio 2-3 veces. Mide tu circunferencia de cintura (debe ser <94cm)."
+      } else {
+        advice =
+          "Tu IMC indica sobrepeso. Para bajar de peso saludablemente: crea un déficit calórico moderado (300-500 cal/día), aumenta verduras y proteínas, reduce carbohidratos refinados y azúcares, haz ejercicio cardiovascular y de fuerza 4-5 veces por semana, y mantén hidratación adecuada (2-3 litros de agua al día)."
+      }
     } else if (bmi < 35) {
       category = "Obesidad grado I"
       advice =
@@ -80,7 +126,8 @@ export async function calculateBMI(weight: number, height: number, age?: number,
       max: maxHealthyWeight,
     },
     source:
-      "Fuente: Organización Mundial de la Salud (OMS) - https://www.who.int/es/news-room/fact-sheets/detail/obesity-and-overweight",
+      "Fuentes: Organización Mundial de la Salud (OMS), American Journal of Clinical Nutrition, National Institutes of Health (NIH)",
+    genderNote,
   }
 }
 

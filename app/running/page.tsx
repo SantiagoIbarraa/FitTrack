@@ -7,9 +7,11 @@ import { Button } from "@/components/ui/button"
 import RunningForm from "@/components/running/running-form"
 import RunningList from "@/components/running/running-list"
 import RunningStats from "@/components/running/running-stats"
+import RunningCharts from "@/components/running/running-charts"
 
 export default function RunningPage() {
   const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const [viewMode, setViewMode] = useState<"sessions" | "charts">("sessions")
 
   const handleSessionAdded = () => {
     setRefreshTrigger((prev) => prev + 1)
@@ -33,10 +35,35 @@ export default function RunningPage() {
         <p className="text-gray-600">Registra y analiza tus sesiones de carrera</p>
       </div>
 
+      <div className="flex gap-2 mb-6">
+        <button
+          onClick={() => setViewMode("sessions")}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            viewMode === "sessions" ? "bg-green-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+          }`}
+        >
+          Sesiones
+        </button>
+        <button
+          onClick={() => setViewMode("charts")}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            viewMode === "charts" ? "bg-green-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+          }`}
+        >
+          Gráficos
+        </button>
+      </div>
+
       <div className="grid gap-6">
-        <RunningForm onSessionAdded={handleSessionAdded} />
-        <RunningStats refreshTrigger={refreshTrigger} />
-        <RunningList refreshTrigger={refreshTrigger} />
+        {viewMode === "sessions" && (
+          <>
+            <RunningForm onSessionAdded={handleSessionAdded} />
+            <RunningStats refreshTrigger={refreshTrigger} />
+            <RunningList refreshTrigger={refreshTrigger} />
+          </>
+        )}
+
+        {viewMode === "charts" && <RunningCharts />}
       </div>
     </div>
   )

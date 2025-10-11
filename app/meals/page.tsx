@@ -1,7 +1,9 @@
 import ChatInterface from "@/components/meals/chat-interface"
-import { MessageCircle, ArrowLeft } from "lucide-react"
+import ImageAnalyzer from "@/components/image-analyzer"
+import { MessageCircle, ArrowLeft, Camera } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function MealsPage() {
   return (
@@ -23,12 +25,29 @@ export default function MealsPage() {
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Asistente Nutricional</h1>
             </div>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Obtén consejos personalizados sobre alimentación, recetas saludables y planificación de comidas
+              Obtén consejos personalizados sobre alimentación, analiza tus comidas con IA y planifica tu nutrición
             </p>
           </div>
         </div>
 
-        <ChatInterface />
+        <Tabs defaultValue="chat" className="w-full">
+          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
+            <TabsTrigger value="chat" className="flex items-center gap-2">
+              <MessageCircle className="h-4 w-4" />
+              Chat con IA
+            </TabsTrigger>
+            <TabsTrigger value="image" className="flex items-center gap-2">
+              <Camera className="h-4 w-4" />
+              Analizar Comida
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="chat">
+            <ChatInterface />
+          </TabsContent>
+          <TabsContent value="image">
+            <ImageAnalyzer />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   )
