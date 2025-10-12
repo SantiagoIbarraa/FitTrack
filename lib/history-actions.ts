@@ -32,7 +32,7 @@ export async function getWorkoutHistory(exerciseName?: string, days?: number): P
 
   try {
     let query = supabase
-      .from("workout_history")
+      .from("exercise_history")
       .select("*")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
@@ -54,7 +54,14 @@ export async function getWorkoutHistory(exerciseName?: string, days?: number): P
       return []
     }
 
-    return data || []
+    return (data || []).map((entry: any) => ({
+      id: entry.id,
+      exercise_name: entry.exercise_name,
+      weight: entry.weight_kg || 0,
+      reps: entry.repetitions || 0,
+      sets: entry.sets || 0,
+      created_at: entry.created_at,
+    }))
   } catch (error) {
     console.error("Error in getWorkoutHistory:", error)
     return []
@@ -74,7 +81,7 @@ export async function getRunningHistory(days?: number): Promise<RunningHistoryEn
 
   try {
     let query = supabase
-      .from("running_history")
+      .from("running_sessions")
       .select("*")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })

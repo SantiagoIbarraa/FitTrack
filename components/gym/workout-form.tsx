@@ -13,7 +13,7 @@ import { useActionState } from "react"
 interface Workout {
   id: string
   exercise_name: string
-  weight_kg: number | null
+  weight_kg: number | null // Reverted to weight_kg to match database schema
   repetitions: number | null
   sets: number | null
   image_url: string | null
@@ -50,12 +50,18 @@ export default function WorkoutForm({ onWorkoutAdded, editWorkout, onEditComplet
         repetitions: formData.get("repetitions")
           ? Number.parseInt(formData.get("repetitions")?.toString() || "0")
           : null,
+        sets: formData.get("sets") ? Number.parseInt(formData.get("sets")?.toString() || "0") : null,
         image_url: formData.get("image_url")?.toString() || null,
       }
 
+      console.log("[v0] Exercise data being sent:", exerciseData)
+      console.log("[v0] Edit workout:", editWorkout)
+
       let result
       if (editWorkout) {
+        console.log("[v0] Updating exercise with ID:", editWorkout.id)
         result = await updateExerciseInRoutine(editWorkout.id, exerciseData)
+        console.log("[v0] Update result:", result)
       } else {
         result = await addExerciseToRoutine(routineId, exerciseData)
       }
@@ -160,7 +166,7 @@ export default function WorkoutForm({ onWorkoutAdded, editWorkout, onEditComplet
                   step="0.5"
                   min="0"
                   placeholder="80"
-                  defaultValue={editWorkout?.weight_kg || ""}
+                  defaultValue={editWorkout?.weight_kg ?? ""} // Using weight_kg to match database
                 />
               </div>
               <div className="space-y-2">
@@ -171,9 +177,20 @@ export default function WorkoutForm({ onWorkoutAdded, editWorkout, onEditComplet
                   type="number"
                   min="1"
                   placeholder="12"
-                  defaultValue={editWorkout?.repetitions || ""}
+                  defaultValue={editWorkout?.repetitions ?? ""}
                 />
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="sets">Series</Label>
+              <Input
+                id="sets"
+                name="sets"
+                type="number"
+                min="1"
+                placeholder="3"
+                defaultValue={editWorkout?.sets ?? ""}
+              />
             </div>
           </div>
 

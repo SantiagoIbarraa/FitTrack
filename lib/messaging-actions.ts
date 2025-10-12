@@ -105,11 +105,15 @@ export async function markMessageAsRead(messageId: string) {
 export async function getActiveProfessionals() {
   const supabase = await createClient()
 
+  console.log("[v0] Fetching active professionals...")
+
   const { data: professionalRoles, error } = await supabase
     .from("user_roles")
     .select("user_id")
     .eq("is_professional", true)
     .eq("is_active", true)
+
+  console.log("[v0] Professional roles query result:", { professionalRoles, error })
 
   if (error) {
     console.error("[v0] Error fetching professionals:", error)
@@ -117,11 +121,16 @@ export async function getActiveProfessionals() {
   }
 
   if (!professionalRoles || professionalRoles.length === 0) {
+    console.log("[v0] No professionals found in user_roles table")
     return { professionals: [] }
   }
 
+  console.log("[v0] Found", professionalRoles.length, "professional roles")
+
   // Try to get user details from the function first
-  const { data: allUsers } = await supabase.rpc("get_all_users_with_roles")
+  const { data: allUsers, error: rpcError } = await supabase.rpc("get_all_users_with_roles")
+
+  console.log("[v0] RPC get_all_users_with_roles result:", { allUsers, rpcError })
 
   if (allUsers) {
     // Filter to only professionals
@@ -133,10 +142,12 @@ export async function getActiveProfessionals() {
         full_name: user.full_name,
       }))
 
+    console.log("[v0] Filtered professionals:", professionals)
     return { professionals }
   }
 
   // Fallback: return limited info
+  console.log("[v0] Using fallback - returning limited info")
   const professionals = professionalRoles.map((role) => ({
     id: role.user_id,
     email: `Profesional ${role.user_id.substring(0, 8)}...`,
@@ -144,4 +155,83 @@ export async function getActiveProfessionals() {
   }))
 
   return { professionals }
+}
+
+export async function getAvailableContacts() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: "No autenticado" }
+  }
+
+  console.log("[v0] Getting available contacts for user:", user.id)
+
+  // Check if user is professional or admin
+  const { data: userRole, error: roleError } = await supabase
+    .from("user_roles")
+    .select("role, is_professional")
+    .eq("user_id", user.id)
+    .maybeSingle()
+
+  console.log("[v0] User role query result:", { userRole, roleError })
+
+  const isProfessional = userRole?.is_professional || false
+  const isAdmin = userRole?.role === "admin"
+
+  console.log("[v0] User status:", { isProfessional, isAdmin })
+
+  // If user is a regular user, show professionals
+  if (!isProfessional && !isAdmin) {
+    console.log("[v0] User is regular user, fetching professionals...")
+    return await getActiveProfessionals()
+  }
+
+  // If user is professional or admin, show users who have messaged them
+  // First, get all conversations
+  const { data: conversations } = await supabase
+    .from("conversations")
+    .select("user1_id, user2_id")
+    .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
+
+  if (!conversations || conversations.length === 0) {
+    return { professionals: [] }
+  }
+
+  // Get unique user IDs from conversations (excluding current user)
+  const contactIds = new Set<string>()
+  conversations.forEach((conv) => {
+    if (conv.user1_id !== user.id) contactIds.add(conv.user1_id)
+    if (conv.user2_id !== user.id) contactIds.add(conv.user2_id)
+  })
+
+  if (contactIds.size === 0) {
+    return { professionals: [] }
+  }
+
+  // Try to get user details
+  const { data: allUsers } = await supabase.rpc("get_all_users_with_roles")
+
+  if (allUsers) {
+    const contacts = allUsers
+      .filter((u: any) => contactIds.has(u.id))
+      .map((u: any) => ({
+        id: u.id,
+        email: u.email,
+        full_name: u.full_name,
+      }))
+
+    return { professionals: contacts }
+  }
+
+  // Fallback
+  const contacts = Array.from(contactIds).map((id) => ({
+    id,
+    email: `Usuario ${id.substring(0, 8)}...`,
+    full_name: "Usuario",
+  }))
+
+  return { professionals: contacts }
 }

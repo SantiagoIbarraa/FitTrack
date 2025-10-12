@@ -12,7 +12,7 @@ import { es } from "date-fns/locale"
 interface Workout {
   id: string
   exercise_name: string
-  weight_kg: number | null
+  weight_kg: number | null // Reverted to weight_kg to match database schema
   repetitions: number | null
   sets: number | null
   image_url: string | null
@@ -27,7 +27,6 @@ interface WorkoutListProps {
 export default function WorkoutList({ refreshTrigger, onEditWorkout }: WorkoutListProps) {
   const [workouts, setWorkouts] = useState<Workout[]>([])
   const [loading, setLoading] = useState(true)
-
 
   const loadWorkouts = async () => {
     try {
@@ -56,8 +55,6 @@ export default function WorkoutList({ refreshTrigger, onEditWorkout }: WorkoutLi
   const handleEdit = (workout: Workout) => {
     onEditWorkout?.(workout)
   }
-
-
 
   if (loading) {
     return (
@@ -94,42 +91,42 @@ export default function WorkoutList({ refreshTrigger, onEditWorkout }: WorkoutLi
                 {workout.image_url && (
                   <div className="flex-shrink-0">
                     <img
-                      src={workout.image_url}
+                      src={workout.image_url || "/placeholder.svg"}
                       alt={workout.exercise_name}
                       className="w-16 h-16 object-cover rounded-lg border"
                       onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
+                        const target = e.target as HTMLImageElement
+                        target.style.display = "none"
                       }}
                     />
                   </div>
                 )}
                 <div className="flex-1">
-                <h4 className="font-semibold text-lg">{workout.exercise_name}</h4>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {workout.weight_kg && (
-                    <Badge variant="secondary" className="flex items-center gap-1">
-                      <Weight className="h-3 w-3" />
-                      {workout.weight_kg} kg
-                    </Badge>
-                  )}
-                  {workout.repetitions && (
-                    <Badge variant="secondary" className="flex items-center gap-1">
-                      <RotateCcw className="h-3 w-3" />
-                      {workout.repetitions} reps
-                    </Badge>
-                  )}
-                  {workout.sets && (
-                    <Badge variant="secondary" className="flex items-center gap-1">
-                      <Hash className="h-3 w-3" />
-                      {workout.sets} series
-                    </Badge>
-                  )}
-                </div>
-                <div className="flex items-center gap-1 mt-2 text-sm text-gray-500">
-                  <Calendar className="h-3 w-3" />
-                  {format(new Date(workout.created_at), "PPP 'a las' HH:mm", { locale: es })}
-                </div>
+                  <h4 className="font-semibold text-lg">{workout.exercise_name}</h4>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {workout.weight_kg && ( // Using weight_kg to match database
+                      <Badge variant="secondary" className="flex items-center gap-1">
+                        <Weight className="h-3 w-3" />
+                        {workout.weight_kg} kg
+                      </Badge>
+                    )}
+                    {workout.repetitions && (
+                      <Badge variant="secondary" className="flex items-center gap-1">
+                        <RotateCcw className="h-3 w-3" />
+                        {workout.repetitions} reps
+                      </Badge>
+                    )}
+                    {workout.sets && (
+                      <Badge variant="secondary" className="flex items-center gap-1">
+                        <Hash className="h-3 w-3" />
+                        {workout.sets} series
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1 mt-2 text-sm text-gray-500">
+                    <Calendar className="h-3 w-3" />
+                    {format(new Date(workout.created_at), "PPP 'a las' HH:mm", { locale: es })}
+                  </div>
                 </div>
               </div>
               <div className="flex gap-2">
@@ -154,8 +151,6 @@ export default function WorkoutList({ refreshTrigger, onEditWorkout }: WorkoutLi
           </CardContent>
         </Card>
       ))}
-      
-
     </div>
   )
 }

@@ -6,8 +6,6 @@ import {
   Settings,
   Footprints,
   Utensils,
-  BarChart3,
-  Database,
   MessageSquare,
   Shield,
   Accessibility,
@@ -69,6 +67,11 @@ export default async function Home() {
               )}
             </div>
             <div className="flex items-center gap-2">
+              <Button variant="outline" size="icon" asChild title="Accesibilidad">
+                <Link href="/accessibility">
+                  <Accessibility className="h-4 w-4" />
+                </Link>
+              </Button>
               <ThemeToggle />
               <Button variant="outline" size="sm" asChild>
                 <Link href="/profile">
@@ -119,7 +122,7 @@ export default async function Home() {
                   <Dumbbell className="h-12 w-12 mx-auto mb-4 text-blue-600 group-hover:scale-110 transition-transform" />
                   <CardTitle className="text-gray-900 dark:text-white">Gimnasio</CardTitle>
                   <CardDescription className="text-gray-700 dark:text-gray-50">
-                    Rutinas y ejercicios personalizados
+                    Rutinas, ejercicios, historial y métricas
                   </CardDescription>
                 </CardHeader>
               </Card>
@@ -131,7 +134,7 @@ export default async function Home() {
                   <Footprints className="h-12 w-12 mx-auto mb-4 text-green-600 group-hover:scale-110 transition-transform" />
                   <CardTitle className="text-gray-900 dark:text-white">Running</CardTitle>
                   <CardDescription className="text-gray-700 dark:text-gray-50">
-                    Seguimiento de carreras y entrenamientos
+                    Seguimiento de carreras y estadísticas
                   </CardDescription>
                 </CardHeader>
               </Card>
@@ -161,18 +164,6 @@ export default async function Home() {
               </Card>
             </Link>
 
-            <Link href="/accessibility" className="group">
-              <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-                <CardHeader className="text-center">
-                  <Accessibility className="h-12 w-12 mx-auto mb-4 text-pink-600 group-hover:scale-110 transition-transform" />
-                  <CardTitle className="text-gray-900 dark:text-white">Accesibilidad</CardTitle>
-                  <CardDescription className="text-gray-700 dark:text-gray-50">
-                    Personaliza tu experiencia
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </Link>
-
             {admin && (
               <Link href="/admin" className="group">
                 <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
@@ -194,40 +185,6 @@ export default async function Home() {
                   <CardTitle className="text-gray-900 dark:text-white">Perfil</CardTitle>
                   <CardDescription className="text-gray-700 dark:text-gray-50">
                     Gestiona tu información personal
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </Link>
-
-            <Link href="/stats" className="group">
-              <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-                <CardHeader className="text-center">
-                  <BarChart3 className="h-12 w-12 mx-auto mb-4 text-indigo-600 group-hover:scale-110 transition-transform" />
-                  <CardTitle className="text-gray-900 dark:text-white">Estadísticas</CardTitle>
-                  <CardDescription className="text-gray-700 dark:text-gray-50">Visualiza tu progreso</CardDescription>
-                </CardHeader>
-              </Card>
-            </Link>
-
-            <Link href="/test-db" className="group">
-              <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-                <CardHeader className="text-center">
-                  <Database className="h-12 w-12 mx-auto mb-4 text-red-600 group-hover:scale-110 transition-transform" />
-                  <CardTitle className="text-gray-900 dark:text-white">Test DB</CardTitle>
-                  <CardDescription className="text-gray-700 dark:text-gray-50">
-                    Prueba la conexión a la base de datos
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </Link>
-
-            <Link href="/history" className="group">
-              <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-                <CardHeader className="text-center">
-                  <BarChart3 className="h-12 w-12 mx-auto mb-4 text-indigo-600 group-hover:scale-110 transition-transform" />
-                  <CardTitle className="text-gray-900 dark:text-white">Historial</CardTitle>
-                  <CardDescription className="text-gray-700 dark:text-gray-50">
-                    Revisa tu progreso y evolución
                   </CardDescription>
                 </CardHeader>
               </Card>

@@ -127,7 +127,7 @@ export default function ChatInterface() {
 
       const aiResponse: Message = {
         id: (++messageIdCounter.current).toString(),
-        content: data.response,
+        content: data.response.replaceAll("**", ""), 
         isUser: false,
         timestamp: new Date(),
       }
@@ -137,7 +137,7 @@ export default function ChatInterface() {
       console.error("Error sending message:", error)
       const errorMessage: Message = {
         id: (++messageIdCounter.current).toString(),
-        content: "Lo siento, hubo un error al procesar tu mensaje. Por favor intenta de nuevo o verifica tu conexión.",
+        content: `❌ ${error instanceof Error ? error.message : "Lo siento, hubo un error al procesar tu mensaje. Por favor intenta de nuevo o verifica tu conexión."}\n\n💡 Si el error menciona "API key", necesitas crear un archivo .env.local con tu clave de Gemini. Consulta CONFIGURACION_API.md para más detalles.`,
         isUser: false,
         timestamp: new Date(),
       }
@@ -158,6 +158,15 @@ export default function ChatInterface() {
     return (
       <div className="max-w-4xl mx-auto">
         <div className="space-y-6">
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <MessageCircle className="h-6 w-6 text-blue-600" />
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Asistente Nutricional</h2>
+            </div>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
+              Consejos personalizados basados en tu perfil, objetivos y progreso de entrenamiento
+            </p>
+          </div>
           <div className="text-center py-8">
             <div className="text-gray-500">Cargando chat nutricional...</div>
           </div>

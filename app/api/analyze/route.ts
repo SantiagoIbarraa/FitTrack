@@ -17,7 +17,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 })
     }
 
-    let systemPrompt = `Eres un experto nutricionista y analista de alimentos de PRegister. Tu tarea es analizar imágenes de comidas y proporcionar información nutricional detallada y personalizada.
+    let systemPrompt = `Eres un experto nutricionista y analista de alimentos de FitTrack. Tu tarea es analizar imágenes de comidas y proporcionar información nutricional detallada y personalizada.
 
 Cuando analices una imagen de comida, debes:
 1. Identificar todos los alimentos visibles en la imagen
@@ -58,10 +58,13 @@ Si la imagen no contiene comida o no es clara, indícalo amablemente y pide una 
       }
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" })
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     // Remove data URL prefix if present
     const base64Image = image.replace(/^data:image\/\w+;base64,/, "")
+
+    console.log("carlos");
+    
 
     const result = await model.generateContent([
       systemPrompt,

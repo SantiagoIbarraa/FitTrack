@@ -6,9 +6,10 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 import { updateUserRole } from "@/lib/admin-actions"
 import { useToast } from "@/hooks/use-toast"
-import { Users, Shield, MessageSquare } from "lucide-react"
+import { Users, Shield, MessageSquare, Search } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Info } from "lucide-react"
 
@@ -29,6 +30,7 @@ interface AdminDashboardProps {
 export function AdminDashboard({ users: initialUsers }: AdminDashboardProps) {
   const [users, setUsers] = useState(initialUsers)
   const [loading, setLoading] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
   const { toast } = useToast()
 
   const handleRoleChange = async (userId: string, role: string) => {
@@ -106,6 +108,11 @@ export function AdminDashboard({ users: initialUsers }: AdminDashboardProps) {
     admins: users.filter((u) => u.role === "admin").length,
   }
 
+  const filteredUsers = users.filter((user) => {
+    const query = searchQuery.toLowerCase()
+    return user.full_name.toLowerCase().includes(query) || user.email.toLowerCase().includes(query)
+  })
+
   return (
     <div className="space-y-6">
       <Alert>
@@ -160,78 +167,102 @@ export function AdminDashboard({ users: initialUsers }: AdminDashboardProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="mb-6">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Buscar por nombre o email..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            {searchQuery && (
+              <p className="text-sm text-muted-foreground mt-2">
+                Mostrando {filteredUsers.length} de {users.length} usuarios
+              </p>
+            )}
+          </div>
+
           <div className="space-y-4">
-            {users.map((user) => {
-              const isVisibleInMessaging = user.is_professional && user.is_active
+            {filteredUsers.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No se encontraron usuarios que coincidan con "{searchQuery}"
+              </div>
+            ) : (
+              filteredUsers.map((user) => {
+                const isVisibleInMessaging = user.is_professional && user.is_active
 
-              return (
-                <div
-                  key={user.id}
-                  className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 border rounded-lg bg-white dark:bg-gray-800"
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <p className="font-medium text-gray-900 dark:text-white truncate">{user.full_name}</p>
-                      <Badge variant={user.role === "admin" ? "default" : "outline"}>
-                        {user.role === "admin" ? "Admin" : "Usuario"}
-                      </Badge>
-                      {isVisibleInMessaging && (
-                        <Badge variant="default" className="bg-green-600 hover:bg-green-700">
-                          <MessageSquare className="h-3 w-3 mr-1" />
-                          Visible en mensajería
+                return (
+                  <div
+                    key={user.id}
+                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 border rounded-lg bg-white dark:bg-gray-800"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <p className="font-medium text-gray-900 dark:text-white truncate">{user.full_name}</p>
+                        <Badge variant={user.role === "admin" ? "default" : "outline"}>
+                          {user.role === "admin" ? "Admin" : "Usuario"}
                         </Badge>
-                      )}
+                        {isVisibleInMessaging && (
+                          <Badge variant="default" className="bg-green-600 hover:bg-green-700">
+                            <MessageSquare className="h-3 w-3 mr-1" />
+                            Visible en mensajería
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 truncate">{user.email}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                        Registrado: {new Date(user.created_at).toLocaleDateString()}
+                      </p>
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 truncate">{user.email}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                      Registrado: {new Date(user.created_at).toLocaleDateString()}
-                    </p>
+
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
+                      <div className="w-full sm:w-32">
+                        <Select
+                          value={user.role}
+                          onValueChange={(value) => handleRoleChange(user.id, value)}
+                          disabled={loading === user.id}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="user">Usuario</SelectItem>
+                            <SelectItem value="admin">Admin</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id={`professional-${user.id}`}
+                          checked={user.is_professional}
+                          onCheckedChange={(checked) => handleProfessionalChange(user.id, checked)}
+                          disabled={loading === user.id}
+                        />
+                        <Label htmlFor={`professional-${user.id}`} className="text-sm whitespace-nowrap">
+                          Profesional
+                        </Label>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id={`active-${user.id}`}
+                          checked={user.is_active}
+                          onCheckedChange={(checked) => handleActiveChange(user.id, checked)}
+                          disabled={loading === user.id}
+                        />
+                        <Label htmlFor={`active-${user.id}`} className="text-sm">
+                          {user.is_active ? "Activo" : "Inactivo"}
+                        </Label>
+                      </div>
+                    </div>
                   </div>
-
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
-                    <div className="w-full sm:w-32">
-                      <Select
-                        value={user.role}
-                        onValueChange={(value) => handleRoleChange(user.id, value)}
-                        disabled={loading === user.id}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="user">Usuario</SelectItem>
-                          <SelectItem value="admin">Admin</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id={`professional-${user.id}`}
-                        checked={user.is_professional}
-                        onCheckedChange={(checked) => handleProfessionalChange(user.id, checked)}
-                        disabled={loading === user.id}
-                      />
-                      <Label htmlFor={`professional-${user.id}`} className="text-sm whitespace-nowrap">
-                        Profesional
-                      </Label>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id={`active-${user.id}`}
-                        checked={user.is_active}
-                        onCheckedChange={(checked) => handleActiveChange(user.id, checked)}
-                        disabled={loading === user.id}
-                      />
-                      <Label htmlFor={`active-${user.id}`} className="text-sm">
-                        {user.is_active ? "Activo" : "Inactivo"}
-                      </Label>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
+                )
+              })
+            )}
           </div>
         </CardContent>
       </Card>

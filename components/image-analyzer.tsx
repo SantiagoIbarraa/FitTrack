@@ -24,11 +24,13 @@ export default function ImageAnalyzer() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [analysis, setAnalysis] = useState<string | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [isClient, setIsClient] = useState(false)
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
+    setIsClient(true)
     loadUserProfile()
   }, [])
 
@@ -96,13 +98,13 @@ export default function ImageAnalyzer() {
         }),
       })
 
-      const data = await response.json()
+      const data: { error: string; analysis: string } = await response.json();
 
       if (data.error) {
         throw new Error(data.error)
       }
 
-      setAnalysis(data.analysis)
+      setAnalysis(data.analysis.replaceAll("**", ""))
     } catch (error) {
       console.error("Error analyzing image:", error)
       setAnalysis("Lo siento, hubo un error al analizar la imagen. Por favor intenta de nuevo o verifica tu conexión.")
@@ -116,6 +118,26 @@ export default function ImageAnalyzer() {
     setAnalysis(null)
     if (fileInputRef.current) fileInputRef.current.value = ""
     if (cameraInputRef.current) cameraInputRef.current.value = ""
+  }
+
+  if (!isClient) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* Header Section */}
+        <div className="text-center">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Sparkles className="h-6 w-6 text-purple-600" />
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Análisis Nutricional con IA</h2>
+          </div>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
+            Toma una foto de tu comida y obtén un análisis nutricional detallado al instante
+          </p>
+        </div>
+        <div className="text-center py-8">
+          <div className="text-gray-500">Cargando analizador de imágenes...</div>
+        </div>
+      </div>
+    )
   }
 
   return (

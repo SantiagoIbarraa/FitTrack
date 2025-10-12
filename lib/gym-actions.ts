@@ -7,6 +7,7 @@ export async function createWorkout(prevState: any, formData: FormData) {
   const exercise_name = formData.get("exercise_name")?.toString()
   const weight_kg = formData.get("weight_kg")?.toString()
   const repetitions = formData.get("repetitions")?.toString()
+  const sets = formData.get("sets")?.toString()
   const image_url = formData.get("image_url")?.toString()
 
   if (!exercise_name) {
@@ -26,8 +27,9 @@ export async function createWorkout(prevState: any, formData: FormData) {
     const insertData = {
       user_id: user.id,
       exercise_name,
-      weight_kg: weight_kg && weight_kg.trim() !== "" ? Number.parseFloat(weight_kg) : null,
-      repetitions: repetitions && repetitions.trim() !== "" ? Number.parseInt(repetitions) : null,
+      weight_kg: weight_kg && weight_kg.trim() !== "" ? Math.max(0, Number.parseFloat(weight_kg)) : null,
+      repetitions: repetitions && repetitions.trim() !== "" ? Math.max(1, Number.parseInt(repetitions)) : null,
+      sets: sets && sets.trim() !== "" ? Math.max(1, Number.parseInt(sets)) : null,
       image_url: image_url && image_url.trim() !== "" ? image_url.trim() : null,
     }
 
@@ -51,6 +53,7 @@ export async function updateWorkout(prevState: any, formData: FormData) {
   const exercise_name = formData.get("exercise_name")?.toString()
   const weight_kg = formData.get("weight_kg")?.toString()
   const repetitions = formData.get("repetitions")?.toString()
+  const sets = formData.get("sets")?.toString()
   const image_url = formData.get("image_url")?.toString()
 
   if (!id || !exercise_name) {
@@ -71,8 +74,9 @@ export async function updateWorkout(prevState: any, formData: FormData) {
       .from("gym_workouts")
       .update({
         exercise_name,
-        weight_kg: weight_kg && weight_kg.trim() !== "" ? Number.parseFloat(weight_kg) : null,
-        repetitions: repetitions && repetitions.trim() !== "" ? Number.parseInt(repetitions) : null,
+        weight_kg: weight_kg && weight_kg.trim() !== "" ? Math.max(0, Number.parseFloat(weight_kg)) : null,
+        repetitions: repetitions && repetitions.trim() !== "" ? Math.max(1, Number.parseInt(repetitions)) : null,
+        sets: sets && sets.trim() !== "" ? Math.max(1, Number.parseInt(sets)) : null,
         image_url: image_url && image_url.trim() !== "" ? image_url.trim() : null,
       })
       .eq("id", id)

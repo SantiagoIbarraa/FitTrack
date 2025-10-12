@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server"
 
 export async function createRoutine(prevState: any, formData: FormData) {
   console.log("createRoutine called with:", { prevState, formData })
-  
+
   const name = formData.get("name")?.toString()
   const description = formData.get("description")?.toString() || ""
 
@@ -19,10 +19,10 @@ export async function createRoutine(prevState: any, formData: FormData) {
   try {
     const supabase = await createClient()
     console.log("Supabase client created successfully")
-    
+
     const {
       data: { user },
-      error: userError
+      error: userError,
     } = await supabase.auth.getUser()
 
     if (userError) {
@@ -38,10 +38,7 @@ export async function createRoutine(prevState: any, formData: FormData) {
     console.log("User authenticated:", { userId: user.id, email: user.email })
 
     // Verificar que la tabla routines existe
-    const { data: tableCheck, error: tableError } = await supabase
-      .from("routines")
-      .select("id")
-      .limit(1)
+    const { data: tableCheck, error: tableError } = await supabase.from("routines").select("id").limit(1)
 
     if (tableError) {
       console.error("Table check error:", tableError)
@@ -182,12 +179,16 @@ export async function addExerciseToRoutine(routineId: string, exerciseData: any)
 
     const nextOrderIndex = maxOrderData && maxOrderData.length > 0 ? maxOrderData[0].order_index + 1 : 0
 
+    const sets = Math.max(1, Number.parseInt(exerciseData.sets) || 1)
+    const repetitions = Math.max(1, Number.parseInt(exerciseData.repetitions) || 1)
+    const weight = Math.max(0, Number.parseFloat(exerciseData.weight) || 0)
+
     const { error } = await supabase.from("routine_exercises").insert({
       routine_id: routineId,
       exercise_name: exerciseData.exercise_name,
-      weight: exerciseData.weight_kg || 0,
-      repetitions: exerciseData.repetitions || 0,
-      sets: exerciseData.sets || 0,
+      weight: weight,
+      repetitions: repetitions,
+      sets: sets,
       image_url: exerciseData.image_url || null,
       order_index: nextOrderIndex,
     })
@@ -216,26 +217,37 @@ export async function updateExerciseInRoutine(exerciseId: string, exerciseData: 
   }
 
   try {
-    const { error } = await supabase
-      .from("routine_exercises")
-      .update({
-        exercise_name: exerciseData.exercise_name,
-        weight: exerciseData.weight_kg || 0,
-        repetitions: exerciseData.repetitions || 0,
-        sets: exerciseData.sets || 0,
-        image_url: exerciseData.image_url || null,
-      })
-      .eq("id", exerciseId)
+    console.log("[v0] updateExerciseInRoutine called with:", { exerciseId, exerciseData })
+
+    const sets = Math.max(1, Number.parseInt(exerciseData.sets) || 1)
+    const repetitions = Math.max(1, Number.parseInt(exerciseData.repetitions) || 1)
+    const weight = Math.max(0, Number.parseFloat(exerciseData.weight) || 0)
+
+    console.log("[v0] Parsed values:", { sets, repetitions, weight })
+
+    const updateData = {
+      exercise_name: exerciseData.exercise_name,
+      weight: weight,
+      repetitions: repetitions,
+      sets: sets,
+      image_url: exerciseData.image_url || null,
+    }
+
+    console.log("[v0] Update data being sent to database:", updateData)
+
+    const { data, error } = await supabase.from("routine_exercises").update(updateData).eq("id", exerciseId).select()
 
     if (error) {
-      console.error("Database error:", error)
+      console.error("[v0] Database error:", error)
       return { error: "Error al actualizar ejercicio" }
     }
+
+    console.log("[v0] Update successful, data returned:", data)
 
     revalidatePath("/gym")
     return { success: true }
   } catch (error) {
-    console.error("Error:", error)
+    console.error("[v0] Unexpected error:", error)
     return { error: "Error al actualizar ejercicio" }
   }
 }

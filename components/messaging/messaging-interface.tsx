@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { getActiveProfessionals, getMessages, sendMessage } from "@/lib/messaging-actions"
+import { getAvailableContacts, getMessages, sendMessage } from "@/lib/messaging-actions"
 import { useToast } from "@/hooks/use-toast"
 import { Send, MessageSquare } from "lucide-react"
 
@@ -50,7 +50,10 @@ export function MessagingInterface({ userId }: MessagingInterfaceProps) {
   }, [selectedProfessional])
 
   const loadProfessionals = async () => {
-    const result = await getActiveProfessionals()
+    console.log("[v0] Loading professionals...")
+    const result = await getAvailableContacts()
+    console.log("[v0] getAvailableContacts result:", result)
+
     if (result.error) {
       toast({
         title: "Error",
@@ -58,6 +61,7 @@ export function MessagingInterface({ userId }: MessagingInterfaceProps) {
         variant: "destructive",
       })
     } else {
+      console.log("[v0] Setting professionals:", result.professionals)
       setProfessionals(result.professionals || [])
     }
   }
@@ -101,7 +105,7 @@ export function MessagingInterface({ userId }: MessagingInterfaceProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <MessageSquare className="h-5 w-5" />
-            Profesionales
+            Contactos
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -109,7 +113,7 @@ export function MessagingInterface({ userId }: MessagingInterfaceProps) {
             <div className="space-y-2">
               {professionals.length === 0 ? (
                 <p className="text-sm text-gray-600 dark:text-gray-400 text-center py-8">
-                  No hay profesionales disponibles
+                  No hay contactos disponibles
                 </p>
               ) : (
                 professionals.map((prof) => (
@@ -141,7 +145,7 @@ export function MessagingInterface({ userId }: MessagingInterfaceProps) {
       <Card className="md:col-span-2">
         <CardHeader>
           <CardTitle>
-            {selectedProfessional ? `Chat con ${selectedProfessional.full_name}` : "Selecciona un profesional"}
+            {selectedProfessional ? `Chat con ${selectedProfessional.full_name}` : "Selecciona un contacto"}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -188,7 +192,7 @@ export function MessagingInterface({ userId }: MessagingInterfaceProps) {
             <div className="h-[500px] flex items-center justify-center text-gray-600 dark:text-gray-400">
               <div className="text-center">
                 <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Selecciona un profesional para comenzar a chatear</p>
+                <p>Selecciona un contacto para comenzar a chatear</p>
               </div>
             </div>
           )}
