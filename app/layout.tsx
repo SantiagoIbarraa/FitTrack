@@ -1,13 +1,12 @@
-import type { Metadata } from 'next'
-import { GeistSans } from 'geist/font/sans'
-import { GeistMono } from 'geist/font/mono'
-import { ThemeProvider } from '@/components/theme-provider'
-import './globals.css'
+import type React from "react"
+import type { Metadata } from "next"
+import { ThemeProvider } from "@/components/theme-provider"
+import "./globals.css"
 
 export const metadata: Metadata = {
-  title: 'FitTrack - Tu Asistente de Fitness',
-  description: 'Aplicación completa para seguimiento de fitness, nutrición y salud',
-  generator: 'Next.js',
+  title: "FitTrack",
+  description: "Track your fitness journey",
+  generator: "v0.app",
 }
 
 export default function RootLayout({
@@ -16,23 +15,9 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" suppressHydrationWarning>
-      <head>
-        <style>{`
-html {
-  font-family: ${GeistSans.style.fontFamily};
-  --font-sans: ${GeistSans.variable};
-  --font-mono: ${GeistMono.variable};
-}
-        `}</style>
-      </head>
-      <body suppressHydrationWarning>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           {children}
         </ThemeProvider>
       </body>

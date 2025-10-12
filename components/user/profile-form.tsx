@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { User, Loader2, Edit, Camera } from "lucide-react"
+import { User, Loader2, Edit, Camera, Shield } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { updateUserProfile, getUserProfile, uploadProfilePhoto } from "@/lib/user-actions"
+import { getCurrentUserRole } from "@/lib/admin-actions"
 import { useActionState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 
 interface UserProfile {
   id: string
@@ -30,6 +32,11 @@ export default function ProfileForm() {
   const [state, formAction] = useActionState(updateUserProfile, null)
   const [isOpen, setIsOpen] = useState(false)
   const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [userRole, setUserRole] = useState<{ role: string; is_active: boolean; is_professional: boolean }>({
+    role: "user",
+    is_active: true,
+    is_professional: false,
+  })
   const [loading, setLoading] = useState(true)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
@@ -38,8 +45,9 @@ export default function ProfileForm() {
   useEffect(() => {
     const loadProfile = async () => {
       try {
-        const userProfile = await getUserProfile()
+        const [userProfile, roleData] = await Promise.all([getUserProfile(), getCurrentUserRole()])
         setProfile(userProfile)
+        setUserRole(roleData)
         if (userProfile?.profilePhotoUrl) {
           setPhotoPreview(userProfile.profilePhotoUrl)
         }
@@ -53,32 +61,27 @@ export default function ProfileForm() {
     loadProfile()
   }, [])
 
-  const handleSubmit = async (formData: FormData) => {
-    if (photoPreview && photoPreview !== profile?.profilePhotoUrl) {
-      formData.append("profilePhotoUrl", photoPreview)
-    }
-
-    const result = await formAction(formData)
-    if (result?.success) {
+  useEffect(() => {
+    if (state?.success) {
       setIsOpen(false)
-      // Reload profile data
-      const userProfile = await getUserProfile()
-      setProfile(userProfile)
+      getUserProfile().then((userProfile) => {
+        if (userProfile) {
+          setProfile(userProfile)
+        }
+      })
     }
-  }
+  }, [state])
 
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    // Show preview immediately
     const reader = new FileReader()
     reader.onloadend = () => {
       setPhotoPreview(reader.result as string)
     }
     reader.readAsDataURL(file)
 
-    // Upload to server
     setUploadingPhoto(true)
     const formData = new FormData()
     formData.append("file", file)
@@ -87,12 +90,10 @@ export default function ProfileForm() {
       const result = await uploadProfilePhoto(formData)
       if (result.success && result.photoUrl) {
         setPhotoPreview(result.photoUrl)
-        // Reload profile
         const userProfile = await getUserProfile()
         setProfile(userProfile)
       } else if (result.error) {
         alert(result.error)
-        // Reset preview on error
         setPhotoPreview(profile?.profilePhotoUrl || null)
       }
     } catch (error) {
@@ -102,6 +103,21 @@ export default function ProfileForm() {
     } finally {
       setUploadingPhoto(false)
     }
+  }
+
+  const getRoleBadge = (role: string, isProfessional: boolean) => {
+    if (role === "admin") {
+      return (
+        <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+          <Shield className="h-3 w-3 mr-1" />
+          Administrador
+        </Badge>
+      )
+    }
+    if (isProfessional) {
+      return <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">Profesional</Badge>
+    }
+    return <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">Usuario</Badge>
   }
 
   if (loading) {
@@ -156,6 +172,27 @@ export default function ProfileForm() {
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Email</Label>
               <p className="text-lg text-gray-900 dark:text-white">{profile.email}</p>
             </div>
+            <div>
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Rol</Label>
+              <div className="mt-1 flex items-center gap-2">
+                {getRoleBadge(userRole.role, userRole.is_professional)}
+                {userRole.is_professional && !userRole.is_active && (
+                  <Badge variant="outline" className="text-yellow-600 border-yellow-600">
+                    Inactivo
+                  </Badge>
+                )}
+              </div>
+              {userRole.is_professional && userRole.is_active && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Tienes acceso al sistema de mensajería profesional
+                </p>
+              )}
+              {!userRole.is_professional && userRole.role !== "admin" && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Contacta al administrador para solicitar acceso como profesional
+                </p>
+              )}
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Peso</Label>
@@ -184,6 +221,7 @@ export default function ProfileForm() {
                 <p className="text-lg text-gray-900 dark:text-white capitalize">{profile.sex}</p>
               </div>
             )}
+
             <Button onClick={() => setIsOpen(true)} className="w-full bg-blue-600 hover:bg-blue-700">
               <Edit className="h-4 w-4 mr-2" />
               Editar Perfil
@@ -206,7 +244,7 @@ export default function ProfileForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form action={handleSubmit} className="space-y-4">
+        <form action={formAction} className="space-y-4">
           {state?.error && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded text-sm">
               {state.error}
@@ -250,6 +288,10 @@ export default function ProfileForm() {
             </Button>
             <p className="text-xs text-gray-500 dark:text-gray-400">Opcional - Máximo 5MB</p>
           </div>
+
+          {photoPreview && photoPreview !== profile?.profilePhotoUrl && (
+            <input type="hidden" name="profilePhotoUrl" value={photoPreview} />
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">

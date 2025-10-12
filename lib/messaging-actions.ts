@@ -2,192 +2,146 @@
 
 import { createClient } from "@/lib/supabase/server"
 
-export interface Conversation {
-  id: string
-  user_id: string
-  professional_id: string
-  created_at: string
-  updated_at: string
-  professional_name?: string
-  user_name?: string
-  last_message?: string
-  unread_count?: number
+export async function sendMessage(receiverId: string, content: string) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: "No autenticado" }
+  }
+
+  // Create or update conversation
+  const { error: convError } = await supabase.from("conversations").upsert(
+    {
+      user1_id: user.id < receiverId ? user.id : receiverId,
+      user2_id: user.id < receiverId ? receiverId : user.id,
+      last_message_at: new Date().toISOString(),
+    },
+    {
+      onConflict: "user1_id,user2_id",
+    },
+  )
+
+  if (convError) {
+    console.error("Error creating conversation:", convError)
+  }
+
+  // Send message
+  const { error } = await supabase.from("messages").insert({
+    sender_id: user.id,
+    receiver_id: receiverId,
+    content,
+  })
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  return { success: true }
 }
 
-export interface Message {
-  id: string
-  conversation_id: string
-  sender_id: string
-  content: string
-  is_read: boolean
-  created_at: string
-}
+export async function getMessages(otherUserId: string) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-export async function getConversations(): Promise<Conversation[]> {
-  try {
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: "No autenticado" }
+  }
 
-    if (!user) return []
-
-    const { data, error } = await supabase
-      .from("conversations")
-      .select("*")
-      .or(`user_id.eq.${user.id},professional_id.eq.${user.id}`)
-      .order("updated_at", { ascending: false })
-
-    if (error) throw error
-
-    const conversationsWithDetails = await Promise.all(
-      (data || []).map(async (conv) => {
-        const otherId = conv.user_id === user.id ? conv.professional_id : conv.user_id
-
-        const { data: otherUser } = await supabase.auth.admin.getUserById(otherId)
-
-        const { data: lastMessage } = await supabase
-          .from("messages")
-          .select("content, created_at")
-          .eq("conversation_id", conv.id)
-          .order("created_at", { ascending: false })
-          .limit(1)
-          .maybeSingle()
-
-        const { count: unreadCount } = await supabase
-          .from("messages")
-          .select("*", { count: "exact", head: true })
-          .eq("conversation_id", conv.id)
-          .eq("is_read", false)
-          .neq("sender_id", user.id)
-
-        return {
-          ...conv,
-          other_user_name: otherUser?.user?.email || "Usuario",
-          last_message: lastMessage?.content || "Sin mensajes",
-          unread_count: unreadCount || 0,
-        }
-      })
+  const { data, error } = await supabase
+    .from("messages")
+    .select("*")
+    .or(
+      `and(sender_id.eq.${user.id},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${user.id})`,
     )
+    .order("created_at", { ascending: true })
 
-    return conversationsWithDetails
-  } catch (error) {
-    console.error("Error getting conversations:", error)
-    return []
+  if (error) {
+    return { error: error.message }
   }
+
+  return { messages: data }
 }
 
-export async function getOrCreateConversation(professionalId: string): Promise<string | null> {
-  try {
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+export async function getConversations() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-    if (!user) return null
-
-    const { data: existing, error: existingError } = await supabase
-      .from("conversations")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("professional_id", professionalId)
-      .maybeSingle()
-
-    if (existingError) throw existingError
-
-    if (existing) {
-      return existing.id
-    }
-
-    const { data: newConv, error: newError } = await supabase
-      .from("conversations")
-      .insert({
-        user_id: user.id,
-        professional_id: professionalId,
-      })
-      .select("id")
-      .single()
-
-    if (newError) throw newError
-
-    return newConv.id
-  } catch (error) {
-    console.error("Error creating conversation:", error)
-    return null
+  if (!user) {
+    return { error: "No autenticado" }
   }
+
+  const { data, error } = await supabase
+    .from("conversations")
+    .select("*")
+    .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
+    .order("last_message_at", { ascending: false })
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  return { conversations: data }
 }
 
-export async function getMessages(conversationId: string): Promise<Message[]> {
-  try {
-    const supabase = await createClient()
+export async function markMessageAsRead(messageId: string) {
+  const supabase = await createClient()
 
-    const { data, error } = await supabase
-      .from("messages")
-      .select("*")
-      .eq("conversation_id", conversationId)
-      .order("created_at", { ascending: true })
+  const { error } = await supabase.from("messages").update({ read: true }).eq("id", messageId)
 
-    if (error) throw error
-
-    return data || []
-  } catch (error) {
-    console.error("Error getting messages:", error)
-    return []
+  if (error) {
+    return { error: error.message }
   }
+
+  return { success: true }
 }
 
-export async function sendMessage(
-  conversationId: string,
-  content: string
-): Promise<{ success: boolean; error?: string }> {
-  try {
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+export async function getActiveProfessionals() {
+  const supabase = await createClient()
 
-    if (!user) {
-      return { success: false, error: "No autenticado" }
-    }
+  const { data: professionalRoles, error } = await supabase
+    .from("user_roles")
+    .select("user_id")
+    .eq("is_professional", true)
+    .eq("is_active", true)
 
-    const { error: messageError } = await supabase.from("messages").insert({
-      conversation_id: conversationId,
-      sender_id: user.id,
-      content,
-    })
-
-    if (messageError) throw messageError
-
-    const { error: updateError } = await supabase
-      .from("conversations")
-      .update({ updated_at: new Date().toISOString() })
-      .eq("id", conversationId)
-
-    if (updateError) throw updateError
-
-    return { success: true }
-  } catch (error) {
-    console.error("Error sending message:", error)
-    return { success: false, error: "Error al enviar mensaje" }
+  if (error) {
+    console.error("[v0] Error fetching professionals:", error)
+    return { error: error.message }
   }
-}
 
-export async function markMessagesAsRead(conversationId: string): Promise<void> {
-  try {
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) return
-
-    await supabase
-      .from("messages")
-      .update({ is_read: true })
-      .eq("conversation_id", conversationId)
-      .neq("sender_id", user.id)
-      .eq("is_read", false)
-  } catch (error) {
-    console.error("Error marking messages as read:", error)
+  if (!professionalRoles || professionalRoles.length === 0) {
+    return { professionals: [] }
   }
+
+  // Try to get user details from the function first
+  const { data: allUsers } = await supabase.rpc("get_all_users_with_roles")
+
+  if (allUsers) {
+    // Filter to only professionals
+    const professionals = allUsers
+      .filter((user: any) => user.is_professional && user.is_active)
+      .map((user: any) => ({
+        id: user.id,
+        email: user.email,
+        full_name: user.full_name,
+      }))
+
+    return { professionals }
+  }
+
+  // Fallback: return limited info
+  const professionals = professionalRoles.map((role) => ({
+    id: role.user_id,
+    email: `Profesional ${role.user_id.substring(0, 8)}...`,
+    full_name: "Profesional",
+  }))
+
+  return { professionals }
 }

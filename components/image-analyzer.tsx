@@ -96,13 +96,13 @@ export default function ImageAnalyzer() {
         }),
       })
 
-      const data: { error: string; analysis: string } = await response.json();
+      const data = await response.json()
 
       if (data.error) {
         throw new Error(data.error)
       }
 
-      setAnalysis(data.analysis.replaceAll("**", ""))
+      setAnalysis(data.analysis)
     } catch (error) {
       console.error("Error analyzing image:", error)
       setAnalysis("Lo siento, hubo un error al analizar la imagen. Por favor intenta de nuevo o verifica tu conexión.")

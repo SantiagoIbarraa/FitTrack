@@ -1,5 +1,17 @@
 import Link from "next/link"
-import { Dumbbell, LogOut, User, Settings, Footprints, Utensils, BarChart3, Database } from "lucide-react"
+import {
+  Dumbbell,
+  LogOut,
+  User,
+  Settings,
+  Footprints,
+  Utensils,
+  BarChart3,
+  Database,
+  MessageSquare,
+  Shield,
+  Accessibility,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import QuickStats from "@/components/dashboard/quick-stats"
@@ -8,6 +20,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { signOut } from "@/lib/auth-actions"
+import { isAdmin } from "@/lib/admin-actions"
 
 export default async function Home() {
   const supabase = await createClient()
@@ -18,6 +31,8 @@ export default async function Home() {
   if (!user) {
     redirect("/welcome")
   }
+
+  const admin = await isAdmin()
 
   // Get user data from user_metadata (stored during registration)
   const userMetadata = user.user_metadata
@@ -133,6 +148,44 @@ export default async function Home() {
                 </CardHeader>
               </Card>
             </Link>
+
+            <Link href="/messages" className="group">
+              <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                <CardHeader className="text-center">
+                  <MessageSquare className="h-12 w-12 mx-auto mb-4 text-teal-600 group-hover:scale-110 transition-transform" />
+                  <CardTitle className="text-gray-900 dark:text-white">Mensajes</CardTitle>
+                  <CardDescription className="text-gray-700 dark:text-gray-50">
+                    Comunícate con profesionales
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
+
+            <Link href="/accessibility" className="group">
+              <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                <CardHeader className="text-center">
+                  <Accessibility className="h-12 w-12 mx-auto mb-4 text-pink-600 group-hover:scale-110 transition-transform" />
+                  <CardTitle className="text-gray-900 dark:text-white">Accesibilidad</CardTitle>
+                  <CardDescription className="text-gray-700 dark:text-gray-50">
+                    Personaliza tu experiencia
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
+
+            {admin && (
+              <Link href="/admin" className="group">
+                <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                  <CardHeader className="text-center">
+                    <Shield className="h-12 w-12 mx-auto mb-4 text-purple-600 group-hover:scale-110 transition-transform" />
+                    <CardTitle className="text-gray-900 dark:text-white">Administración</CardTitle>
+                    <CardDescription className="text-gray-700 dark:text-gray-50">
+                      Panel de administrador
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
+              </Link>
+            )}
 
             <Link href="/profile" className="group">
               <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
