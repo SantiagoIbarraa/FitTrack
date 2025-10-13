@@ -1,98 +1,140 @@
-import Link from "next/link"
-import { Dumbbell, LogIn, UserPlus } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { createClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
-
-export default async function WelcomePage() {
-  // Check if user is already logged in
-  const supabase = await createClient()
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-
-  // If user is logged in, redirect to home page
-  if (session) {
-    redirect("/")
-  }
-
+export default function WelcomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-indigo-900 flex items-center justify-center px-4">
-      <div className="w-full max-w-4xl">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="flex justify-center mb-6">
-            <div className="bg-orange-600 p-4 rounded-full">
-              <Dumbbell className="h-16 w-16 text-white" />
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(to bottom right, #1a202c, #2563eb, #4f46e5)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "1rem",
+      }}
+    >
+      <div style={{ maxWidth: "64rem", width: "100%" }}>
+        <div style={{ textAlign: "center", marginBottom: "3rem" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginBottom: "1.5rem",
+            }}
+          >
+            <div
+              style={{
+                background: "#ea580c",
+                padding: "1rem",
+                borderRadius: "9999px",
+              }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="64"
+                height="64"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="m6.5 6.5 11 11" />
+                <path d="m21 21-1-1" />
+                <path d="m3 3 1 1" />
+                <path d="m18 22 4-4" />
+                <path d="m2 6 4-4" />
+                <path d="m3 10 7-7" />
+                <path d="m14 21 7-7" />
+              </svg>
             </div>
           </div>
-          <h1 className="text-6xl font-bold text-white mb-4">FitTrack</h1>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+          <h1
+            style={{
+              fontSize: "3.75rem",
+              fontWeight: "bold",
+              color: "white",
+              marginBottom: "1rem",
+            }}
+          >
+            FitTrack
+          </h1>
+          <p
+            style={{
+              fontSize: "1.25rem",
+              color: "#d1d5db",
+              maxWidth: "42rem",
+              margin: "0 auto",
+            }}
+          >
             Tu aplicación integral de seguimiento fitness. Registra entrenamientos, sesiones de running y obtén consejos
             nutricionales personalizados.
           </p>
         </div>
 
-        {/* Action Cards */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
-          {/* Login Card */}
-          <Card className="bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-all">
-            <CardHeader className="text-center">
-              <LogIn className="h-12 w-12 text-blue-400 mx-auto mb-4" />
-              <CardTitle className="text-2xl text-white">Iniciar Sesión</CardTitle>
-              <CardDescription className="text-gray-400">
-                ¿Ya tienes una cuenta? Inicia sesión para continuar
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button asChild className="w-full bg-blue-600 hover:bg-blue-700 text-white py-6 text-lg" size="lg">
-                <Link href="/auth/login">
-                  <LogIn className="mr-2 h-5 w-5" />
-                  Iniciar Sesión
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Register Card */}
-          <Card className="bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-all">
-            <CardHeader className="text-center">
-              <UserPlus className="h-12 w-12 text-orange-400 mx-auto mb-4" />
-              <CardTitle className="text-2xl text-white">Crear Cuenta</CardTitle>
-              <CardDescription className="text-gray-400">¿Nuevo en FitTrack? Crea tu cuenta gratuita</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button asChild className="w-full bg-orange-600 hover:bg-orange-700 text-white py-6 text-lg" size="lg">
-                <Link href="/auth/register">
-                  <UserPlus className="mr-2 h-5 w-5" />
-                  Crear Cuenta
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Features */}
-        <div className="mt-16 grid md:grid-cols-3 gap-8 text-center">
-          <div className="text-white">
-            <Dumbbell className="h-8 w-8 text-blue-400 mx-auto mb-3" />
-            <h3 className="font-semibold mb-2">Gimnasio</h3>
-            <p className="text-gray-400 text-sm">Registra entrenamientos y rutinas personalizadas</p>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+            gap: "2rem",
+            maxWidth: "42rem",
+            margin: "0 auto",
+          }}
+        >
+          <div
+            style={{
+              background: "rgba(31, 41, 55, 0.5)",
+              border: "1px solid #374151",
+              borderRadius: "0.5rem",
+              padding: "1.5rem",
+              textAlign: "center",
+            }}
+          >
+            <h2 style={{ fontSize: "1.5rem", color: "white", marginBottom: "0.5rem" }}>Iniciar Sesión</h2>
+            <p style={{ color: "#9ca3af", marginBottom: "1rem" }}>
+              ¿Ya tienes una cuenta? Inicia sesión para continuar
+            </p>
+            <a
+              href="/auth/login"
+              style={{
+                display: "inline-block",
+                width: "100%",
+                background: "#2563eb",
+                color: "white",
+                padding: "0.75rem 1.5rem",
+                borderRadius: "0.375rem",
+                textDecoration: "none",
+                fontWeight: "500",
+              }}
+            >
+              Iniciar Sesión
+            </a>
           </div>
-          <div className="text-white">
-            <div className="h-8 w-8 bg-green-400 rounded-full mx-auto mb-3 flex items-center justify-center">
-              <span className="text-gray-900 font-bold text-sm">R</span>
-            </div>
-            <h3 className="font-semibold mb-2">Running</h3>
-            <p className="text-gray-400 text-sm">Seguimiento de distancia, tiempo y progreso</p>
-          </div>
-          <div className="text-white">
-            <div className="h-8 w-8 bg-orange-400 rounded-full mx-auto mb-3 flex items-center justify-center">
-              <span className="text-gray-900 font-bold text-sm">IA</span>
-            </div>
-            <h3 className="font-semibold mb-2">Nutrición IA</h3>
-            <p className="text-gray-400 text-sm">Consejos personalizados y cálculo de IMC</p>
+
+          <div
+            style={{
+              background: "rgba(31, 41, 55, 0.5)",
+              border: "1px solid #374151",
+              borderRadius: "0.5rem",
+              padding: "1.5rem",
+              textAlign: "center",
+            }}
+          >
+            <h2 style={{ fontSize: "1.5rem", color: "white", marginBottom: "0.5rem" }}>Crear Cuenta</h2>
+            <p style={{ color: "#9ca3af", marginBottom: "1rem" }}>¿Nuevo en FitTrack? Crea tu cuenta gratuita</p>
+            <a
+              href="/auth/register"
+              style={{
+                display: "inline-block",
+                width: "100%",
+                background: "#ea580c",
+                color: "white",
+                padding: "0.75rem 1.5rem",
+                borderRadius: "0.375rem",
+                textDecoration: "none",
+                fontWeight: "500",
+              }}
+            >
+              Crear Cuenta
+            </a>
           </div>
         </div>
       </div>

@@ -3,22 +3,38 @@
 import { createClient } from "@/lib/supabase/server"
 
 export async function isAdmin() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
 
-  if (!user) {
+    if (userError) {
+      console.error("[v0] Error getting user:", userError)
+      return false
+    }
+
+    if (!user) {
+      return false
+    }
+
+    const { data, error } = await supabase.from("user_roles").select("role").eq("user_id", user.id).maybeSingle()
+
+    if (error) {
+      console.error("[v0] Error checking admin role:", error)
+      return false
+    }
+
+    if (!data) {
+      return false
+    }
+
+    return data.role === "admin"
+  } catch (error) {
+    console.error("[v0] Exception in isAdmin:", error)
     return false
   }
-
-  const { data, error } = await supabase.from("user_roles").select("role").eq("user_id", user.id).maybeSingle()
-
-  if (error || !data) {
-    return false
-  }
-
-  return data.role === "admin"
 }
 
 export async function getAllUsers() {

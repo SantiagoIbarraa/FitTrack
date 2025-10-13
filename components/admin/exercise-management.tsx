@@ -10,8 +10,9 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Edit, Trash2, Dumbbell, Search } from "lucide-react"
-import { createGymExercise, updateGymExercise, deleteGymExercise } from "@/lib/exercise-actions"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Plus, Edit, Trash2, Dumbbell, Search, Upload, LinkIcon, X } from "lucide-react"
+import { createGymExercise, updateGymExercise, deleteGymExercise, uploadExerciseImage } from "@/lib/exercise-actions"
 import { useToast } from "@/hooks/use-toast"
 
 interface Exercise {
@@ -46,6 +47,9 @@ export function ExerciseManagement({ exercises: initialExercises }: ExerciseMana
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [filterCategory, setFilterCategory] = useState<string>("all")
+  const [imageMethod, setImageMethod] = useState<"url" | "upload">("url")
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
   const { toast } = useToast()
 
   const [formData, setFormData] = useState({
@@ -55,9 +59,71 @@ export function ExerciseManagement({ exercises: initialExercises }: ExerciseMana
     image_url: "",
   })
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Error",
+        description: "El archivo debe ser una imagen",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Error",
+        description: "El archivo no debe superar los 5MB",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setUploadingImage(true)
+
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+
+    const uploadFormData = new FormData()
+    uploadFormData.append("file", file)
+
+    const result = await uploadExerciseImage(uploadFormData)
+
+    if (result?.error) {
+      toast({
+        title: "Error",
+        description: result.error,
+        variant: "destructive",
+      })
+      setImagePreview(null)
+    } else if (result?.imageUrl) {
+      setFormData({ ...formData, image_url: result.imageUrl })
+      toast({
+        title: "Éxito",
+        description: "Imagen subida correctamente",
+      })
+    }
+
+    setUploadingImage(false)
+  }
+
+  const handleClearImage = () => {
+    setFormData({ ...formData, image_url: "" })
+    setImagePreview(null)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+
+    console.log("[v0] Form data before submission:", formData)
+    console.log("[v0] Image URL value:", formData.image_url)
+    console.log("[v0] Image URL length:", formData.image_url?.length || 0)
 
     const formDataObj = new FormData()
     formDataObj.append("name", formData.name)
@@ -65,12 +131,21 @@ export function ExerciseManagement({ exercises: initialExercises }: ExerciseMana
     formDataObj.append("description", formData.description)
     formDataObj.append("image_url", formData.image_url)
 
+    console.log("[v0] FormData contents:")
+    for (const [key, value] of formDataObj.entries()) {
+      console.log(`[v0]   ${key}:`, value)
+    }
+
     let result
     if (editingExercise) {
+      console.log("[v0] Updating exercise:", editingExercise.id)
       result = await updateGymExercise(editingExercise.id, formDataObj)
     } else {
+      console.log("[v0] Creating new exercise")
       result = await createGymExercise(null, formDataObj)
     }
+
+    console.log("[v0] Server action result:", result)
 
     if (result?.error) {
       toast({
@@ -79,15 +154,51 @@ export function ExerciseManagement({ exercises: initialExercises }: ExerciseMana
         variant: "destructive",
       })
     } else {
-      toast({
-        title: "Éxito",
-        description: editingExercise ? "Ejercicio actualizado" : "Ejercicio creado",
-      })
+      const savedImageUrl = result?.data?.image_url
+      console.log("[v0] Saved image URL from server:", savedImageUrl)
+
+      if (editingExercise) {
+        setExercises(
+          exercises.map((ex) =>
+            ex.id === editingExercise.id
+              ? {
+                  ...ex,
+                  name: formData.name,
+                  category: formData.category,
+                  description: formData.description,
+                  image_url: formData.image_url,
+                }
+              : ex,
+          ),
+        )
+        toast({
+          title: "Éxito",
+          description: savedImageUrl
+            ? `Ejercicio actualizado. Imagen guardada: ${savedImageUrl.substring(0, 50)}...`
+            : "Ejercicio actualizado correctamente.",
+        })
+      } else {
+        const newExercise: Exercise = {
+          id: result?.data?.id || crypto.randomUUID(),
+          name: formData.name,
+          category: formData.category,
+          description: formData.description,
+          image_url: formData.image_url,
+          created_at: new Date().toISOString(),
+        }
+        setExercises([...exercises, newExercise])
+        toast({
+          title: "Éxito",
+          description: savedImageUrl
+            ? `Ejercicio creado. Imagen guardada: ${savedImageUrl.substring(0, 50)}...`
+            : "Ejercicio creado correctamente.",
+        })
+      }
+
       setShowForm(false)
       setEditingExercise(null)
       setFormData({ name: "", category: "Pecho", description: "", image_url: "" })
-      // Refresh exercises list
-      window.location.reload()
+      setImagePreview(null)
     }
 
     setLoading(false)
@@ -101,6 +212,9 @@ export function ExerciseManagement({ exercises: initialExercises }: ExerciseMana
       description: exercise.description || "",
       image_url: exercise.image_url || "",
     })
+    if (exercise.image_url) {
+      setImagePreview(exercise.image_url)
+    }
     setShowForm(true)
   }
 
@@ -130,6 +244,7 @@ export function ExerciseManagement({ exercises: initialExercises }: ExerciseMana
     setShowForm(false)
     setEditingExercise(null)
     setFormData({ name: "", category: "Pecho", description: "", image_url: "" })
+    setImagePreview(null)
   }
 
   const filteredExercises = exercises.filter((exercise) => {
@@ -225,21 +340,87 @@ export function ExerciseManagement({ exercises: initialExercises }: ExerciseMana
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="image_url">URL de Imagen (opcional)</Label>
-                <Input
-                  id="image_url"
-                  type="url"
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  placeholder="https://ejemplo.com/imagen.jpg"
-                />
+                <Label>Imagen del Ejercicio (opcional)</Label>
+                <Tabs value={imageMethod} onValueChange={(v) => setImageMethod(v as "url" | "upload")}>
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="url">
+                      <LinkIcon className="h-4 w-4 mr-2" />
+                      URL de Imagen
+                    </TabsTrigger>
+                    <TabsTrigger value="upload">
+                      <Upload className="h-4 w-4 mr-2" />
+                      Subir Imagen
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="url" className="space-y-2">
+                    <Input
+                      id="image_url"
+                      type="url"
+                      value={formData.image_url}
+                      onChange={(e) => {
+                        setFormData({ ...formData, image_url: e.target.value })
+                        setImagePreview(e.target.value)
+                      }}
+                      placeholder="https://ejemplo.com/imagen.jpg"
+                    />
+                    <p className="text-sm text-muted-foreground">Ingresa la URL de una imagen externa</p>
+                  </TabsContent>
+
+                  <TabsContent value="upload" className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id="image_file"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        disabled={uploadingImage}
+                        className="flex-1"
+                      />
+                      {formData.image_url && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={handleClearImage}
+                          disabled={uploadingImage}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground">Sube una imagen desde tu dispositivo (máx. 5MB)</p>
+                    {uploadingImage && <p className="text-sm text-blue-600">Subiendo imagen...</p>}
+                  </TabsContent>
+                </Tabs>
+
+                {imagePreview && (
+                  <div className="mt-4">
+                    <Label>Vista Previa</Label>
+                    <div className="mt-2 relative w-32 h-32 border rounded-lg overflow-hidden">
+                      <img
+                        src={imagePreview || "/placeholder.svg"}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                        onError={() => {
+                          toast({
+                            title: "Error",
+                            description: "No se pudo cargar la imagen",
+                            variant: "destructive",
+                          })
+                          setImagePreview(null)
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-2">
-                <Button type="submit" disabled={loading} className="flex-1">
+                <Button type="submit" disabled={loading || uploadingImage} className="flex-1">
                   {loading ? "Guardando..." : editingExercise ? "Actualizar" : "Crear Ejercicio"}
                 </Button>
-                <Button type="button" variant="outline" onClick={handleCancel} disabled={loading}>
+                <Button type="button" variant="outline" onClick={handleCancel} disabled={loading || uploadingImage}>
                   Cancelar
                 </Button>
               </div>
