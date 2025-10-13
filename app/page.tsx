@@ -12,8 +12,8 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import QuickStats from "@/components/dashboard/quick-stats"
-import RecentActivity from "@/components/dashboard/recent-activity"
+import ActivityTabs from "@/components/dashboard/activity-tabs"
+import MetricsTabs from "@/components/dashboard/metrics-tabs"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
@@ -100,23 +100,17 @@ export default async function Home() {
           </div>
         )}
 
-        {/* Quick Stats */}
-        <div className="mb-6 sm:mb-8">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-4">Resumen</h2>
-          <QuickStats />
-        </div>
-
-        {/* Recent Activity */}
-        <div className="mb-6 sm:mb-8">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-4">Actividad Reciente</h2>
-          <RecentActivity />
+        {/* Quick Stats and Recent Activity replaced with new tabbed sections */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6 sm:mb-8">
+          <ActivityTabs />
+          <MetricsTabs />
         </div>
 
         {/* Services Grid */}
         <div className="mb-6 sm:mb-8">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-4">Servicios</h2>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <Link href="/gym" className="group">
+          <div className="flex flex-wrap gap-6">
+            <Link href="/gym" className="group flex-1 min-w-[280px] md:min-w-[300px] lg:basis-[calc(33.333%-1rem)]">
               <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                 <CardHeader className="text-center">
                   <Dumbbell className="h-12 w-12 mx-auto mb-4 text-blue-600 group-hover:scale-110 transition-transform" />
@@ -128,7 +122,7 @@ export default async function Home() {
               </Card>
             </Link>
 
-            <Link href="/running" className="group">
+            <Link href="/running" className="group flex-1 min-w-[280px] md:min-w-[300px] lg:basis-[calc(33.333%-1rem)]">
               <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                 <CardHeader className="text-center">
                   <Footprints className="h-12 w-12 mx-auto mb-4 text-green-600 group-hover:scale-110 transition-transform" />
@@ -140,7 +134,7 @@ export default async function Home() {
               </Card>
             </Link>
 
-            <Link href="/meals" className="group">
+            <Link href="/meals" className="group flex-1 min-w-[280px] md:min-w-[300px] lg:basis-[calc(33.333%-1rem)]">
               <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                 <CardHeader className="text-center">
                   <Utensils className="h-12 w-12 mx-auto mb-4 text-orange-600 group-hover:scale-110 transition-transform" />
@@ -152,7 +146,10 @@ export default async function Home() {
               </Card>
             </Link>
 
-            <Link href="/messages" className="group">
+            <Link
+              href="/messages"
+              className="group flex-1 min-w-[280px] md:min-w-[300px] lg:basis-[calc(33.333%-1rem)]"
+            >
               <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                 <CardHeader className="text-center">
                   <MessageSquare className="h-12 w-12 mx-auto mb-4 text-teal-600 group-hover:scale-110 transition-transform" />
@@ -165,7 +162,7 @@ export default async function Home() {
             </Link>
 
             {admin && (
-              <Link href="/admin" className="group">
+              <Link href="/admin" className="group flex-1 min-w-[280px] md:min-w-[300px] lg:basis-[calc(33.333%-1rem)]">
                 <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                   <CardHeader className="text-center">
                     <Shield className="h-12 w-12 mx-auto mb-4 text-purple-600 group-hover:scale-110 transition-transform" />
@@ -177,18 +174,6 @@ export default async function Home() {
                 </Card>
               </Link>
             )}
-
-            <Link href="/profile" className="group">
-              <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-                <CardHeader className="text-center">
-                  <User className="h-12 w-12 mx-auto mb-4 text-purple-600 group-hover:scale-110 transition-transform" />
-                  <CardTitle className="text-gray-900 dark:text-white">Perfil</CardTitle>
-                  <CardDescription className="text-gray-700 dark:text-gray-50">
-                    Gestiona tu información personal
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </Link>
           </div>
         </div>
 

@@ -1,11 +1,13 @@
 "use client"
 
-import { useActionState } from "react"
+import type React from "react"
+
+import { useActionState, useState } from "react"
 import { useFormStatus } from "react-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Loader2, Dumbbell, Database } from "lucide-react"
+import { Loader2, Dumbbell, Database, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
@@ -35,6 +37,9 @@ function SubmitButton() {
 export default function RegisterForm() {
   const router = useRouter()
   const [state, formAction] = useActionState(signUp, null)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [passwordError, setPasswordError] = useState("")
 
   // Handle successful registration by redirecting
   useEffect(() => {
@@ -42,6 +47,19 @@ export default function RegisterForm() {
       router.push("/")
     }
   }, [state, router])
+
+  const handlePasswordValidation = (e: React.FormEvent<HTMLFormElement>) => {
+    const formData = new FormData(e.currentTarget)
+    const password = formData.get("password")?.toString()
+    const confirmPassword = formData.get("confirmPassword")?.toString()
+
+    if (password !== confirmPassword) {
+      e.preventDefault()
+      setPasswordError("Las contraseñas no coinciden")
+      return
+    }
+    setPasswordError("")
+  }
 
   return (
     <div className="w-full max-w-md space-y-8 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl">
@@ -55,7 +73,7 @@ export default function RegisterForm() {
         <p className="text-lg text-gray-600 dark:text-gray-300">Crea tu cuenta para comenzar</p>
       </div>
 
-      <form action={formAction} className="space-y-6">
+      <form action={formAction} onSubmit={handlePasswordValidation} className="space-y-6">
         {state?.error && (
           <div
             className={`border px-4 py-3 rounded-lg ${
@@ -78,6 +96,12 @@ export default function RegisterForm() {
               </div>
             )}
             {!state.needsSetup && state.error}
+          </div>
+        )}
+
+        {passwordError && (
+          <div className="bg-red-500/10 border border-red-500/50 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg">
+            {passwordError}
           </div>
         )}
 
@@ -126,18 +150,67 @@ export default function RegisterForm() {
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="gender" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Sexo *
+            </Label>
+            <select
+              id="gender"
+              name="gender"
+              required
+              className="flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400 dark:placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <option value="">Selecciona tu sexo</option>
+              <option value="masculino">Masculino</option>
+              <option value="femenino">Femenino</option>
+            </select>
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Contraseña *
             </Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="Mínimo 6 caracteres"
-              required
-              minLength={6}
-              className="bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Mínimo 6 caracteres"
+                required
+                minLength={6}
+                className="bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Confirmar Contraseña *
+            </Label>
+            <div className="relative">
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="Repite tu contraseña"
+                required
+                minLength={6}
+                className="bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

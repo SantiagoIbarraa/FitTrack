@@ -45,14 +45,21 @@ export async function signUp(prevState: any, formData: FormData) {
 
   const email = formData.get("email")
   const password = formData.get("password")
+  const confirmPassword = formData.get("confirmPassword")
   const firstName = formData.get("firstName")
   const lastName = formData.get("lastName")
   const weight = formData.get("weight")
   const height = formData.get("height")
+  const gender = formData.get("gender")
 
   // Validate required fields
-  if (!email || !password || !firstName || !lastName || !weight || !height) {
+  if (!email || !password || !confirmPassword || !firstName || !lastName || !weight || !height || !gender) {
     return { error: "Todos los campos son obligatorios" }
+  }
+
+  // Validating that the passwords match
+  if (password.toString() !== confirmPassword.toString()) {
+    return { error: "Las contraseñas no coinciden" }
   }
 
   // Validate weight and height ranges
@@ -71,6 +78,12 @@ export async function signUp(prevState: any, formData: FormData) {
     return { error: "La contraseña debe tener al menos 6 caracteres" }
   }
 
+  // Validating that the gender is valid
+  const genderValue = gender.toString().toLowerCase()
+  if (genderValue !== "masculino" && genderValue !== "femenino") {
+    return { error: "Debes seleccionar un sexo válido" }
+  }
+
   const supabase = await createClient()
 
   try {
@@ -84,13 +97,34 @@ export async function signUp(prevState: any, formData: FormData) {
           full_name: `${firstName.toString()} ${lastName.toString()}`,
           weight: weightNum,
           height: heightNum,
+          gender: genderValue,
           email_confirmed: true, // Force email as confirmed
         },
       },
     })
 
     if (authError) {
-      return { error: authError.message }
+      // Handle specific error codes
+      if (authError.message.includes("User already registered") || authError.message.includes("user_already_exists")) {
+        return { error: "Este correo electrónico ya está registrado. Por favor, inicia sesión o usa otro correo." }
+      }
+
+      if (authError.message.includes("Invalid email")) {
+        return { error: "El correo electrónico no es válido" }
+      }
+
+      if (authError.message.includes("Password should be at least")) {
+        return { error: "La contraseña debe tener al menos 6 caracteres" }
+      }
+
+      if (authError.message.includes("Email rate limit exceeded")) {
+        return {
+          error: "Has intentado registrarte demasiadas veces. Por favor, espera unos minutos e intenta de nuevo.",
+        }
+      }
+
+      // Generic error message for other cases
+      return { error: `Error al crear la cuenta: ${authError.message}` }
     }
 
     if (authData.user && !authData.session) {

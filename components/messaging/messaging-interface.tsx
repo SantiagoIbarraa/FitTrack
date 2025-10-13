@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { getAvailableContacts, getMessages, sendMessage } from "@/lib/messaging-actions"
 import { useToast } from "@/hooks/use-toast"
 import { Send, MessageSquare, Search } from "lucide-react"
@@ -15,6 +15,7 @@ interface Professional {
   email: string
   full_name: string
   is_professional?: boolean
+  profile_photo_url?: string
 }
 
 interface Message {
@@ -182,6 +183,9 @@ export function MessagingInterface({ userId }: MessagingInterfaceProps) {
                     }`}
                   >
                     <Avatar>
+                      {prof.profile_photo_url && (
+                        <AvatarImage src={prof.profile_photo_url || "/placeholder.svg"} alt={prof.full_name} />
+                      )}
                       <AvatarFallback>{prof.full_name.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div className="text-left flex-1 min-w-0">

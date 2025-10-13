@@ -225,22 +225,53 @@ export default function GymMetrics() {
           </CardTitle>
           <CardDescription>Entrenamientos por día en la última semana</CardDescription>
         </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={weeklyData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip
-                contentStyle={{ backgroundColor: "white", border: "1px solid #ccc" }}
-                labelFormatter={(label) => {
-                  const point = weeklyData.find((d) => d.date === label)
-                  return point ? point.fullDate : label
-                }}
-              />
-              <Bar dataKey="workouts" fill="#3b82f6" name="Entrenamientos" />
-            </BarChart>
-          </ResponsiveContainer>
+        <CardContent className="p-4">
+          <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
+            Actividad Semanal
+          </h3>
+
+          {/* Para los tooltips o información en hover */}
+          <div className="relative">
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={weeklyData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
+                <Tooltip
+                  contentStyle={{ 
+                    backgroundColor: "white",
+                    border: "1px solid #ccc",
+                    color: "#1f2937" // Texto oscuro siempre
+                  }}
+                  labelStyle={{ color: "#1f2937" }} // Texto oscuro para la etiqueta
+                  itemStyle={{ color: "#1f2937" }} // Texto oscuro para los items
+                  labelFormatter={(label) => {
+                    const point = weeklyData.find((d) => d.date === label)
+                    return point ? point.fullDate : label
+                  }}
+                />
+                <Bar dataKey="workouts" fill="#3b82f6" name="Entrenamientos" />
+              </BarChart>
+            </ResponsiveContainer>
+            <div className="absolute z-10 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-2 rounded shadow-lg">
+              {/* Contenido del tooltip */}
+            </div>
+          </div>
+
+          {/* Para las etiquetas de métricas */}
+          <div className="text-sm text-gray-700 dark:text-gray-300">
+            {/* Etiquetas de métricas */}
+          </div>
+
+          {/* Para los valores y números */}
+          <div className="font-medium text-gray-900 dark:text-gray-100">
+            {/* Valores numéricos */}
+          </div>
+
+          {/* Para las leyendas o descripciones */}
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            {/* Texto descriptivo */}
+          </div>
         </CardContent>
       </Card>
 
@@ -259,7 +290,13 @@ export default function GymMetrics() {
               <XAxis dataKey="date" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip
-                contentStyle={{ backgroundColor: "white", border: "1px solid #ccc" }}
+                contentStyle={{ 
+                  backgroundColor: "white",
+                  border: "1px solid #ccc",
+                  color: "#1f2937" // Texto oscuro siempre
+                }}
+                labelStyle={{ color: "#1f2937" }} // Texto oscuro para la etiqueta
+                itemStyle={{ color: "#1f2937" }} // Texto oscuro para los items
                 labelFormatter={(label) => {
                   const point = progressData.find((d) => d.date === label)
                   return point ? point.fullDate : label

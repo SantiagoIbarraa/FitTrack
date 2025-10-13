@@ -82,6 +82,16 @@ export default function WorkoutList({ refreshTrigger, onEditWorkout }: WorkoutLi
 
   return (
     <div className="space-y-4">
+      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+        {/* Título de actividad semanal */}
+      </div>
+
+      <div className="mt-4">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          Progreso de Volumen
+        </h3>
+      </div>
+
       <h3 className="text-lg font-semibold">Historial de Entrenamientos</h3>
       {workouts.map((workout) => (
         <Card key={workout.id}>

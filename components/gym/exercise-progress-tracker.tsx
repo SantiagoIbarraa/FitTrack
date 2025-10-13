@@ -22,6 +22,7 @@ export function ExerciseProgressTracker() {
   const [history, setHistory] = useState<ExerciseHistoryEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingHistory, setLoadingHistory] = useState(false)
+  const [hoveredWeek, setHoveredWeek] = useState<number | null>(null)
 
   useEffect(() => {
     loadExerciseNames()
@@ -153,17 +154,31 @@ export function ExerciseProgressTracker() {
             <div className="space-y-2">
               <h4 className="text-sm font-medium">Historial Reciente</h4>
               <div className="space-y-2 max-h-[200px] overflow-y-auto">
-                {history.slice(0, 10).map((entry) => (
-                  <div key={entry.id} className="flex items-center justify-between text-sm border-b pb-2">
-                    <span className="text-muted-foreground">
-                      {new Date(entry.created_at).toLocaleString("es-ES", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
+                {history.slice(0, 10).map((entry, index) => (
+                  <div
+                    key={entry.id}
+                    className="flex items-center justify-between text-sm border-b pb-2"
+                  >
+                    <div
+                      className="relative group cursor-pointer"
+                      onMouseEnter={() => setHoveredWeek(index)}
+                      onMouseLeave={() => setHoveredWeek(null)}
+                    >
+                      <span className="text-muted-foreground">
+                        {new Date(entry.created_at).toLocaleString("es-ES", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                      {hoveredWeek === index && (
+                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 p-2 bg-white dark:bg-gray-800 rounded shadow-lg text-gray-900 dark:text-gray-100">
+                          {/* Contenido del hover */}
+                        </div>
+                      )}
+                    </div>
                     <div className="flex gap-4">
                       <span>{entry.weight_kg} kg</span>
                       <span>{entry.repetitions} reps</span>
