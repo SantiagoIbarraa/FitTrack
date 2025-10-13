@@ -63,7 +63,8 @@ export default function GymPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-4">
           <Button variant="outline" size="sm" asChild>
@@ -74,10 +75,10 @@ export default function GymPage() {
           </Button>
         </div>
         <div className="flex items-center gap-3 mb-2">
-          <Dumbbell className="h-8 w-8 text-blue-600" />
-          <h1 className="text-3xl font-bold">Gimnasio</h1>
+          <Dumbbell className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gimnasio</h1>
         </div>
-        <p className="text-gray-600">Organiza tus entrenamientos por rutinas o registra ejercicios individuales</p>
+        <p className="text-gray-600 dark:text-gray-300">Organiza tus entrenamientos por rutinas o registra ejercicios individuales</p>
       </div>
 
       {/* Navigation tabs */}
@@ -87,7 +88,7 @@ export default function GymPage() {
           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
             viewMode === "routines" || viewMode === "routine-detail" || viewMode === "create-routine"
               ? "bg-blue-600 text-white"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
           }`}
         >
           Rutinas
@@ -95,7 +96,7 @@ export default function GymPage() {
         <button
           onClick={() => setViewMode("individual")}
           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            viewMode === "individual" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            viewMode === "individual" ? "bg-blue-600 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
           }`}
         >
           Ejercicios Individuales
@@ -103,7 +104,7 @@ export default function GymPage() {
         <button
           onClick={() => setViewMode("history")}
           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            viewMode === "history" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            viewMode === "history" ? "bg-blue-600 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
           }`}
         >
           Historial
@@ -111,7 +112,7 @@ export default function GymPage() {
         <button
           onClick={() => setViewMode("metrics")}
           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            viewMode === "metrics" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            viewMode === "metrics" ? "bg-blue-600 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
           }`}
         >
           Métricas
@@ -153,6 +154,7 @@ export default function GymPage() {
 
         {viewMode === "history" && <ExerciseHistory />}
         {viewMode === "metrics" && <GymMetrics />}
+      </div>
       </div>
     </div>
   )

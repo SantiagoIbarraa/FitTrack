@@ -4,14 +4,14 @@
 
 Crea un archivo llamado `.env.local` en la raíz del proyecto con el siguiente contenido:
 
-```env
+\`\`\`env
 # Google Gemini API Key (requerida para el asistente nutricional)
 GOOGLE_GENERATIVE_AI_API_KEY=tu_clave_de_gemini_aqui
 
 # Supabase Configuration (si usas Supabase)
 NEXT_PUBLIC_SUPABASE_URL=tu_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_supabase_anon_key
-```
+\`\`\`
 
 ## Cómo obtener la API Key de Gemini
 

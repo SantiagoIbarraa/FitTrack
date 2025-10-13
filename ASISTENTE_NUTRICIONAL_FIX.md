@@ -21,10 +21,10 @@
 ### 1. Crear archivo `.env.local`
 Crea un archivo `.env.local` en la raíz del proyecto con el siguiente contenido:
 
-```env
+\`\`\`env
 # Gemini API Key
 GOOGLE_GENERATIVE_AI_API_KEY=tu_clave_de_gemini_aqui
-```
+\`\`\`
 
 ### 2. Obtener API Key de Gemini
 1. Ve a [Google AI Studio](https://aistudio.google.com/)
@@ -36,9 +36,9 @@ GOOGLE_GENERATIVE_AI_API_KEY=tu_clave_de_gemini_aqui
 ### 3. Reiniciar el servidor
 Después de crear el archivo `.env.local`, reinicia el servidor de desarrollo:
 
-```bash
+\`\`\`bash
 npm run dev
-```
+\`\`\`
 
 ## Mejoras Implementadas
 

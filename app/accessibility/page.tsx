@@ -19,10 +19,14 @@ export default async function AccessibilityPage() {
   const { preferences } = await getUserPreferences()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-teal-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-slate-900">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6">
-          <Button variant="outline" asChild>
+          <Button
+            variant="outline"
+            asChild
+            className="dark:bg-gray-800 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700 bg-transparent"
+          >
             <Link href="/">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Volver al inicio

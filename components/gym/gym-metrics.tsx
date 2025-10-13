@@ -292,17 +292,17 @@ export default function GymMetrics() {
           <CardContent>
             <div className="space-y-3">
               {topExercises.map((exercise, index) => (
-                <div key={exercise.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div key={exercise.name} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center gap-3">
                     <Badge variant="outline" className="w-8 h-8 flex items-center justify-center font-bold">
                       {index + 1}
                     </Badge>
                     <div>
-                      <span className="font-medium block">{exercise.name}</span>
-                      <span className="text-xs text-gray-500">{exercise.totalWeight.toFixed(0)} kg totales</span>
+                      <span className="font-medium block text-gray-900 dark:text-gray-100">{exercise.name}</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">{exercise.totalWeight.toFixed(0)} kg totales</span>
                     </div>
                   </div>
-                  <Badge variant="secondary">{exercise.count} veces</Badge>
+                  <Badge variant="secondary" className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200">{exercise.count} veces</Badge>
                 </div>
               ))}
             </div>

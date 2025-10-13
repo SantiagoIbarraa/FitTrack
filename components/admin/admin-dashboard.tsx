@@ -118,8 +118,8 @@ export function AdminDashboard({ users: initialUsers }: AdminDashboardProps) {
       <Alert>
         <Info className="h-4 w-4" />
         <AlertDescription>
-          Solo los usuarios marcados como <strong>Profesional</strong> y con estado <strong>Activo</strong> aparecerán
-          en el sistema de mensajería. Usa el switch "Profesional" para controlar quién puede recibir mensajes.
+          Todos los usuarios activos pueden verse entre sí en el sistema de mensajería. El campo{" "}
+          <strong>Profesional</strong> ahora es solo informativo y no afecta la visibilidad en el chat.
         </AlertDescription>
       </Alert>
 
@@ -137,12 +137,12 @@ export function AdminDashboard({ users: initialUsers }: AdminDashboardProps) {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Profesionales en Mensajería</CardTitle>
+            <CardTitle className="text-sm font-medium">Profesionales Registrados</CardTitle>
             <MessageSquare className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.professionals}</div>
-            <p className="text-xs text-muted-foreground mt-1">Visibles para usuarios</p>
+            <p className="text-xs text-muted-foreground mt-1">Marcados como profesionales</p>
           </CardContent>
         </Card>
 
@@ -162,7 +162,7 @@ export function AdminDashboard({ users: initialUsers }: AdminDashboardProps) {
         <CardHeader>
           <CardTitle>Gestión de Usuarios</CardTitle>
           <CardDescription>
-            Administra roles y permisos de los usuarios. Activa el switch "Profesional" para que aparezcan en
+            Administra roles y permisos de los usuarios. Todos los usuarios activos pueden verse en el sistema de
             mensajería.
           </CardDescription>
         </CardHeader>
@@ -192,7 +192,7 @@ export function AdminDashboard({ users: initialUsers }: AdminDashboardProps) {
               </div>
             ) : (
               filteredUsers.map((user) => {
-                const isVisibleInMessaging = user.is_professional && user.is_active
+                const isVisibleInMessaging = user.is_active
 
                 return (
                   <div
@@ -205,6 +205,7 @@ export function AdminDashboard({ users: initialUsers }: AdminDashboardProps) {
                         <Badge variant={user.role === "admin" ? "default" : "outline"}>
                           {user.role === "admin" ? "Admin" : "Usuario"}
                         </Badge>
+                        {user.is_professional && <Badge variant="secondary">Profesional</Badge>}
                         {isVisibleInMessaging && (
                           <Badge variant="default" className="bg-green-600 hover:bg-green-700">
                             <MessageSquare className="h-3 w-3 mr-1" />

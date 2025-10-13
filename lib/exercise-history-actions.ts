@@ -134,3 +134,29 @@ export async function getUniqueExercises(): Promise<string[]> {
     return []
   }
 }
+
+export async function getUniqueExerciseNames(): Promise<{ data: string[] | null; error: string | null }> {
+  try {
+    const data = await getUniqueExercises()
+    return { data, error: null }
+  } catch (error) {
+    if (error instanceof Error && error.message === "MISSING_TABLE") {
+      return { data: null, error: "La tabla de historial de ejercicios no existe. Por favor, ejecuta el script SQL." }
+    }
+    return { data: null, error: "Error al cargar los nombres de ejercicios" }
+  }
+}
+
+export async function getExerciseHistoryByName(
+  exerciseName: string,
+): Promise<{ data: ExerciseHistoryEntry[] | null; error: string | null }> {
+  try {
+    const data = await getExerciseHistory(exerciseName)
+    return { data, error: null }
+  } catch (error) {
+    if (error instanceof Error && error.message === "MISSING_TABLE") {
+      return { data: null, error: "La tabla de historial de ejercicios no existe. Por favor, ejecuta el script SQL." }
+    }
+    return { data: null, error: "Error al cargar el historial del ejercicio" }
+  }
+}

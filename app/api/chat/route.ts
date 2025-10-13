@@ -1,8 +1,10 @@
 import { generateText, generateObject } from "ai"
 import { google } from "@ai-sdk/google"
-import { NextRequest, NextResponse } from "next/server"
+import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { getExerciseHistory, getUniqueExercises } from "@/lib/exercise-history-actions"
+import { getRunningHistory } from "@/lib/history-actions"
+import { getWorkouts } from "@/lib/gym-actions"
 import { z } from "zod"
 
 // Schema para el análisis de imágenes
@@ -16,7 +18,7 @@ const foodAnalysisSchema = z.object({
   serving: z.string().describe("Descripción del tamaño de la porción"),
   ingredients: z.array(z.string()).describe("Lista de ingredientes visibles"),
   recommendations: z.string().describe("Breve recomendación nutricional"),
-  confidence: z.enum(["alta", "media", "baja"]).describe("Nivel de confianza en el análisis")
+  confidence: z.enum(["alta", "media", "baja"]).describe("Nivel de confianza en el análisis"),
 })
 
 export async function POST(request: NextRequest) {
@@ -27,9 +29,13 @@ export async function POST(request: NextRequest) {
     // Verificar que la API key esté configurada
     if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
       console.error("GOOGLE_GENERATIVE_AI_API_KEY no está configurada")
-      return NextResponse.json({ 
-        error: "API key no configurada. Por favor, crea un archivo .env.local con GOOGLE_GENERATIVE_AI_API_KEY=tu_clave_aqui" 
-      }, { status: 500 })
+      return NextResponse.json(
+        {
+          error:
+            "API key no configurada. Por favor, crea un archivo .env.local con GOOGLE_GENERATIVE_AI_API_KEY=tu_clave_aqui",
+        },
+        { status: 500 },
+      )
     }
 
     const supabase = await createClient()
@@ -54,9 +60,9 @@ export async function POST(request: NextRequest) {
     return await handleChatMessage(message, userProfile)
   } catch (error) {
     console.error("Error processing request:", error)
-    
+
     let errorMessage = "Error al procesar tu solicitud"
-    
+
     if (error instanceof Error) {
       if (error.message.includes("API key")) {
         errorMessage = "Error de configuración de API. Verifica tu clave de Gemini."
@@ -68,7 +74,7 @@ export async function POST(request: NextRequest) {
         errorMessage = `Error: ${error.message}`
       }
     }
-    
+
     return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
 }
@@ -108,20 +114,17 @@ Sé lo más preciso posible. Si no puedes identificar la comida claramente, indi
             { type: "text", text: prompt },
             {
               type: "image",
-              image: `data:image/jpeg;base64,${base64Image}`
-            }
-          ]
-        }
-      ]
+              image: `data:image/jpeg;base64,${base64Image}`,
+            },
+          ],
+        },
+      ],
     })
 
     return NextResponse.json(object)
   } catch (error) {
     console.error("Error analyzing food image:", error)
-    return NextResponse.json(
-      { error: "Error al analizar la imagen. Por favor intenta de nuevo." },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Error al analizar la imagen. Por favor intenta de nuevo." }, { status: 500 })
   }
 }
 
@@ -143,6 +146,39 @@ async function handleChatMessage(message: string, userProfile: any) {
     console.log("No se pudo obtener historial de ejercicios")
   }
 
+  let runningData = ""
+  try {
+    const runningSessions = await getRunningHistory(30)
+    if (runningSessions.length > 0) {
+      const totalDistance = runningSessions.reduce((sum, session) => sum + session.distance, 0)
+      const avgPace = runningSessions.reduce((sum, session) => sum + session.pace, 0) / runningSessions.length
+      const lastSession = runningSessions[0]
+
+      runningData = `\n\nDATOS DE RUNNING (últimos 30 días):
+- Total de sesiones: ${runningSessions.length}
+- Distancia total: ${totalDistance.toFixed(2)}km
+- Pace promedio: ${avgPace.toFixed(2)} min/km
+- Última sesión: ${lastSession.distance}km en ${lastSession.duration} minutos (${lastSession.pace.toFixed(2)} min/km)`
+    }
+  } catch (error) {
+    console.log("No se pudo obtener historial de running")
+  }
+
+  let gymData = ""
+  try {
+    const workouts = await getWorkouts()
+    if (workouts.length > 0) {
+      const recentWorkouts = workouts.slice(0, 5)
+      gymData = `\n\nÚLTIMOS ENTRENAMIENTOS EN GIMNASIO:`
+      recentWorkouts.forEach((workout: any) => {
+        const date = new Date(workout.created_at).toLocaleDateString()
+        gymData += `\n- ${workout.exercise_name}: ${workout.weight_kg || 0}kg x ${workout.repetitions || 0} reps x ${workout.sets || 0} sets (${date})`
+      })
+    }
+  } catch (error) {
+    console.log("No se pudo obtener workouts del gimnasio")
+  }
+
   let bmr = 0
   let tdee = 0
   let proteinMin = 0
@@ -161,7 +197,7 @@ async function handleChatMessage(message: string, userProfile: any) {
 
   const model = google("gemini-2.5-flash")
 
-  const prompt = `Eres un asistente nutricional experto especializado en fitness y salud. Tu nombre es "Asistente Nutricional de PRegister".
+  const prompt = `Eres un asistente nutricional experto especializado en fitness y salud. Tu nombre es "Asistente Nutricional de FitTrack".
 
 INFORMACIÓN DEL USUARIO:
 ${userProfile?.weight ? `- Peso: ${userProfile.weight}kg` : ""}
@@ -173,19 +209,23 @@ ${bmr > 0 ? `- Metabolismo basal (BMR): ${Math.round(bmr)} cal/día` : ""}
 ${tdee > 0 ? `- TDEE (actividad moderada): ${tdee} cal/día` : ""}
 ${proteinMin > 0 ? `- Proteína recomendada: ${proteinMin}-${proteinMax}g/día` : ""}
 ${exerciseData}
+${runningData}
+${gymData}
 
 PREGUNTA DEL USUARIO: ${message}
 
 INSTRUCCIONES:
 - Responde en español de forma clara, concisa y útil
 - Usa formato markdown para mejor legibilidad (negritas, listas, etc.)
-- Personaliza tu respuesta basándote en los datos del usuario
+- Personaliza tu respuesta basándote en TODOS los datos del usuario (perfil, ejercicios, running, gym)
+- Si el usuario pregunta sobre su progreso, analiza sus datos de ejercicios, running y gym
 - Si el usuario no tiene datos completos, sugiere completar su perfil en la sección de Salud
 - Proporciona información basada en evidencia científica
 - Incluye ejemplos prácticos y cantidades específicas cuando sea relevante
-- Si preguntan sobre su perfil o progreso, usa los datos proporcionados
+- Si preguntan sobre su perfil o progreso, usa los datos proporcionados arriba
 - Mantén un tono motivador y profesional
 - Si la pregunta no está relacionada con nutrición o fitness, redirige amablemente al tema
+- Puedes hacer recomendaciones nutricionales basadas en su actividad física reciente
 
 Responde a la pregunta del usuario ahora:`
 

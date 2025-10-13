@@ -1,5 +1,5 @@
 import ChatInterface from "@/components/meals/chat-interface"
-import ImageAnalyzer from "@/components/image-analyzer"
+import ImageAnalyzer from "@/components/meals/image-analyzer"
 import { MessageCircle, ArrowLeft, Camera } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -45,10 +45,11 @@ export default function MealsPage() {
             <ChatInterface />
           </TabsContent>
           <TabsContent value="image">
-            <ImageAnalyzer />
+            <ImageAnalyzer/>
           </TabsContent>
         </Tabs>
       </div>
     </div>
   )
+
 }

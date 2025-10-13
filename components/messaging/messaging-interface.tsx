@@ -8,12 +8,13 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { getAvailableContacts, getMessages, sendMessage } from "@/lib/messaging-actions"
 import { useToast } from "@/hooks/use-toast"
-import { Send, MessageSquare } from "lucide-react"
+import { Send, MessageSquare, Search } from "lucide-react"
 
 interface Professional {
   id: string
   email: string
   full_name: string
+  is_professional?: boolean
 }
 
 interface Message {
@@ -35,6 +36,8 @@ export function MessagingInterface({ userId }: MessagingInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState("")
   const [loading, setLoading] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [userFilter, setUserFilter] = useState<"all" | "professionals" | "non-professionals">("all")
   const { toast } = useToast()
 
   useEffect(() => {
@@ -98,6 +101,19 @@ export function MessagingInterface({ userId }: MessagingInterfaceProps) {
     setLoading(false)
   }
 
+  const filteredProfessionals = professionals.filter((prof) => {
+    const matchesSearch =
+      prof.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      prof.email.toLowerCase().includes(searchTerm.toLowerCase())
+
+    const matchesFilter =
+      userFilter === "all" ||
+      (userFilter === "professionals" && prof.is_professional) ||
+      (userFilter === "non-professionals" && !prof.is_professional)
+
+    return matchesSearch && matchesFilter
+  })
+
   return (
     <div className="grid md:grid-cols-3 gap-6">
       {/* Professionals List */}
@@ -105,18 +121,57 @@ export function MessagingInterface({ userId }: MessagingInterfaceProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <MessageSquare className="h-5 w-5" />
-            Contactos
+            Usuarios
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ScrollArea className="h-[500px]">
+          <div className="space-y-3 mb-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Buscar usuarios..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                variant={userFilter === "all" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setUserFilter("all")}
+                className="flex-1"
+              >
+                Todos
+              </Button>
+              <Button
+                variant={userFilter === "professionals" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setUserFilter("professionals")}
+                className="flex-1"
+              >
+                Profesionales
+              </Button>
+              <Button
+                variant={userFilter === "non-professionals" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setUserFilter("non-professionals")}
+                className="flex-1"
+              >
+                Usuarios
+              </Button>
+            </div>
+          </div>
+
+          <ScrollArea className="h-[450px]">
             <div className="space-y-2">
-              {professionals.length === 0 ? (
+              {filteredProfessionals.length === 0 ? (
                 <p className="text-sm text-gray-600 dark:text-gray-400 text-center py-8">
-                  No hay contactos disponibles
+                  {searchTerm || userFilter !== "all" ? "No se encontraron usuarios" : "No hay usuarios disponibles"}
                 </p>
               ) : (
-                professionals.map((prof) => (
+                filteredProfessionals.map((prof) => (
                   <button
                     key={prof.id}
                     onClick={() => setSelectedProfessional(prof)}
@@ -130,7 +185,14 @@ export function MessagingInterface({ userId }: MessagingInterfaceProps) {
                       <AvatarFallback>{prof.full_name.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div className="text-left flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 dark:text-white truncate">{prof.full_name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-gray-900 dark:text-white truncate">{prof.full_name}</p>
+                        {prof.is_professional && (
+                          <span className="text-xs bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full">
+                            Pro
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-gray-600 dark:text-gray-400 truncate">{prof.email}</p>
                     </div>
                   </button>
@@ -145,7 +207,7 @@ export function MessagingInterface({ userId }: MessagingInterfaceProps) {
       <Card className="md:col-span-2">
         <CardHeader>
           <CardTitle>
-            {selectedProfessional ? `Chat con ${selectedProfessional.full_name}` : "Selecciona un contacto"}
+            {selectedProfessional ? `Chat con ${selectedProfessional.full_name}` : "Selecciona un usuario"}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -192,7 +254,7 @@ export function MessagingInterface({ userId }: MessagingInterfaceProps) {
             <div className="h-[500px] flex items-center justify-center text-gray-600 dark:text-gray-400">
               <div className="text-center">
                 <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Selecciona un contacto para comenzar a chatear</p>
+                <p>Selecciona un usuario para comenzar a chatear</p>
               </div>
             </div>
           )}

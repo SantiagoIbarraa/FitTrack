@@ -29,7 +29,7 @@ export default async function MessagesPage() {
 
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Mensajes</h1>
-          <p className="text-lg text-gray-700 dark:text-gray-300">Comunícate con profesionales del fitness</p>
+          <p className="text-lg text-gray-700 dark:text-gray-300">Comunícate con otros usuarios de FitTrack</p>
         </div>
 
         <MessagingInterface userId={user.id} />
