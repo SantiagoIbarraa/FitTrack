@@ -7,7 +7,7 @@ import { useFormStatus } from "react-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Loader2, Dumbbell, Database, Eye, EyeOff } from "lucide-react"
+import { Loader2, Database, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
@@ -41,7 +41,6 @@ export default function RegisterForm() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [passwordError, setPasswordError] = useState("")
 
-  // Handle successful registration by redirecting
   useEffect(() => {
     if (state?.success) {
       router.push("/")
@@ -62,15 +61,10 @@ export default function RegisterForm() {
   }
 
   return (
-    <div className="w-full max-w-md space-y-8 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl">
-      <div className="space-y-4 text-center">
-        <div className="flex justify-center">
-          <div className="bg-blue-600 p-3 rounded-full">
-            <Dumbbell className="h-8 w-8 text-white" />
-          </div>
-        </div>
-        <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">FitTrack</h1>
-        <p className="text-lg text-gray-600 dark:text-gray-300">Crea tu cuenta para comenzar</p>
+    <div className="w-full space-y-6">
+      <div className="space-y-2 text-center">
+        <h2 className="text-2xl font-bold text-blue-900">Comienza tu transformación</h2>
+        <p className="text-gray-600">Crea tu cuenta gratis</p>
       </div>
 
       <form action={formAction} onSubmit={handlePasswordValidation} className="space-y-6">

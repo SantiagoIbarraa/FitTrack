@@ -5,8 +5,7 @@ import { useFormStatus } from "react-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Loader2, Dumbbell } from "lucide-react"
-import Link from "next/link"
+import { Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { signIn } from "@/lib/auth-actions"
@@ -36,7 +35,6 @@ export default function LoginForm() {
   const router = useRouter()
   const [state, formAction] = useActionState(signIn, null)
 
-  // Handle successful login by redirecting
   useEffect(() => {
     if (state?.success) {
       router.push("/")
@@ -44,15 +42,10 @@ export default function LoginForm() {
   }, [state, router])
 
   return (
-    <div className="w-full max-w-md space-y-8 bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl">
-      <div className="space-y-4 text-center">
-        <div className="flex justify-center">
-          <div className="bg-blue-600 p-3 rounded-full">
-            <Dumbbell className="h-8 w-8 text-white" />
-          </div>
-        </div>
-        <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">FitTrack</h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400">Inicia sesión en tu cuenta</p>
+    <div className="w-full space-y-6">
+      <div className="space-y-2 text-center">
+        <h2 className="text-2xl font-bold text-blue-900">Bienvenido de nuevo</h2>
+        <p className="text-gray-600">Continúa tu progreso</p>
       </div>
 
       <form action={formAction} className="space-y-6">
@@ -91,16 +84,6 @@ export default function LoginForm() {
         </div>
 
         <SubmitButton />
-
-        <div className="text-center text-gray-600 dark:text-gray-400">
-          ¿No tienes cuenta?{" "}
-          <Link
-            href="/auth/register"
-            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline font-medium"
-          >
-            Regístrate
-          </Link>
-        </div>
       </form>
     </div>
   )

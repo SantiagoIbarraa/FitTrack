@@ -1,0 +1,309 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{minted}
+\usepackage{tcolorbox}
+\usepackage{fancyhdr}
+
+% Configuración de colores para código
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+% Configuración de estilo de código
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\title{Manual Técnico Detallado - FitTrack}
+\author{Equipo de Desarrollo FitTrack}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\chapter{Módulos del Sistema}
+
+\section{Módulo de Autenticación}
+\subsection{Componentes Principales}
+\begin{minted}{typescript}
+// Ejemplo de login-form.tsx
+export default function LoginForm() {
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        const { data, error } = await signIn(email, password)
+        // ...manejo de respuesta
+    }
+    // ...resto del componente
+}
+\end{minted}
+
+\subsection{Integración con Supabase}
+\begin{minted}{typescript}
+// Ejemplo de auth-actions.ts
+export async function signIn(email: string, password: string) {
+    const supabase = createClient()
+    return await supabase.auth.signInWithPassword({
+        email,
+        password
+    })
+}
+\end{minted}
+
+\section{Sistema de Base de Datos}
+\subsection{Esquemas SQL}
+\begin{minted}{sql}
+-- Ejemplo de schema.sql
+CREATE SCHEMA IF NOT EXISTS fittrack;
+
+CREATE TABLE IF NOT EXISTS user_profiles (
+    id UUID PRIMARY KEY REFERENCES auth.users(id),
+    full_name TEXT,
+    avatar_url TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS workouts (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id),
+    exercise_name TEXT NOT NULL,
+    weight_kg NUMERIC,
+    sets INTEGER,
+    reps INTEGER,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+\end{minted}
+
+\subsection{Funciones y Triggers}
+\begin{minted}{sql}
+-- Ejemplo de functions.sql
+CREATE OR REPLACE FUNCTION update_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER set_timestamp
+    BEFORE UPDATE ON user_profiles
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at();
+\end{minted}
+
+\chapter{Arquitectura del Sistema}
+
+\section{Estructura de Archivos}
+\begin{verbatim}
+FitTrack/
++-- app/
+|   +-- api/
+|   +-- auth/
+|   \-- ...
++-- components/
+|   +-- ui/
+|   +-- gym/
+|   \-- ...
++-- lib/
+|   \-- supabase/
+\-- scripts/
+\end{verbatim}
+
+\section{Flujo de Datos}
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{data-flow-diagram.png}
+\caption{Diagrama de Flujo de Datos}
+\end{figure}
+
+\chapter{API y Endpoints}
+
+\section{Estructura de API Routes}
+\begin{minted}{typescript}
+// Ejemplo de API Route
+export async function GET(request: Request) {
+    const supabase = createRouteHandlerClient({ cookies })
+    const { searchParams } = new URL(request.url)
+    const userId = searchParams.get('userId')
+    
+    const { data, error } = await supabase
+        .from('workouts')
+        .select('*')
+        .eq('user_id', userId)
+        
+    if (error) {
+        return new Response(JSON.stringify({ error }), {
+            status: 500
+        })
+    }
+    
+    return new Response(JSON.stringify(data))
+}
+\end{minted}
+
+\chapter{Componentes UI}
+
+\section{Sistema de Temas}
+\begin{minted}{typescript}
+// Ejemplo de ThemeProvider
+export function ThemeProvider({ 
+    children, 
+    ...props 
+}: ThemeProviderProps) {
+    return (
+        <NextThemesProvider {...props}>
+            {children}
+        </NextThemesProvider>
+    )
+}
+\end{minted}
+
+\section{Componentes Reutilizables}
+\begin{minted}{typescript}
+// Ejemplo de Button Component
+export const Button = React.forwardRef<
+    HTMLButtonElement,
+    ButtonProps
+>(({ 
+    className, 
+    variant = "default", 
+    size = "default", 
+    ...props 
+}, ref) => {
+    return (
+        <button
+            className={cn(
+                buttonVariants({ variant, size, className })
+            )}
+            ref={ref}
+            {...props}
+        />
+    )
+})
+\end{minted}
+
+\chapter{Testing y Calidad}
+
+\section{Pruebas Unitarias}
+\begin{minted}{typescript}
+// Ejemplo de test
+describe('Button Component', () => {
+    it('renders correctly', () => {
+        render(<Button>Test</Button>)
+        expect(screen.getByRole('button')).toBeInTheDocument()
+    })
+})
+\end{minted}
+
+\section{E2E Testing}
+\begin{minted}{typescript}
+// Ejemplo de E2E test
+describe('Login Flow', () => {
+    it('allows user to login', async () => {
+        await page.goto('/login')
+        await page.fill('input[type="email"]', 'test@example.com')
+        await page.fill('input[type="password"]', 'password')
+        await page.click('button[type="submit"]')
+        await expect(page).toHaveURL('/dashboard')
+    })
+})
+\end{minted}
+
+\chapter{Seguridad}
+
+\section{Políticas RLS}
+\begin{minted}{sql}
+-- Ejemplo de RLS
+ALTER TABLE workouts ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own workouts"
+    ON workouts
+    FOR SELECT
+    USING (auth.uid() = user_id);
+\end{minted}
+
+\chapter{Mantenimiento y Despliegue}
+
+\section{Scripts de Mantenimiento}
+\begin{minted}{bash}
+#!/bin/bash
+# Ejemplo de script de backup
+pg_dump -h localhost -U postgres fittrack > backup.sql
+\end{minted}
+
+\section{Proceso de Despliegue}
+\begin{minted}{bash}
+# Ejemplo de despliegue
+npm run build
+vercel deploy --prod
+\end{minted}
+
+\chapter{Apéndices}
+
+\section{Glosario Técnico}
+\begin{description}
+    \item[RLS] Row Level Security
+    \item[JWT] JSON Web Token
+    \item[SSR] Server Side Rendering
+\end{description}
+
+\section{Referencias}
+\begin{itemize}
+    \item Next.js Documentation
+    \item Supabase Documentation
+    \item TypeScript Handbook
+\end{itemize}
+
+\chapter{Página de Gimnasio}
+
+\section{Componentes de la Página de Gimnasio}
+\begin{minted}{typescript}
+import GymMetrics from '@/components/gym/gym-metrics'
+import WorkoutForm from '@/components/gym/workout-form'
+import WorkoutList from '@/components/gym/workout-list'
+import ExerciseProgressTracker from '@/components/gym/exercise-progress-tracker'
+
+export default function GymPage() {
+  return (
+    <div className="container mx-auto p-4 space-y-6">
+      <h1 className="text-2xl font-bold">Panel de Ejercicios</h1>
+      <GymMetrics />
+      <div className="grid md:grid-cols-2 gap-6">
+        <WorkoutForm />
+        <ExerciseProgressTracker />
+      </div>
+      <WorkoutList />
+    </div>
+  )
+}
+\end{minted}
+
+\end{document}

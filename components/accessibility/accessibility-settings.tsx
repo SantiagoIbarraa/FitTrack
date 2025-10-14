@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
@@ -13,57 +13,90 @@ import { useTheme } from "next-themes"
 
 interface AccessibilitySettingsProps {
   initialPreferences: any
+  isGuest?: boolean // Add isGuest prop to handle guest users
 }
 
-export function AccessibilitySettings({ initialPreferences }: AccessibilitySettingsProps) {
+export function AccessibilitySettings({ initialPreferences, isGuest = false }: AccessibilitySettingsProps) {
   const [preferences, setPreferences] = useState(initialPreferences)
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
   const { theme, setTheme } = useTheme()
 
+  useEffect(() => {
+    if (isGuest) {
+      const savedPreferences = localStorage.getItem("accessibility_preferences")
+      if (savedPreferences) {
+        try {
+          const parsed = JSON.parse(savedPreferences)
+          setPreferences(parsed)
+          applyPreferences(parsed)
+        } catch (e) {
+          console.error("Error loading preferences:", e)
+        }
+      }
+    }
+  }, [isGuest])
+
   const handleSave = async () => {
     setLoading(true)
-    const result = await updateUserPreferences(preferences)
 
-    if (result.error) {
-      toast({
-        title: "Error",
-        description: result.error,
-        variant: "destructive",
-      })
+    if (isGuest) {
+      try {
+        localStorage.setItem("accessibility_preferences", JSON.stringify(preferences))
+        toast({
+          title: "Éxito",
+          description: "Preferencias guardadas localmente",
+        })
+        applyPreferences(preferences)
+      } catch (e) {
+        toast({
+          title: "Error",
+          description: "No se pudieron guardar las preferencias",
+          variant: "destructive",
+        })
+      }
     } else {
-      toast({
-        title: "Éxito",
-        description: "Preferencias guardadas correctamente",
-      })
-      // Apply preferences to document
-      applyPreferences()
+      const result = await updateUserPreferences(preferences)
+
+      if (result.error) {
+        toast({
+          title: "Error",
+          description: result.error,
+          variant: "destructive",
+        })
+      } else {
+        toast({
+          title: "Éxito",
+          description: "Preferencias guardadas correctamente",
+        })
+        applyPreferences(preferences)
+      }
     }
     setLoading(false)
   }
 
-  const applyPreferences = () => {
+  const applyPreferences = (prefs = preferences) => {
     const root = document.documentElement
 
     // Apply color blind mode
-    root.setAttribute("data-color-blind-mode", preferences.color_blind_mode)
+    root.setAttribute("data-color-blind-mode", prefs.color_blind_mode)
 
     // Apply high contrast
-    if (preferences.high_contrast) {
+    if (prefs.high_contrast) {
       root.classList.add("high-contrast")
     } else {
       root.classList.remove("high-contrast")
     }
 
     // Apply large text
-    if (preferences.large_text) {
+    if (prefs.large_text) {
       root.classList.add("large-text")
     } else {
       root.classList.remove("large-text")
     }
 
     // Apply reduce motion
-    if (preferences.reduce_motion) {
+    if (prefs.reduce_motion) {
       root.classList.add("reduce-motion")
     } else {
       root.classList.remove("reduce-motion")
