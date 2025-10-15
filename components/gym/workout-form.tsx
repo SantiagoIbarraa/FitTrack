@@ -9,6 +9,7 @@ import { Plus, Loader2, Edit, Dumbbell } from "lucide-react"
 import { createWorkout, updateWorkout } from "@/lib/gym-actions"
 import { addExerciseToRoutine, updateExerciseInRoutine } from "@/lib/routine-actions"
 import ExerciseSelectorModal from "./exercise-selector-modal"
+import SuccessModal from "@/components/ui/success-modal"
 
 interface Workout {
   id: string
@@ -42,6 +43,8 @@ export default function WorkoutForm({ onWorkoutAdded, editWorkout, onEditComplet
   const [selectedExercise, setSelectedExercise] = useState<GymExercise | null>(null)
   const [customExerciseName, setCustomExerciseName] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [successMessage, setSuccessMessage] = useState({ title: "", message: "" })
 
   useEffect(() => {
     if (editWorkout) {
@@ -113,15 +116,26 @@ export default function WorkoutForm({ onWorkoutAdded, editWorkout, onEditComplet
       console.log("[v0] Result from routine action:", result)
 
       if (result?.success) {
-        setIsOpen(false)
-        setSelectedExercise(null)
-        setCustomExerciseName("")
-        setIsSubmitting(false)
-        if (editWorkout) {
-          onEditComplete?.()
-        } else {
-          onWorkoutAdded?.()
-        }
+        setSuccessMessage({
+          title: editWorkout ? "¡Ejercicio Actualizado!" : "¡Ejercicio Guardado!",
+          message: editWorkout
+            ? `${exerciseName} se ha actualizado correctamente en tu rutina.`
+            : `${exerciseName} se ha agregado correctamente a tu rutina.`,
+        })
+        setShowSuccessModal(true)
+
+        setTimeout(() => {
+          setShowSuccessModal(false)
+          setIsOpen(false)
+          setSelectedExercise(null)
+          setCustomExerciseName("")
+          setIsSubmitting(false)
+          if (editWorkout) {
+            onEditComplete?.()
+          } else {
+            onWorkoutAdded?.()
+          }
+        }, 1500)
       } else {
         console.error("[v0] Operation failed:", result?.error)
         alert(result?.error || "Error al guardar el ejercicio")
@@ -150,15 +164,26 @@ export default function WorkoutForm({ onWorkoutAdded, editWorkout, onEditComplet
       console.log("[v0] Result from gym action:", result)
 
       if (result?.success) {
-        setIsOpen(false)
-        setSelectedExercise(null)
-        setCustomExerciseName("")
-        setIsSubmitting(false)
-        if (editWorkout) {
-          onEditComplete?.()
-        } else {
-          onWorkoutAdded?.()
-        }
+        setSuccessMessage({
+          title: editWorkout ? "¡Ejercicio Actualizado!" : "¡Ejercicio Guardado!",
+          message: editWorkout
+            ? `${exerciseName} se ha actualizado correctamente.`
+            : `${exerciseName} se ha guardado correctamente.`,
+        })
+        setShowSuccessModal(true)
+
+        setTimeout(() => {
+          setShowSuccessModal(false)
+          setIsOpen(false)
+          setSelectedExercise(null)
+          setCustomExerciseName("")
+          setIsSubmitting(false)
+          if (editWorkout) {
+            onEditComplete?.()
+          } else {
+            onWorkoutAdded?.()
+          }
+        }, 1500)
       } else {
         console.error("[v0] Operation failed:", result?.error)
         alert(result?.error || "Error al guardar el ejercicio")
@@ -191,6 +216,14 @@ export default function WorkoutForm({ onWorkoutAdded, editWorkout, onEditComplet
         open={showExerciseModal}
         onOpenChange={setShowExerciseModal}
         onSelectExercise={handleExerciseSelect}
+      />
+
+      <SuccessModal
+        open={showSuccessModal}
+        onOpenChange={setShowSuccessModal}
+        title={successMessage.title}
+        message={successMessage.message}
+        icon={Dumbbell}
       />
 
       <Card>
