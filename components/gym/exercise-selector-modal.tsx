@@ -58,7 +58,7 @@ export default function ExerciseSelectorModal({ open, onOpenChange, onSelectExer
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[95vw] max-h-[90vh] p-0">
+      <DialogContent className="w-[95vw]  max-h-[90vh] p-0">
         <DialogHeader className="px-6 pt-6 pb-4">
           <DialogTitle className="text-2xl font-bold">Seleccionar Ejercicio</DialogTitle>
         </DialogHeader>

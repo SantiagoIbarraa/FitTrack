@@ -10,7 +10,13 @@ export const isSupabaseConfigured = true
 
 export function createClient() {
   try {
-    return createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    return createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+      },
+    })
   } catch (error) {
     console.error("[v0] Error creating Supabase client:", error)
     // Return a mock client that won't crash the app

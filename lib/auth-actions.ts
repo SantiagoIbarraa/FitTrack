@@ -148,5 +148,5 @@ export async function signUp(prevState: any, formData: FormData) {
 export async function signOut() {
   const supabase = await createClient()
   await supabase.auth.signOut()
-  redirect("/auth/login")
+  redirect("/welcome")
 }
