@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -8,28 +10,41 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label"
 import { Plus, Loader2, CheckCircle } from "lucide-react"
 import { createRunningSession } from "@/lib/running-actions"
-import { useActionState } from "react"
 
 export default function RunningForm({ onSessionAdded }: { onSessionAdded?: () => void }) {
-  const [state, formAction] = useActionState(createRunningSession, null)
   const [isOpen, setIsOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
-  const handleSubmit = async (formData: FormData) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
     setIsSubmitting(true)
-    const result = await formAction(formData)
+    setError(null)
+
+    const formData = new FormData(e.currentTarget)
+
+    console.log("[v0] Running form - submitting session")
+    const result = await createRunningSession(null, formData)
+    console.log("[v0] Running form - result:", result)
+
     setIsSubmitting(false)
 
     if (result?.success) {
+      console.log("[v0] Running form - session saved successfully, closing form")
       setShowSuccess(true)
+
+      // Close form and refresh after a short delay
       setTimeout(() => {
-        router.refresh()
         setIsOpen(false)
         setShowSuccess(false)
+        router.refresh()
         onSessionAdded?.()
-      }, 1000)
+      }, 800)
+    } else if (result?.error) {
+      console.log("[v0] Running form - error:", result.error)
+      setError(result.error)
     }
   }
 
@@ -56,10 +71,10 @@ export default function RunningForm({ onSessionAdded }: { onSessionAdded?: () =>
           </div>
         )}
 
-        <form action={handleSubmit} className="space-y-4">
-          {state?.error && (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded text-sm">
-              {state.error}
+              {error}
             </div>
           )}
 

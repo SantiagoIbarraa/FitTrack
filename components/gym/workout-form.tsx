@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label"
 import { Plus, Loader2, Edit, Dumbbell } from "lucide-react"
 import { createWorkout, updateWorkout } from "@/lib/gym-actions"
 import { addExerciseToRoutine, updateExerciseInRoutine } from "@/lib/routine-actions"
-import { useActionState } from "react"
 import ExerciseSelectorModal from "./exercise-selector-modal"
 
 interface Workout {
@@ -38,7 +37,6 @@ interface WorkoutFormProps {
 }
 
 export default function WorkoutForm({ onWorkoutAdded, editWorkout, onEditComplete, routineId }: WorkoutFormProps) {
-  const [state, formAction] = useActionState(editWorkout ? updateWorkout : createWorkout, null)
   const [isOpen, setIsOpen] = useState(false)
   const [showExerciseModal, setShowExerciseModal] = useState(false)
   const [selectedExercise, setSelectedExercise] = useState<GymExercise | null>(null)
@@ -74,30 +72,19 @@ export default function WorkoutForm({ onWorkoutAdded, editWorkout, onEditComplet
 
     if (!exerciseName) {
       console.log("[v0] No exercise name provided")
+      alert("Por favor selecciona o escribe un nombre de ejercicio")
       setIsSubmitting(false)
       return
     }
 
     const imageUrl = selectedExercise?.image_url || formData.get("image_url")?.toString() || null
+    const weightValue = formData.get("weight_kg")?.toString()
+    const repsValue = formData.get("repetitions")?.toString()
+    const setsValue = formData.get("sets")?.toString()
 
-    const newFormData = new FormData()
-    newFormData.append("exercise_name", exerciseName)
-    newFormData.append("weight_kg", formData.get("weight_kg")?.toString() || "")
-    newFormData.append("repetitions", formData.get("repetitions")?.toString() || "")
-    newFormData.append("sets", formData.get("sets")?.toString() || "")
-    newFormData.append("image_url", imageUrl || "")
-
-    if (editWorkout) {
-      newFormData.append("id", editWorkout.id)
-    }
+    console.log("[v0] Form values - weight:", weightValue, "reps:", repsValue, "sets:", setsValue)
 
     if (routineId) {
-      const weightValue = formData.get("weight_kg")?.toString()
-      const repsValue = formData.get("repetitions")?.toString()
-      const setsValue = formData.get("sets")?.toString()
-
-      console.log("[v0] Form values - weight:", weightValue, "reps:", repsValue, "sets:", setsValue)
-
       if (!weightValue || weightValue.trim() === "") {
         alert("El peso es obligatorio para ejercicios en rutinas")
         setIsSubmitting(false)
@@ -112,8 +99,7 @@ export default function WorkoutForm({ onWorkoutAdded, editWorkout, onEditComplet
         image_url: imageUrl,
       }
 
-      console.log("[v0] Submitting exercise data:", exerciseData)
-      console.log("[v0] Is this an update?", !!editWorkout, "Exercise ID:", editWorkout?.id)
+      console.log("[v0] Submitting routine exercise data:", exerciseData)
 
       let result
       if (editWorkout) {
@@ -142,7 +128,27 @@ export default function WorkoutForm({ onWorkoutAdded, editWorkout, onEditComplet
         setIsSubmitting(false)
       }
     } else {
-      const result = await formAction(newFormData)
+      const workoutData = {
+        exercise_name: exerciseName,
+        weight_kg: weightValue && weightValue.trim() !== "" ? Number.parseFloat(weightValue) : null,
+        repetitions: repsValue && repsValue.trim() !== "" ? Number.parseInt(repsValue) : null,
+        sets: setsValue && setsValue.trim() !== "" ? Number.parseInt(setsValue) : null,
+        image_url: imageUrl,
+      }
+
+      console.log("[v0] Submitting individual workout data:", workoutData)
+
+      let result
+      if (editWorkout) {
+        console.log("[v0] Calling updateWorkout with ID:", editWorkout.id)
+        result = await updateWorkout({ id: editWorkout.id, ...workoutData })
+      } else {
+        console.log("[v0] Calling createWorkout")
+        result = await createWorkout(workoutData)
+      }
+
+      console.log("[v0] Result from gym action:", result)
+
       if (result?.success) {
         setIsOpen(false)
         setSelectedExercise(null)
@@ -154,6 +160,8 @@ export default function WorkoutForm({ onWorkoutAdded, editWorkout, onEditComplet
           onWorkoutAdded?.()
         }
       } else {
+        console.error("[v0] Operation failed:", result?.error)
+        alert(result?.error || "Error al guardar el ejercicio")
         setIsSubmitting(false)
       }
     }
@@ -210,12 +218,6 @@ export default function WorkoutForm({ onWorkoutAdded, editWorkout, onEditComplet
         </CardHeader>
         <CardContent>
           <form action={handleSubmit} className="space-y-4">
-            {state?.error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
-                {state.error}
-              </div>
-            )}
-
             <div className="grid grid-cols-1 gap-4">
               {!editWorkout && (
                 <div className="space-y-2">

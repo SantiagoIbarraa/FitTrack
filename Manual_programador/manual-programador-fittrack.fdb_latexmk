@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1760545981.66198 "c:/Users/vdrgdre/Desktop/Estudio/Proyecto, Diseño e Implementación de Sistemas Computacionales 2025/FitTrack/Manual_programador/manual-programador-fittrack.tex" "manual-programador-fittrack.pdf" "manual-programador-fittrack" 1760545985.1543 0
+["pdflatex"] 1760540674.75051 "c:/Users/vdrgdre/Desktop/Estudio/Proyecto, Diseño e Implementación de Sistemas Computacionales 2025/FitTrack/Manual_programador/manual-programador-fittrack.tex" "manual-programador-fittrack.pdf" "manual-programador-fittrack" 1760540678.39014 0
   "C:/Users/vdrgdre/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1760507893 80909 eab91d9745dd2edfd62a31d53cd5fe15 ""
   "C:/Users/vdrgdre/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/tcrm1200.pk" 1746316081 14064 55948f427573ddfd208b9ace78766696 ""
   "C:/Users/vdrgdre/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/tctt1000.pk" 1750128529 9492 1d9ea95c419bfa7696377b23ab98fee1 ""
@@ -114,11 +114,11 @@
   "C:/Users/vdrgdre/AppData/Local/Programs/MiKTeX/tex/latex/tools/longtable.sty" 1700599895 12935 94a3291359b5f73ff1b19345a6983105 ""
   "C:/Users/vdrgdre/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "C:/Users/vdrgdre/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1700127522 55487 80a65caedd3722f4c20a14a69e785d8f ""
-  "c:/Users/vdrgdre/Desktop/Estudio/Proyecto, Diseño e Implementación de Sistemas Computacionales 2025/FitTrack/Manual_programador/manual-programador-fittrack.tex" 1760556758 166686 a883b6ccc9f04af2a0592f9e35a0cebc ""
-  "manual-programador-fittrack.aux" 1760545984 50211 443df8b93641d6221cebfe8f95b71e58 "pdflatex"
-  "manual-programador-fittrack.out" 1760545984 51674 12512ed8897ea0cac5aa5ec36bbd23c5 "pdflatex"
-  "manual-programador-fittrack.tex" 1760556758 166686 a883b6ccc9f04af2a0592f9e35a0cebc ""
-  "manual-programador-fittrack.toc" 1760545984 25936 66eac8f7c707acdb125df84d7fc92a75 "pdflatex"
+  "c:/Users/vdrgdre/Desktop/Estudio/Proyecto, Diseño e Implementación de Sistemas Computacionales 2025/FitTrack/Manual_programador/manual-programador-fittrack.tex" 1760540672 166687 a883b6ccc9f04af2a0592f9e35a0cebc ""
+  "manual-programador-fittrack.aux" 1760540678 50211 443df8b93641d6221cebfe8f95b71e58 "pdflatex"
+  "manual-programador-fittrack.out" 1760540678 51674 12512ed8897ea0cac5aa5ec36bbd23c5 "pdflatex"
+  "manual-programador-fittrack.tex" 1760540672 166687 a883b6ccc9f04af2a0592f9e35a0cebc ""
+  "manual-programador-fittrack.toc" 1760540678 25936 66eac8f7c707acdb125df84d7fc92a75 "pdflatex"
   (generated)
   "manual-programador-fittrack.aux"
   "manual-programador-fittrack.log"

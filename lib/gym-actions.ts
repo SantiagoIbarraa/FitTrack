@@ -3,14 +3,16 @@
 import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
 
-export async function createWorkout(prevState: any, formData: FormData) {
-  const exercise_name = formData.get("exercise_name")?.toString()
-  const weight_kg = formData.get("weight_kg")?.toString()
-  const repetitions = formData.get("repetitions")?.toString()
-  const sets = formData.get("sets")?.toString()
-  const image_url = formData.get("image_url")?.toString()
+export async function createWorkout(data: {
+  exercise_name: string
+  weight_kg: number | null
+  repetitions: number | null
+  sets: number | null
+  image_url: string | null
+}) {
+  console.log("[v0] createWorkout called with:", data)
 
-  if (!exercise_name) {
+  if (!data.exercise_name) {
     return { error: "El nombre del ejercicio es requerido" }
   }
 
@@ -26,37 +28,42 @@ export async function createWorkout(prevState: any, formData: FormData) {
   try {
     const insertData = {
       user_id: user.id,
-      exercise_name,
-      weight_kg: weight_kg && weight_kg.trim() !== "" ? Math.max(0, Number.parseFloat(weight_kg)) : null,
-      repetitions: repetitions && repetitions.trim() !== "" ? Math.max(1, Number.parseInt(repetitions)) : null,
-      sets: sets && sets.trim() !== "" ? Math.max(1, Number.parseInt(sets)) : null,
-      image_url: image_url && image_url.trim() !== "" ? image_url.trim() : null,
+      exercise_name: data.exercise_name,
+      weight_kg: data.weight_kg,
+      repetitions: data.repetitions,
+      sets: data.sets,
+      image_url: data.image_url,
     }
+
+    console.log("[v0] Inserting workout:", insertData)
 
     const { error } = await supabase.from("gym_workouts").insert(insertData)
 
     if (error) {
-      console.error("Database error:", error)
+      console.error("[v0] Database error:", error)
       return { error: "Error al guardar el ejercicio" }
     }
 
+    console.log("[v0] Workout created successfully")
     revalidatePath("/gym")
     return { success: true }
   } catch (error) {
-    console.error("Error:", error)
+    console.error("[v0] Error:", error)
     return { error: "Error al guardar el ejercicio" }
   }
 }
 
-export async function updateWorkout(prevState: any, formData: FormData) {
-  const id = formData.get("id")?.toString()
-  const exercise_name = formData.get("exercise_name")?.toString()
-  const weight_kg = formData.get("weight_kg")?.toString()
-  const repetitions = formData.get("repetitions")?.toString()
-  const sets = formData.get("sets")?.toString()
-  const image_url = formData.get("image_url")?.toString()
+export async function updateWorkout(data: {
+  id: string
+  exercise_name: string
+  weight_kg: number | null
+  repetitions: number | null
+  sets: number | null
+  image_url: string | null
+}) {
+  console.log("[v0] updateWorkout called with:", data)
 
-  if (!id || !exercise_name) {
+  if (!data.id || !data.exercise_name) {
     return { error: "ID y nombre del ejercicio son requeridos" }
   }
 
@@ -70,27 +77,28 @@ export async function updateWorkout(prevState: any, formData: FormData) {
   }
 
   try {
-    const { error } = await supabase
-      .from("gym_workouts")
-      .update({
-        exercise_name,
-        weight_kg: weight_kg && weight_kg.trim() !== "" ? Math.max(0, Number.parseFloat(weight_kg)) : null,
-        repetitions: repetitions && repetitions.trim() !== "" ? Math.max(1, Number.parseInt(repetitions)) : null,
-        sets: sets && sets.trim() !== "" ? Math.max(1, Number.parseInt(sets)) : null,
-        image_url: image_url && image_url.trim() !== "" ? image_url.trim() : null,
-      })
-      .eq("id", id)
-      .eq("user_id", user.id)
+    const updateData = {
+      exercise_name: data.exercise_name,
+      weight_kg: data.weight_kg,
+      repetitions: data.repetitions,
+      sets: data.sets,
+      image_url: data.image_url,
+    }
+
+    console.log("[v0] Updating workout:", updateData)
+
+    const { error } = await supabase.from("gym_workouts").update(updateData).eq("id", data.id).eq("user_id", user.id)
 
     if (error) {
-      console.error("Database error:", error)
+      console.error("[v0] Database error:", error)
       return { error: "Error al actualizar el ejercicio" }
     }
 
+    console.log("[v0] Workout updated successfully")
     revalidatePath("/gym")
     return { success: true }
   } catch (error) {
-    console.error("Error:", error)
+    console.error("[v0] Error:", error)
     return { error: "Error al actualizar el ejercicio" }
   }
 }
