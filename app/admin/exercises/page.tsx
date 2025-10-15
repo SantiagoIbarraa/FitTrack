@@ -1,28 +1,76 @@
-import { redirect } from "next/navigation"
+"use client"
+
+import { useState, useEffect } from "react"
 import { isAdmin } from "@/lib/admin-actions"
-import { getGymExercises } from "@/lib/exercise-actions"
 import { ExerciseManagement } from "@/components/admin/exercise-management"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ArrowLeft, AlertCircle } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Skeleton } from "@/components/ui/skeleton"
 
-export default async function AdminExercisesPage() {
-  let admin = false
-  let exercises: any[] = []
-  let connectionError = false
+export default function AdminExercisesPage() {
+  const [exercises, setExercises] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [admin, setAdmin] = useState(false)
 
-  try {
-    admin = await isAdmin()
-
-    if (!admin) {
-      redirect("/")
+  useEffect(() => {
+    const checkAdmin = async () => {
+      try {
+        const isAdminResult = await isAdmin()
+        setAdmin(isAdminResult)
+      } catch (err: any) {
+        setError(err.message)
+      }
     }
 
-    exercises = await getGymExercises()
-  } catch (error) {
-    console.error("[v0] Error loading admin exercises page:", error)
-    connectionError = true
+    checkAdmin()
+  }, [])
+
+  useEffect(() => {
+    const fetchExercises = async () => {
+      try {
+        const response = await fetch("/api/exercises")
+        if (!response.ok) {
+          throw new Error("Failed to fetch exercises")
+        }
+        const data = await response.json()
+        setExercises(data)
+      } catch (err: any) {
+        setError(err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (admin) {
+      fetchExercises()
+    }
+  }, [admin])
+
+  if (!admin) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="container mx-auto px-4 py-8">
+          <div className="mb-6 flex gap-4">
+            <Button variant="outline" asChild>
+              <Link href="/">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Volver al Inicio
+              </Link>
+            </Button>
+          </div>
+
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Acceso Denegado</h1>
+            <p className="text-lg text-gray-700 dark:text-gray-300">
+              No tienes permiso para acceder a esta página
+            </p>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -44,25 +92,23 @@ export default async function AdminExercisesPage() {
           </p>
         </div>
 
-        {connectionError && (
+        {error && (
           <Alert variant="destructive" className="mb-6">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Error de Conexión</AlertTitle>
-            <AlertDescription>
-              No se pudo conectar a la base de datos de Supabase. Esto es normal en el entorno de vista previa de v0.
-              <br />
-              <br />
-              Para usar esta funcionalidad:
-              <ul className="list-disc list-inside mt-2">
-                <li>Descarga el código y ejecútalo localmente</li>
-                <li>O despliega el proyecto en Vercel</li>
-                <li>Asegúrate de que tu instancia de Supabase esté accesible públicamente</li>
-              </ul>
-            </AlertDescription>
+            <AlertTitle>Error de Carga</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
 
-        {!connectionError && <ExerciseManagement exercises={exercises} />}
+        {loading ? (
+          <div className="space-y-4">
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-24 w-full" />
+          </div>
+        ) : (
+          <ExerciseManagement initialExercises={exercises} />
+        )}
       </div>
     </div>
   )

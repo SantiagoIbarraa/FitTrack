@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Plus, Edit, Trash2, Dumbbell, Search, Upload, LinkIcon, X } from "lucide-react"
-import { createGymExercise, updateGymExercise, deleteGymExercise, uploadExerciseImage } from "@/lib/exercise-actions"
+
 import { useToast } from "@/hooks/use-toast"
 
 interface Exercise {
@@ -25,7 +25,7 @@ interface Exercise {
 }
 
 interface ExerciseManagementProps {
-  exercises: Exercise[]
+  initialExercises: Exercise[]
 }
 
 const CATEGORIES = ["Pecho", "Bíceps", "Tríceps", "Hombros", "Pierna", "Espalda", "Otros"]
@@ -40,7 +40,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   Otros: "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200",
 }
 
-export function ExerciseManagement({ exercises: initialExercises }: ExerciseManagementProps) {
+export function ExerciseManagement({ initialExercises }: ExerciseManagementProps) {
   const [exercises, setExercises] = useState(initialExercises)
   const [showForm, setShowForm] = useState(false)
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null)
@@ -64,20 +64,12 @@ export function ExerciseManagement({ exercises: initialExercises }: ExerciseMana
     if (!file) return
 
     if (!file.type.startsWith("image/")) {
-      toast({
-        title: "Error",
-        description: "El archivo debe ser una imagen",
-        variant: "destructive",
-      })
+      toast({ title: "Error", description: "El archivo debe ser una imagen", variant: "destructive" })
       return
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: "Error",
-        description: "El archivo no debe superar los 5MB",
-        variant: "destructive",
-      })
+      toast({ title: "Error", description: "El archivo no debe superar los 5MB", variant: "destructive" })
       return
     }
 
@@ -92,24 +84,26 @@ export function ExerciseManagement({ exercises: initialExercises }: ExerciseMana
     const uploadFormData = new FormData()
     uploadFormData.append("file", file)
 
-    const result = await uploadExerciseImage(uploadFormData)
-
-    if (result?.error) {
-      toast({
-        title: "Error",
-        description: result.error,
-        variant: "destructive",
+    try {
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: uploadFormData,
       })
-      setImagePreview(null)
-    } else if (result?.imageUrl) {
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || "Error al subir la imagen")
+      }
+
       setFormData({ ...formData, image_url: result.imageUrl })
-      toast({
-        title: "Éxito",
-        description: "Imagen subida correctamente",
-      })
+      toast({ title: "Éxito", description: "Imagen subida correctamente" })
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" })
+      setImagePreview(null)
+    } finally {
+      setUploadingImage(false)
     }
-
-    setUploadingImage(false)
   }
 
   const handleClearImage = () => {
@@ -121,87 +115,41 @@ export function ExerciseManagement({ exercises: initialExercises }: ExerciseMana
     e.preventDefault()
     setLoading(true)
 
-    console.log("[v0] Form data before submission:", formData)
-    console.log("[v0] Image URL value:", formData.image_url)
-    console.log("[v0] Image URL length:", formData.image_url?.length || 0)
+    const url = editingExercise ? `/api/exercises/${editingExercise.id}` : "/api/exercises"
+    const method = editingExercise ? "PUT" : "POST"
 
-    const formDataObj = new FormData()
-    formDataObj.append("name", formData.name)
-    formDataObj.append("category", formData.category)
-    formDataObj.append("description", formData.description)
-    formDataObj.append("image_url", formData.image_url)
-
-    console.log("[v0] FormData contents:")
-    for (const [key, value] of formDataObj.entries()) {
-      console.log(`[v0]   ${key}:`, value)
-    }
-
-    let result
-    if (editingExercise) {
-      console.log("[v0] Updating exercise:", editingExercise.id)
-      result = await updateGymExercise(editingExercise.id, formDataObj)
-    } else {
-      console.log("[v0] Creating new exercise")
-      result = await createGymExercise(null, formDataObj)
-    }
-
-    console.log("[v0] Server action result:", result)
-
-    if (result?.error) {
-      toast({
-        title: "Error",
-        description: result.error,
-        variant: "destructive",
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       })
-    } else {
-      const savedImageUrl = result?.data?.image_url
-      console.log("[v0] Saved image URL from server:", savedImageUrl)
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || "Ocurrió un error")
+      }
 
       if (editingExercise) {
-        setExercises(
-          exercises.map((ex) =>
-            ex.id === editingExercise.id
-              ? {
-                  ...ex,
-                  name: formData.name,
-                  category: formData.category,
-                  description: formData.description,
-                  image_url: formData.image_url,
-                }
-              : ex,
-          ),
-        )
-        toast({
-          title: "Éxito",
-          description: savedImageUrl
-            ? `Ejercicio actualizado. Imagen guardada: ${savedImageUrl.substring(0, 50)}...`
-            : "Ejercicio actualizado correctamente.",
-        })
+        setExercises(exercises.map((ex) => (ex.id === editingExercise.id ? result : ex)))
+        toast({ title: "Éxito", description: "Ejercicio actualizado correctamente." })
       } else {
-        const newExercise: Exercise = {
-          id: result?.data?.id || crypto.randomUUID(),
-          name: formData.name,
-          category: formData.category,
-          description: formData.description,
-          image_url: formData.image_url,
-          created_at: new Date().toISOString(),
-        }
-        setExercises([...exercises, newExercise])
-        toast({
-          title: "Éxito",
-          description: savedImageUrl
-            ? `Ejercicio creado. Imagen guardada: ${savedImageUrl.substring(0, 50)}...`
-            : "Ejercicio creado correctamente.",
-        })
+        setExercises([...exercises, result])
+        toast({ title: "Éxito", description: "Ejercicio creado correctamente." })
       }
 
       setShowForm(false)
       setEditingExercise(null)
       setFormData({ name: "", category: "Pecho", description: "", image_url: "" })
       setImagePreview(null)
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" })
+    } finally {
+      setLoading(false)
     }
-
-    setLoading(false)
   }
 
   const handleEdit = (exercise: Exercise) => {
@@ -223,20 +171,20 @@ export function ExerciseManagement({ exercises: initialExercises }: ExerciseMana
       return
     }
 
-    const result = await deleteGymExercise(exerciseId)
+    try {
+      const response = await fetch(`/api/exercises/${exerciseId}`, {
+        method: "DELETE",
+      })
 
-    if (result?.error) {
-      toast({
-        title: "Error",
-        description: result.error,
-        variant: "destructive",
-      })
-    } else {
-      toast({
-        title: "Éxito",
-        description: "Ejercicio eliminado",
-      })
+      if (!response.ok) {
+        const result = await response.json()
+        throw new Error(result.error || "Error al eliminar el ejercicio")
+      }
+
+      toast({ title: "Éxito", description: "Ejercicio eliminado" })
       setExercises(exercises.filter((e) => e.id !== exerciseId))
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" })
     }
   }
 

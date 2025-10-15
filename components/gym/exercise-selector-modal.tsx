@@ -116,7 +116,7 @@ export default function ExerciseSelectorModal({ open, onOpenChange, onSelectExer
                     <img
                       src={exercise.image_url || "/placeholder.svg"}
                       alt={exercise.name}
-                      className="w-16 h-16 rounded object-cover mb-2"
+                      className="w-32 h-32 rounded object-cover mb-2"
                     />
                   ) : (
                     <div className="w-16 h-16 rounded bg-muted flex items-center justify-center mb-2">

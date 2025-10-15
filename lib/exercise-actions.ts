@@ -69,9 +69,14 @@ export async function createGymExercise(prevState: any, formData: FormData) {
 
     console.log("[v0] Inserting data to database:", insertData)
 
-    const { data, error } = await supabase.from("gym_exercises").insert(insertData).select()
+    const ejercicio = {
+      name: "Ejercicio base de datos codigo",
+      category: "Otros",
+    }
 
+const { data, error } = await supabase.from("gym_exercises").insert(ejercicio).select()
     if (error) {
+
       console.error("[v0] Database error:", error)
       return { error: "Error al crear el ejercicio" }
     }
@@ -133,7 +138,7 @@ export async function updateGymExercise(exerciseId: string, formData: FormData) 
 
     console.log("[v0] Updating database with:", updateData)
 
-    const { data, error } = await supabase.from("gym_exercises").update(updateData).eq("id", exerciseId).select()
+    const { data, error } = await supabase.from("gym_exercises").update(updateData).eq("id", exerciseId).select().single()
 
     if (error) {
       console.error("[v0] Database error:", error)
@@ -227,7 +232,7 @@ export async function uploadExerciseImage(formData: FormData) {
 
     const fileExt = file.name.split(".").pop()
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
-    const filePath = `exercise-images/${fileName}`
+    const filePath = fileName
 
     const { data, error: uploadError } = await supabase.storage.from("exercise-images").upload(filePath, file, {
       cacheControl: "3600",
