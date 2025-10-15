@@ -1,0 +1,1384 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{float}
+
+% Configuración de página
+\geometry{margin=2.5cm}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Módulo de Mensajería - FitTrack}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Configuración de colores para código
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+% Configuración de listings
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+% Configuración de títulos
+\titleformat{\section}{\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+% Configuración de hipervínculos
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    citecolor=red,
+}
+
+\begin{document}
+
+% Portada
+\begin{titlepage}
+\centering
+\vspace*{2cm}
+
+{\Huge\bfseries Módulo de Mensajería}\\[0.5cm]
+{\LARGE FitTrack}\\[1cm]
+
+{\large Sistema de Comunicación y Accesibilidad}\\[2cm]
+
+\begin{minipage}{0.8\textwidth}
+\centering
+Este módulo proporciona un sistema completo de mensajería entre usuarios y profesionales, gestión de roles y permisos, y configuraciones avanzadas de accesibilidad para hacer la aplicación inclusiva para todos los usuarios.
+\end{minipage}
+
+\vfill
+
+{\large Versión 1.0}\\[0.5cm]
+{\large \today}
+
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section{Introducción al Módulo de Mensajería}
+
+El módulo de mensajería de FitTrack es un sistema integral que combina comunicación en tiempo real entre usuarios y profesionales con un sistema robusto de gestión de roles y configuraciones avanzadas de accesibilidad. Este módulo está diseñado para facilitar la interacción entre usuarios regulares y profesionales de la salud y fitness, mientras garantiza la inclusividad y accesibilidad para todos los usuarios.
+
+\subsection{Características Principales}
+
+\begin{itemize}
+    \item \textbf{Sistema de Mensajería en Tiempo Real}: Comunicación instantánea entre usuarios y profesionales
+    \item \textbf{Gestión de Roles Avanzada}: Sistema de tres niveles (Usuario, Profesional, Administrador)
+    \item \textbf{Configuraciones de Accesibilidad}: Soporte completo para usuarios con diferentes necesidades
+    \item \textbf{Panel de Administración}: Gestión centralizada de usuarios y roles
+    \item \textbf{Seguridad Robusta}: Row Level Security (RLS) y validaciones estrictas
+    \item \textbf{Interfaz Intuitiva}: Diseño responsivo y accesible
+    \item \textbf{Notificaciones en Tiempo Real}: Actualizaciones automáticas de mensajes
+\end{itemize}
+
+\subsection{Arquitectura General}
+
+El módulo sigue una arquitectura de microservicios con separación clara de responsabilidades:
+
+\begin{enumerate}
+    \item \textbf{Capa de Presentación}: Componentes React con TypeScript
+    \item \textbf{Capa de Lógica}: Server Actions de Next.js
+    \item \textbf{Capa de Datos}: Supabase PostgreSQL con RLS
+    \item \textbf{Capa de Servicios}: Gestión de roles y accesibilidad
+    \item \textbf{Capa de Seguridad}: Autenticación y autorización
+\end{enumerate}
+
+\section{Estructura de Base de Datos}
+
+\subsection{Diagrama de Relaciones}
+
+\begin{figure}[h]
+\centering
+\begin{verbatim}
+    auth.users
+         |
+    +----+----+----+
+    |         |    |
+user_roles  messages  user_preferences
+    |         |
+    |    conversations
+    |
+user_roles (self-reference)
+\end{verbatim}
+\caption{Diagrama de relaciones de las tablas del módulo de mensajería}
+\end{figure}
+
+\subsection{Tabla user\_roles}
+
+Esta tabla gestiona los roles y permisos de todos los usuarios del sistema.
+
+\begin{lstlisting}[caption=Estructura completa de user\_roles]
+CREATE TABLE IF NOT EXISTS public.user\_roles (
+  id UUID DEFAULT gen\_random\_uuid() PRIMARY KEY,
+  user\_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL UNIQUE,
+  role TEXT NOT NULL CHECK (role IN ('user', 'professional', 'admin')),
+  is\_active BOOLEAN DEFAULT true,
+  is\_professional BOOLEAN DEFAULT false,
+  approved\_by UUID REFERENCES auth.users(id),
+  approved\_at TIMESTAMP WITH TIME ZONE,
+  created\_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  updated\_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+\end{lstlisting}
+
+\textbf{Descripción de campos:}
+\begin{itemize}
+    \item \texttt{id}: Identificador único UUID generado automáticamente
+    \item \texttt{user\_id}: Referencia al usuario en auth.users
+    \item \texttt{role}: Rol del usuario ('user', 'professional', 'admin')
+    \item \texttt{is\_active}: Estado activo/inactivo del usuario
+    \item \texttt{is\_professional}: Indica si el usuario es profesional aprobado
+    \item \texttt{approved\_by}: ID del administrador que aprobó el rol
+    \item \texttt{approved\_at}: Timestamp de aprobación
+    \item \texttt{created\_at}: Timestamp de creación
+    \item \texttt{updated\_at}: Timestamp de última modificación
+\end{itemize}
+
+\subsection{Tabla messages}
+
+Almacena todos los mensajes del sistema de mensajería.
+
+\begin{lstlisting}[caption=Estructura completa de messages]
+CREATE TABLE IF NOT EXISTS public.messages (
+  id UUID DEFAULT gen\_random\_uuid() PRIMARY KEY,
+  sender\_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  receiver\_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  content TEXT NOT NULL,
+  read BOOLEAN DEFAULT false,
+  created\_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+\end{lstlisting}
+
+\textbf{Descripción de campos:}
+\begin{itemize}
+    \item \texttt{id}: Identificador único del mensaje
+    \item \texttt{sender\_id}: ID del usuario que envía el mensaje
+    \item \texttt{receiver\_id}: ID del usuario que recibe el mensaje
+    \item \texttt{content}: Contenido del mensaje
+    \item \texttt{read}: Estado de lectura del mensaje
+    \item \texttt{created\_at}: Timestamp de envío
+\end{itemize}
+
+\subsection{Tabla conversations}
+
+Agrupa los mensajes en conversaciones para facilitar la gestión.
+
+\begin{lstlisting}[caption=Estructura completa de conversations]
+CREATE TABLE IF NOT EXISTS public.conversations (
+  id UUID DEFAULT gen\_random\_uuid() PRIMARY KEY,
+  user1\_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  user2\_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  last\_message\_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  created\_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  UNIQUE(user1\_id, user2\_id)
+);
+\end{lstlisting}
+
+\textbf{Descripción de campos:}
+\begin{itemize}
+    \item \texttt{id}: Identificador único de la conversación
+    \item \texttt{user1\_id}: ID del primer usuario (ordenado alfabéticamente)
+    \item \texttt{user2\_id}: ID del segundo usuario (ordenado alfabéticamente)
+    \item \texttt{last\_message\_at}: Timestamp del último mensaje
+    \item \texttt{created\_at}: Timestamp de creación de la conversación
+\end{itemize}
+
+\subsection{Tabla user\_preferences}
+
+Almacena las configuraciones de accesibilidad de cada usuario.
+
+\begin{lstlisting}[caption=Estructura completa de user\_preferences]
+CREATE TABLE IF NOT EXISTS public.user\_preferences (
+  id UUID DEFAULT gen\_random\_uuid() PRIMARY KEY,
+  user\_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL UNIQUE,
+  color\_blind\_mode TEXT CHECK (color\_blind\_mode IN ('none', 'protanopia', 'deuteranopia', 'tritanopia')),
+  high\_contrast BOOLEAN DEFAULT false,
+  large\_text BOOLEAN DEFAULT false,
+  reduce\_motion BOOLEAN DEFAULT false,
+  screen\_reader\_optimized BOOLEAN DEFAULT false,
+  created\_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  updated\_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+\end{lstlisting}
+
+\textbf{Descripción de campos:}
+\begin{itemize}
+    \item \texttt{id}: Identificador único de las preferencias
+    \item \texttt{user\_id}: Referencia al usuario propietario
+    \item \texttt{color\_blind\_mode}: Modo de daltonismo configurado
+    \item \texttt{high\_contrast}: Activar alto contraste
+    \item \texttt{large\_text}: Activar texto grande
+    \item \texttt{reduce\_motion}: Reducir animaciones
+    \item \texttt{screen\_reader\_optimized}: Optimización para lectores de pantalla
+    \item \texttt{created\_at}: Timestamp de creación
+    \item \texttt{updated\_at}: Timestamp de última modificación
+\end{itemize}
+
+\subsection{Políticas de Seguridad (RLS)}
+
+Todas las tablas implementan Row Level Security para garantizar la privacidad y seguridad de los datos.
+
+\begin{lstlisting}[caption=Políticas RLS para user\_roles]
+-- Habilitar RLS
+ALTER TABLE public.user\_roles ENABLE ROW LEVEL SECURITY;
+
+-- Usuarios pueden ver su propio rol
+CREATE POLICY "Users can view own role" ON public.user\_roles
+  FOR SELECT USING (auth.uid() = user\_id);
+
+-- Administradores pueden ver todos los roles
+CREATE POLICY "Admins can view all roles" ON public.user\_roles
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM public.user\_roles 
+      WHERE user\_id = auth.uid() AND role = 'admin'
+    )
+  );
+
+-- Administradores pueden actualizar roles
+CREATE POLICY "Admins can update roles" ON public.user\_roles
+  FOR UPDATE USING (
+    EXISTS (
+      SELECT 1 FROM public.user\_roles 
+      WHERE user\_id = auth.uid() AND role = 'admin'
+    )
+  );
+\end{lstlisting}
+
+\begin{lstlisting}[caption=Políticas RLS para messages]
+-- Habilitar RLS
+ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
+
+-- Usuarios pueden ver sus propios mensajes
+CREATE POLICY "Users can view own messages" ON public.messages
+  FOR SELECT USING (auth.uid() = sender\_id OR auth.uid() = receiver\_id);
+
+-- Usuarios pueden enviar mensajes
+CREATE POLICY "Users can send messages" ON public.messages
+  FOR INSERT WITH CHECK (auth.uid() = sender\_id);
+
+-- Usuarios pueden marcar mensajes como leidos
+CREATE POLICY "Users can update own messages" ON public.messages
+  FOR UPDATE USING (auth.uid() = receiver\_id);
+\end{lstlisting}
+
+\section{Server Actions - Lógica de Negocio}
+
+Las Server Actions manejan toda la lógica de negocio del módulo de mensajería. Están implementadas en TypeScript con validación robusta y manejo de errores.
+
+\subsection{Archivo messaging-actions.ts}
+
+\subsubsection{sendMessage - Enviar Mensaje}
+
+\begin{lstlisting}[caption=Función sendMessage completa]
+"use server"
+
+import { createClient } from "@/lib/supabase/server"
+
+export async function sendMessage(receiverId: string, content: string) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: "No autenticado" }
+  }
+
+  // Crear o actualizar conversacion
+  const { error: convError } = await supabase.from("conversations").upsert(
+    {
+      user1\_id: user.id < receiverId ? user.id : receiverId,
+      user2\_id: user.id < receiverId ? receiverId : user.id,
+      last\_message\_at: new Date().toISOString(),
+    },
+    {
+      onConflict: "user1\_id,user2\_id",
+    },
+  )
+
+  if (convError) {
+    console.error("Error creating conversation:", convError)
+  }
+
+  // Enviar mensaje
+  const { error } = await supabase.from("messages").insert({
+    sender\_id: user.id,
+    receiver\_id: receiverId,
+    content,
+  })
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  return { success: true }
+}
+\end{lstlisting}
+
+\textbf{Características importantes:}
+\begin{itemize}
+    \item \textbf{Validación de autenticación}: Verifica que el usuario esté autenticado
+    \item \textbf{Creación automática de conversación}: Crea la conversación si no existe
+    \item \textbf{Ordenamiento consistente}: user1\_id siempre es menor que user2\_id
+    \item \textbf{Manejo de errores}: Captura y reporta errores de base de datos
+    \item \textbf{Actualización de timestamp}: Actualiza last\_message\_at automáticamente
+\end{itemize}
+
+\subsubsection{getMessages - Obtener Mensajes}
+
+\begin{lstlisting}[caption=Función getMessages completa]
+export async function getMessages(otherUserId: string) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: "No autenticado" }
+  }
+
+  const { data, error } = await supabase
+    .from("messages")
+    .select("*")
+    .or(
+      `and(sender\_id.eq.${user.id},receiver\_id.eq.${otherUserId}),and(sender\_id.eq.${otherUserId},receiver\_id.eq.${user.id})`,
+    )
+    .order("created\_at", { ascending: true })
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  return { messages: data }
+}
+\end{lstlisting}
+
+\subsubsection{getAvailableContacts - Obtener Contactos Disponibles}
+
+\begin{lstlisting}[caption=Función getAvailableContacts completa]
+export async function getAvailableContacts() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: "No autenticado" }
+  }
+
+  const result = await getAllActiveUsers()
+
+  if (result.error) {
+    return { error: result.error }
+  }
+
+  // Retornar todos los usuarios activos (ya filtrados para excluir usuario actual)
+  return { professionals: result.users || [] }
+}
+\end{lstlisting}
+
+\subsection{Archivo role-actions.ts}
+
+\subsubsection{updateUserRole - Actualizar Rol de Usuario}
+
+\begin{lstlisting}[caption=Función updateUserRole completa]
+export async function updateUserRole(
+  userId: string,
+  role: UserRole,
+  isApproved: boolean = false
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = await createClient()
+    const admin = await isAdmin()
+
+    if (!admin) {
+      return { success: false, error: "No tienes permisos de administrador" }
+    }
+
+    const { error } = await supabase
+      .from("user\_roles")
+      .update({
+        role,
+        is\_approved: role === "professional" ? isApproved : true,
+        updated\_at: new Date().toISOString(),
+      })
+      .eq("user\_id", userId)
+
+    if (error) throw error
+
+    return { success: true }
+  } catch (error) {
+    console.error("Error updating user role:", error)
+    return { success: false, error: "Error al actualizar rol" }
+  }
+}
+\end{lstlisting}
+
+\subsection{Archivo accessibility-actions.ts}
+
+\subsubsection{updateUserPreferences - Actualizar Preferencias de Accesibilidad}
+
+\begin{lstlisting}[caption=Función updateUserPreferences completa]
+export async function updateUserPreferences(preferences: {
+  color\_blind\_mode?: string
+  high\_contrast?: boolean
+  large\_text?: boolean
+  reduce\_motion?: boolean
+  screen\_reader\_optimized?: boolean
+}) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: "No autenticado" }
+  }
+
+  const { error } = await supabase.from("user\_preferences").upsert(
+    {
+      user\_id: user.id,
+      ...preferences,
+    },
+    {
+      onConflict: "user\_id",
+    },
+  )
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  return { success: true }
+}
+\end{lstlisting}
+
+\section{Componentes React}
+
+\subsection{Página Principal - MessagesPage}
+
+El componente principal que coordina toda la funcionalidad del módulo de mensajería.
+
+\begin{lstlisting}[caption=app/messages/page.tsx - Estructura completa]
+import { redirect } from "next/navigation"
+import { createClient } from "@/lib/supabase/server"
+import { MessagingInterface } from "@/components/messaging/messaging-interface"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
+import { ArrowLeft } from "lucide-react"
+
+export default async function MessagesPage() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect("/auth/login")
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-6">
+          <Button variant="outline" asChild>
+            <Link href="/">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Volver al inicio
+            </Link>
+          </Button>
+        </div>
+
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Mensajes</h1>
+          <p className="text-lg text-gray-700 dark:text-gray-300">Comunicate con otros usuarios de FitTrack</p>
+        </div>
+
+        <MessagingInterface userId={user.id} />
+      </div>
+    </div>
+  )
+}
+\end{lstlisting}
+
+\textbf{Características del componente:}
+\begin{itemize}
+    \item \textbf{Verificación de autenticación}: Redirige a login si no está autenticado
+    \item \textbf{Diseño responsivo}: Adaptable a diferentes tamaños de pantalla
+    \item \textbf{Tema oscuro}: Soporte completo para modo oscuro
+    \item \textbf{Navegación}: Botón de regreso al dashboard principal
+    \item \textbf{Server Component}: Renderizado en servidor para mejor performance
+\end{itemize}
+
+\subsection{Componente MessagingInterface}
+
+Interfaz principal de mensajería con lista de contactos y área de chat.
+
+\begin{lstlisting}[caption=components/messaging/messaging-interface.tsx - Estructura principal]
+"use client"
+
+import { useState, useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { getAvailableContacts, getMessages, sendMessage } from "@/lib/messaging-actions"
+import { useToast } from "@/hooks/use-toast"
+import { Send, MessageSquare, Search } from "lucide-react"
+
+interface Professional {
+  id: string
+  email: string
+  full\_name: string
+  is\_professional?: boolean
+  profile\_photo\_url?: string
+}
+
+interface Message {
+  id: string
+  sender\_id: string
+  receiver\_id: string
+  content: string
+  read: boolean
+  created\_at: string
+}
+
+interface MessagingInterfaceProps {
+  userId: string
+}
+
+export function MessagingInterface({ userId }: MessagingInterfaceProps) {
+  const [professionals, setProfessionals] = useState<Professional[]>([])
+  const [selectedProfessional, setSelectedProfessional] = useState<Professional | null>(null)
+  const [messages, setMessages] = useState<Message[]>([])
+  const [newMessage, setNewMessage] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [userFilter, setUserFilter] = useState<"all" | "professionals" | "non-professionals">("all")
+  const { toast } = useToast()
+
+  useEffect(() => {
+    loadProfessionals()
+  }, [])
+
+  useEffect(() => {
+    if (selectedProfessional) {
+      loadMessages(selectedProfessional.id)
+      const interval = setInterval(() => loadMessages(selectedProfessional.id), 5000)
+      return () => clearInterval(interval)
+    }
+  }, [selectedProfessional])
+
+  const loadProfessionals = async () => {
+    console.log("[v0] Loading professionals...")
+    const result = await getAvailableContacts()
+    console.log("[v0] getAvailableContacts result:", result)
+
+    if (result.error) {
+      toast({
+        title: "Error",
+        description: result.error,
+        variant: "destructive",
+      })
+    } else {
+      console.log("[v0] Setting professionals:", result.professionals)
+      setProfessionals(result.professionals || [])
+    }
+  }
+
+  const loadMessages = async (professionalId: string) => {
+    const result = await getMessages(professionalId)
+    if (result.error) {
+      toast({
+        title: "Error",
+        description: result.error,
+        variant: "destructive",
+      })
+    } else {
+      setMessages(result.messages || [])
+    }
+  }
+
+  const handleSendMessage = async () => {
+    if (!selectedProfessional || !newMessage.trim()) return
+
+    setLoading(true)
+    const result = await sendMessage(selectedProfessional.id, newMessage)
+
+    if (result.error) {
+      toast({
+        title: "Error",
+        description: result.error,
+        variant: "destructive",
+      })
+    } else {
+      setNewMessage("")
+      loadMessages(selectedProfessional.id)
+    }
+    setLoading(false)
+  }
+
+  // Resto del componente...
+}
+\end{lstlisting}
+
+\textbf{Características del componente:}
+\begin{itemize}
+    \item \textbf{Estado centralizado}: Maneja todos los estados de la aplicación
+    \item \textbf{Actualización automática}: Polling cada 5 segundos para nuevos mensajes
+    \item \textbf{Filtrado y búsqueda}: Filtros por tipo de usuario y búsqueda por nombre
+    \item \textbf{Manejo de errores}: Notificaciones toast para errores
+    \item \textbf{TypeScript}: Tipado estricto para mayor seguridad
+    \item \textbf{Interfaz responsiva}: Diseño adaptable a diferentes pantallas
+\end{itemize}
+
+\subsection{Componente AccessibilitySettings}
+
+Configuraciones avanzadas de accesibilidad para usuarios.
+
+\begin{lstlisting}[caption=components/accessibility/accessibility-settings.tsx - Estructura principal]
+"use client"
+
+import { useState } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
+import { updateUserPreferences } from "@/lib/accessibility-actions"
+import { useToast } from "@/hooks/use-toast"
+import { Eye, Type, Zap, Volume2, Palette, Moon, Sun } from "lucide-react"
+import { useTheme } from "next-themes"
+
+interface AccessibilitySettingsProps {
+  initialPreferences: any
+}
+
+export function AccessibilitySettings({ initialPreferences }: AccessibilitySettingsProps) {
+  const [preferences, setPreferences] = useState(initialPreferences)
+  const [loading, setLoading] = useState(false)
+  const { toast } = useToast()
+  const { theme, setTheme } = useTheme()
+
+  const handleSave = async () => {
+    setLoading(true)
+    const result = await updateUserPreferences(preferences)
+
+    if (result.error) {
+      toast({
+        title: "Error",
+        description: result.error,
+        variant: "destructive",
+      })
+    } else {
+      toast({
+        title: "Exito",
+        description: "Preferencias guardadas correctamente",
+      })
+      // Aplicar preferencias al documento
+      applyPreferences()
+    }
+    setLoading(false)
+  }
+
+  const applyPreferences = () => {
+    const root = document.documentElement
+
+    // Aplicar modo de daltonismo
+    root.setAttribute("data-color-blind-mode", preferences.color\_blind\_mode)
+
+    // Aplicar alto contraste
+    if (preferences.high\_contrast) {
+      root.classList.add("high-contrast")
+    } else {
+      root.classList.remove("high-contrast")
+    }
+
+    // Aplicar texto grande
+    if (preferences.large\_text) {
+      root.classList.add("large-text")
+    } else {
+      root.classList.remove("large-text")
+    }
+
+    // Aplicar reducir movimiento
+    if (preferences.reduce\_motion) {
+      root.classList.add("reduce-motion")
+    } else {
+      root.classList.remove("reduce-motion")
+    }
+  }
+
+  // Resto del componente...
+}
+\end{lstlisting}
+
+\textbf{Características del componente:}
+\begin{itemize}
+    \item \textbf{Configuraciones múltiples}: Modo de daltonismo, alto contraste, texto grande, etc.
+    \item \textbf{Aplicación inmediata}: Los cambios se aplican al DOM en tiempo real
+    \item \textbf{Persistencia}: Las preferencias se guardan en la base de datos
+    \item \textbf{Interfaz intuitiva}: Switches y selectores fáciles de usar
+    \item \textbf{Feedback visual}: Notificaciones de éxito/error
+    \item \textbf{Tema integrado}: Integración con el sistema de temas
+\end{itemize}
+
+\section{Sistema de Roles y Permisos}
+
+\subsection{Tipos de Roles}
+
+El sistema implementa tres tipos de roles principales:
+
+\begin{enumerate}
+    \item \textbf{Usuario (user)}: Rol por defecto para todos los usuarios registrados
+    \item \textbf{Profesional (professional)}: Usuarios aprobados por administradores para brindar servicios
+    \item \textbf{Administrador (admin)}: Usuarios con permisos completos del sistema
+\end{enumerate}
+
+\subsection{Jerarquía de Permisos}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Funcionalidad} & \textbf{Usuario} & \textbf{Profesional} & \textbf{Admin} \\
+\midrule
+Enviar mensajes & X & X & X \\
+Recibir mensajes & X & X & X \\
+Ver contactos & X & X & X \\
+Gestionar roles & - & - & X \\
+Aprobar profesionales & - & - & X \\
+Ver todos los usuarios & - & - & X \\
+Configurar accesibilidad & X & X & X \\
+\bottomrule
+\end{tabular}
+\caption{Matriz de permisos por rol}
+\end{table}
+
+\subsection{Funciones de Administración}
+
+\subsubsection{isAdmin - Verificar Administrador}
+
+\begin{lstlisting}[caption=Función isAdmin completa]
+export async function isAdmin() {
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
+
+    if (userError) {
+      console.error("[v0] Error getting user:", userError)
+      return false
+    }
+
+    if (!user) {
+      return false
+    }
+
+    const { data, error } = await supabase
+      .from("user\_roles")
+      .select("role")
+      .eq("user\_id", user.id)
+      .maybeSingle()
+
+    if (error) {
+      console.error("[v0] Error checking admin role:", error)
+      return false
+    }
+
+    if (!data) {
+      return false
+    }
+
+    return data.role === "admin"
+  } catch (error) {
+    console.error("[v0] Exception in isAdmin:", error)
+    return false
+  }
+}
+\end{lstlisting}
+
+\subsubsection{getAllUsers - Obtener Todos los Usuarios}
+
+\begin{lstlisting}[caption=Función getAllUsers completa]
+export async function getAllUsers() {
+  const supabase = await createClient()
+
+  if (!(await isAdmin())) {
+    return { error: "No autorizado" }
+  }
+
+  const { data: users, error } = await supabase
+    .from("user\_roles")
+    .select(`
+      user\_id,
+      role,
+      is\_active,
+      is\_professional,
+      created\_at,
+      updated\_at,
+      user:user\_id (
+        id,
+        email,
+        raw\_user\_meta\_data
+      )
+    `)
+    .order("created\_at", { ascending: false })
+
+  if (error) {
+    console.error("[v0] Error getting all users:", error)
+    return { error: error.message }
+  }
+
+  return {
+    users: users?.map((user) => ({
+      id: user.user\_id,
+      email: user.user?.email || "N/A",
+      role: user.role,
+      is\_active: user.is\_active,
+      is\_professional: user.is\_professional,
+      created\_at: user.created\_at,
+      updated\_at: user.updated\_at,
+    })) || [],
+  }
+}
+\end{lstlisting}
+
+\section{Configuraciones de Accesibilidad}
+
+\subsection{Tipos de Configuraciones}
+
+\subsubsection{Modo de Daltonismo}
+
+Soporte para diferentes tipos de daltonismo:
+
+\begin{itemize}
+    \item \textbf{Ninguno}: Sin ajustes de color
+    \item \textbf{Protanopía}: Dificultad con rojo-verde (ausencia de conos L)
+    \item \textbf{Deuteranopía}: Dificultad con rojo-verde (ausencia de conos M)
+    \item \textbf{Tritanopía}: Dificultad con azul-amarillo (ausencia de conos S)
+\end{itemize}
+
+\subsubsection{Alto Contraste}
+
+Mejora la legibilidad aumentando el contraste entre texto y fondo.
+
+\subsubsection{Texto Grande}
+
+Aumenta el tamaño de fuente en toda la aplicación para usuarios con dificultades visuales.
+
+\subsubsection{Reducir Movimiento}
+
+Minimiza animaciones y transiciones para usuarios sensibles al movimiento.
+
+\subsubsection{Optimización para Lectores de Pantalla}
+
+Mejora la experiencia con tecnologías asistivas como lectores de pantalla.
+
+\subsection{Implementación CSS}
+
+\begin{lstlisting}[caption=Implementación de estilos de accesibilidad]
+/* Modo de daltonismo - Protanopia */
+[data-color-blind-mode="protanopia"] {
+  --primary: #0066cc;
+  --secondary: #00cc66;
+  --accent: #cc6600;
+}
+
+/* Modo de daltonismo - Deuteranopia */
+[data-color-blind-mode="deuteranopia"] {
+  --primary: #0066cc;
+  --secondary: #cc0066;
+  --accent: #66cc00;
+}
+
+/* Modo de daltonismo - Tritanopia */
+[data-color-blind-mode="tritanopia"] {
+  --primary: #cc0066;
+  --secondary: #00cc66;
+  --accent: #0066cc;
+}
+
+/* Alto contraste */
+.high-contrast {
+  --background: #000000;
+  --foreground: #ffffff;
+  --primary: #ffffff;
+  --secondary: #cccccc;
+}
+
+/* Texto grande */
+.large-text {
+  font-size: 1.2em;
+}
+
+.large-text h1 { font-size: 2.5em; }
+.large-text h2 { font-size: 2em; }
+.large-text h3 { font-size: 1.75em; }
+
+/* Reducir movimiento */
+.reduce-motion * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+\end{lstlisting}
+
+\section{Ejemplos Prácticos de Uso}
+
+\subsection{Ejemplos de Inserción a Base de Datos}
+
+\subsubsection{Crear un Usuario con Rol}
+
+\begin{lstlisting}[caption=Ejemplo de inserción de rol de usuario]
+-- Crear rol de usuario normal
+INSERT INTO public.user\_roles (
+    user\_id,
+    role,
+    is\_active,
+    is\_professional
+) VALUES (
+    '123e4567-e89b-12d3-a456-426614174000',
+    'user',
+    true,
+    false
+);
+
+-- Crear rol de profesional (requiere aprobacion)
+INSERT INTO public.user\_roles (
+    user\_id,
+    role,
+    is\_active,
+    is\_professional,
+    approved\_by,
+    approved\_at
+) VALUES (
+    '456e7890-e89b-12d3-a456-426614174001',
+    'professional',
+    true,
+    true,
+    '789e0123-e89b-12d3-a456-426614174002',
+    NOW()
+);
+
+-- Crear rol de administrador
+INSERT INTO public.user\_roles (
+    user\_id,
+    role,
+    is\_active,
+    is\_professional
+) VALUES (
+    '789e0123-e89b-12d3-a456-426614174002',
+    'admin',
+    true,
+    false
+);
+\end{lstlisting}
+
+\subsubsection{Enviar un Mensaje}
+
+\begin{lstlisting}[caption=Ejemplo de envío de mensaje]
+-- Crear conversacion
+INSERT INTO public.conversations (
+    user1\_id,
+    user2\_id,
+    last\_message\_at
+) VALUES (
+    '123e4567-e89b-12d3-a456-426614174000',
+    '456e7890-e89b-12d3-a456-426614174001',
+    NOW()
+);
+
+-- Enviar mensaje
+INSERT INTO public.messages (
+    sender\_id,
+    receiver\_id,
+    content,
+    read
+) VALUES (
+    '123e4567-e89b-12d3-a456-426614174000',
+    '456e7890-e89b-12d3-a456-426614174001',
+    'Hola, necesito ayuda con mi rutina de ejercicios',
+    false
+);
+\end{lstlisting}
+
+\subsubsection{Configurar Preferencias de Accesibilidad}
+
+\begin{lstlisting}[caption=Ejemplo de configuración de accesibilidad]
+INSERT INTO public.user\_preferences (
+    user\_id,
+    color\_blind\_mode,
+    high\_contrast,
+    large\_text,
+    reduce\_motion,
+    screen\_reader\_optimized
+) VALUES (
+    '123e4567-e89b-12d3-a456-426614174000',
+    'protanopia',
+    true,
+    false,
+    false,
+    true
+);
+\end{lstlisting}
+
+\subsection{Consultas Útiles}
+
+\subsubsection{Obtener Mensajes de una Conversación}
+
+\begin{lstlisting}[caption=Consulta de mensajes de conversación]
+SELECT 
+    m.id,
+    m.content,
+    m.created\_at,
+    m.read,
+    sender.email as sender\_email,
+    receiver.email as receiver\_email
+FROM public.messages m
+JOIN auth.users sender ON m.sender\_id = sender.id
+JOIN auth.users receiver ON m.receiver\_id = receiver.id
+WHERE (m.sender\_id = '123e4567-e89b-12d3-a456-426614174000' 
+       AND m.receiver\_id = '456e7890-e89b-12d3-a456-426614174001')
+   OR (m.sender\_id = '456e7890-e89b-12d3-a456-426614174001' 
+       AND m.receiver\_id = '123e4567-e89b-12d3-a456-426614174000')
+ORDER BY m.created\_at ASC;
+\end{lstlisting}
+
+\subsubsection{Obtener Usuarios por Rol}
+
+\begin{lstlisting}[caption=Consulta de usuarios por rol]
+SELECT 
+    u.id,
+    u.email,
+    ur.role,
+    ur.is\_active,
+    ur.is\_professional,
+    ur.created\_at
+FROM auth.users u
+JOIN public.user\_roles ur ON u.id = ur.user\_id
+WHERE ur.role = 'professional'
+  AND ur.is\_active = true
+  AND ur.is\_professional = true
+ORDER BY ur.created\_at DESC;
+\end{lstlisting}
+
+\subsubsection{Obtener Estadísticas de Mensajería}
+
+\begin{lstlisting}[caption=Consulta de estadísticas de mensajería]
+SELECT 
+    COUNT(*) as total\_messages,
+    COUNT(CASE WHEN read = false THEN 1 END) as unread\_messages,
+    COUNT(DISTINCT sender\_id) as unique\_senders,
+    COUNT(DISTINCT receiver\_id) as unique\_receivers,
+    MAX(created\_at) as last\_message\_time
+FROM public.messages
+WHERE sender\_id = '123e4567-e89b-12d3-a456-426614174000' 
+   OR receiver\_id = '123e4567-e89b-12d3-a456-426614174000';
+\end{lstlisting}
+
+\section{Flujos de Datos Completos}
+
+\subsection{Flujo de Envío de Mensaje}
+
+\begin{enumerate}
+    \item \textbf{Usuario escribe mensaje} en MessagingInterface
+    \item \textbf{Validación en cliente} de contenido no vacío
+    \item \textbf{Envío a Server Action} sendMessage
+    \item \textbf{Verificación de autenticación} en servidor
+    \item \textbf{Creación/actualización de conversación} en tabla conversations
+    \item \textbf{Inserción del mensaje} en tabla messages
+    \item \textbf{Actualización de timestamp} de conversación
+    \item \textbf{Respuesta de éxito} al cliente
+    \item \textbf{Actualización de UI} con nuevo mensaje
+\end{enumerate}
+
+\subsection{Flujo de Carga de Contactos}
+
+\begin{enumerate}
+    \item \textbf{Inicialización del componente} MessagingInterface
+    \item \textbf{Llamada a getAvailableContacts} Server Action
+    \item \textbf{Verificación de autenticación} en servidor
+    \item \textbf{Consulta a getAllActiveUsers} función RPC
+    \item \textbf{Filtrado de usuarios} (excluir usuario actual)
+    \item \textbf{Formateo de datos} para presentación
+    \item \textbf{Retorno de lista} de contactos disponibles
+    \item \textbf{Renderizado en UI} con avatares y roles
+\end{enumerate}
+
+\subsection{Flujo de Actualización de Roles}
+
+\begin{enumerate}
+    \item \textbf{Administrador selecciona usuario} en panel de administración
+    \item \textbf{Selección de nuevo rol} (usuario/profesional/admin)
+    \item \textbf{Envío a updateUserRole} Server Action
+    \item \textbf{Verificación de permisos} de administrador
+    \item \textbf{Actualización en user\_roles} tabla
+    \item \textbf{Registro de aprobación} (si es profesional)
+    \item \textbf{Respuesta de éxito} al cliente
+    \item \textbf{Actualización de UI} con nuevo rol
+\end{enumerate}
+
+\section{Características Avanzadas}
+
+\subsection{Sistema de Notificaciones en Tiempo Real}
+
+El módulo implementa un sistema de polling para actualizaciones en tiempo real:
+
+\begin{lstlisting}[caption=Implementación de polling]
+useEffect(() => {
+  if (selectedProfessional) {
+    loadMessages(selectedProfessional.id)
+    const interval = setInterval(() => loadMessages(selectedProfessional.id), 5000)
+    return () => clearInterval(interval)
+  }
+}, [selectedProfessional])
+\end{lstlisting}
+
+\subsection{Filtrado y Búsqueda Avanzada}
+
+\begin{lstlisting}[caption=Filtrado de contactos]
+const filteredProfessionals = professionals.filter((prof) => {
+  const matchesSearch =
+    prof.full\_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    prof.email.toLowerCase().includes(searchTerm.toLowerCase())
+
+  const matchesFilter =
+    userFilter === "all" ||
+    (userFilter === "professionals" && prof.is\_professional) ||
+    (userFilter === "non-professionals" && !prof.is\_professional)
+
+  return matchesSearch && matchesFilter
+})
+\end{lstlisting}
+
+\subsection{Aplicación Dinámica de Preferencias}
+
+\begin{lstlisting}[caption=Aplicación de preferencias de accesibilidad]
+const applyPreferences = () => {
+  const root = document.documentElement
+
+  // Aplicar modo de daltonismo
+  root.setAttribute("data-color-blind-mode", preferences.color\_blind\_mode)
+
+  // Aplicar alto contraste
+  if (preferences.high\_contrast) {
+    root.classList.add("high-contrast")
+  } else {
+    root.classList.remove("high-contrast")
+  }
+
+  // Aplicar texto grande
+  if (preferences.large\_text) {
+    root.classList.add("large-text")
+  } else {
+    root.classList.remove("large-text")
+  }
+
+  // Aplicar reducir movimiento
+  if (preferences.reduce\_motion) {
+    root.classList.add("reduce-motion")
+  } else {
+    root.classList.remove("reduce-motion")
+  }
+}
+\end{lstlisting}
+
+\section{Mejores Prácticas de Desarrollo}
+
+\subsection{Seguridad}
+
+\begin{itemize}
+    \item \textbf{Validación de entrada}: Siempre validar datos en Server Actions
+    \item \textbf{Autenticación}: Verificar usuario en cada operación
+    \item \textbf{RLS}: Usar Row Level Security en todas las tablas
+    \item \textbf{Sanitización}: Limpiar inputs del usuario
+    \item \textbf{Logs de seguridad}: Registrar operaciones sensibles
+    \item \textbf{Verificación de roles}: Validar permisos antes de operaciones
+\end{itemize}
+
+\subsection{Performance}
+
+\begin{itemize}
+    \item \textbf{Índices de base de datos}: Optimizar consultas frecuentes
+    \item \textbf{Polling eficiente}: Intervalos apropiados para actualizaciones
+    \item \textbf{Lazy loading}: Cargar componentes bajo demanda
+    \item \textbf{Cache}: Usar revalidatePath para actualizar cache
+    \item \textbf{Optimización de consultas}: Usar joins apropiados
+\end{itemize}
+
+\subsection{Accesibilidad}
+
+\begin{itemize}
+    \item \textbf{ARIA labels}: Implementar etiquetas descriptivas
+    \item \textbf{Navegación por teclado}: Soporte completo para teclado
+    \item \textbf{Alto contraste}: Asegurar legibilidad en todos los modos
+    \item \textbf{Lectores de pantalla}: Optimizar para tecnologías asistivas
+    \item \item \textbf{Reducir movimiento}: Respetar preferencias de movimiento
+\end{itemize}
+
+\subsection{Mantenibilidad}
+
+\begin{itemize}
+    \item \textbf{TypeScript}: Usar tipado estricto en todos los componentes
+    \item \textbf{Interfaces}: Definir interfaces claras para props
+    \item \textbf{Separación de responsabilidades}: Lógica en Server Actions
+    \item \textbf{Reutilización}: Componentes modulares y reutilizables
+    \item \textbf{Documentación}: Comentar código complejo
+\end{itemize}
+
+\section{Solución de Problemas}
+
+\subsection{Problemas Comunes}
+
+\subsubsection{Error: Usuario no autenticado}
+
+\textbf{Síntomas}: Server Actions retornan error de autenticación
+\textbf{Causa}: Usuario no está logueado o sesión expirada
+\textbf{Solución}: Verificar estado de autenticación y redirigir a login
+
+\subsubsection{Error: Sin permisos de administrador}
+
+\textbf{Síntomas}: Error al intentar gestionar roles
+\textbf{Causa}: Usuario no tiene rol de administrador
+\textbf{Solución}: Verificar rol del usuario con isAdmin()
+
+\subsubsection{Error: Mensajes no se actualizan}
+
+\textbf{Síntomas}: Los mensajes no aparecen en tiempo real
+\textbf{Causa}: Polling deshabilitado o error en consulta
+\textbf{Solución}: Verificar intervalo de polling y consultas de base de datos
+
+\subsubsection{Error: Preferencias no se aplican}
+
+\textbf{Síntomas}: Los cambios de accesibilidad no se reflejan
+\textbf{Causa}: Función applyPreferences no se ejecuta
+\textbf{Solución}: Verificar llamada a applyPreferences() después de guardar
+
+\subsection{Debugging}
+
+\subsubsection{Logs del Cliente}
+
+\begin{lstlisting}[caption=Debugging en cliente]
+// Habilitar logs detallados
+console.log('Professionals:', professionals)
+console.log('Selected Professional:', selectedProfessional)
+console.log('Messages:', messages)
+console.log('User Filter:', userFilter)
+console.log('Search Term:', searchTerm)
+
+// Verificar estado de autenticacion
+console.log('User ID:', userId)
+console.log('Is Loading:', loading)
+\end{lstlisting}
+
+\subsubsection{Logs del Servidor}
+
+\begin{lstlisting}[caption=Debugging en servidor]
+// En Server Actions
+console.log('Action called with:', { userId, data })
+console.log('User authenticated:', !!user)
+console.log('User role:', userRole)
+
+// En consultas de base de datos
+console.log('Query result:', { data, error })
+console.log('RLS policies active:', true)
+\end{lstlisting}
+
+\section{Integración con Otros Módulos}
+
+\subsection{Integración con Sistema de Usuarios}
+
+El módulo de mensajería se integra estrechamente con el sistema de usuarios:
+
+\begin{itemize}
+    \item \textbf{Perfiles de usuario}: Utiliza datos de user\_profiles para mostrar información
+    \item \textbf{Avatares}: Integra con sistema de avatares de Supabase Storage
+    \item \textbf{Metadatos}: Utiliza raw\_user\_meta\_data para información adicional
+\end{itemize}
+
+\subsection{Integración con Panel de Administración}
+
+\begin{itemize}
+    \item \textbf{Gestión de roles}: Administradores pueden gestionar roles desde el panel
+    \item \textbf{Aprobación de profesionales}: Sistema de aprobación para profesionales
+    \item \textbf{Estadísticas}: Métricas de uso del sistema de mensajería
+\end{itemize}
+
+\subsection{Integración con Sistema de Accesibilidad}
+
+\begin{itemize}
+    \item \textbf{Preferencias globales}: Las configuraciones se aplican a toda la aplicación
+    \item \textbf{Persistencia}: Las preferencias se guardan por usuario
+    \item \textbf{Aplicación dinámica}: Los cambios se aplican sin recargar la página
+\end{itemize}
+
+\section{Conclusión}
+
+El módulo de mensajería de FitTrack representa una solución integral para la comunicación entre usuarios y profesionales, combinada con un sistema robusto de gestión de roles y configuraciones avanzadas de accesibilidad. Su arquitectura modular, seguridad robusta y enfoque en la inclusividad lo convierten en una herramienta poderosa para facilitar la interacción en el ecosistema FitTrack.
+
+\textbf{Características destacadas:}
+\begin{itemize}
+    \item Sistema de mensajería en tiempo real robusto
+    \item Gestión de roles y permisos granular
+    \item Configuraciones de accesibilidad completas
+    \item Seguridad robusta con RLS
+    \item Interfaz intuitiva y responsiva
+    \item Integración completa con el ecosistema FitTrack
+    \item Código bien documentado y tipado
+\end{itemize}
+
+Para contribuir al desarrollo del módulo:
+\begin{enumerate}
+    \item Seguir las convenciones de TypeScript establecidas
+    \item Implementar tests para nuevas funcionalidades
+    \item Documentar cambios en políticas de seguridad
+    \item Mantener compatibilidad con el sistema de roles
+    \item Respetar las mejores prácticas de accesibilidad
+    \item Validar cambios con usuarios de diferentes capacidades
+\end{enumerate}
+
+\end{document}

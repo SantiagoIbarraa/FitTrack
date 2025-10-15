@@ -1,0 +1,1329 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{float}
+
+% Configuración de página
+\geometry{margin=2.5cm}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Modulo de Running - FitTrack}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\setlength{\headheight}{15pt}
+
+% Configuración de colores para código
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{bluekeywords}{rgb}{0.13,0.13,1}
+\definecolor{greencomments}{rgb}{0,0.5,0}
+\definecolor{redstrings}{rgb}{0.9,0,0}
+
+% Configuración de listings
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{greencomments},
+    keywordstyle=\color{bluekeywords},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{redstrings},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    frame=single,
+    rulecolor=\color{codegray}
+}
+
+\lstdefinestyle{sqlstyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{greencomments},
+    keywordstyle=\color{bluekeywords},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{redstrings},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    frame=single,
+    rulecolor=\color{codegray}
+}
+
+\lstset{style=mystyle}
+
+% Configuración de títulos
+\titleformat{\section}{\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+% Configuración de hipervínculos
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    citecolor=red,
+}
+
+\begin{document}
+
+% Portada
+\begin{titlepage}
+\centering
+\vspace*{2cm}
+
+{\Huge\bfseries Modulo de Running}\\[0.5cm]
+{\LARGE FitTrack}\\[1cm]
+
+{\large Documentacion Tecnica Completa}\\[2cm]
+
+\begin{minipage}{0.8\textwidth}
+\centering
+Este documento proporciona una guia tecnica exhaustiva del modulo de running de FitTrack, incluyendo arquitectura, implementacion, base de datos, componentes React, Server Actions y ejemplos practicos de uso.
+\end{minipage}
+
+\vfill
+
+{\large Version 1.0}\\[0.5cm]
+{\large \today}
+
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section{Introduccion al Modulo de Running}
+
+El modulo de running es un componente fundamental de FitTrack que permite a los usuarios registrar, analizar y hacer seguimiento de sus sesiones de carrera. Proporciona herramientas completas para el monitoreo del progreso, calculo automatico de metricas y visualizacion de estadisticas detalladas.
+
+\subsection{Caracteristicas Principales}
+
+\begin{itemize}
+    \item \textbf{Registro de Sesiones}: Permite registrar sesiones de carrera con duracion, distancia y ritmo
+    \item \textbf{Calculo Automatico de Ritmo}: Calcula automaticamente el ritmo por kilometro basado en duracion y distancia
+    \item \textbf{Estadisticas Detalladas}: Proporciona metricas completas como total de sesiones, distancia acumulada, tiempo total, ritmo promedio y mejor ritmo
+    \item \textbf{Historial de Sesiones}: Mantiene un registro completo de todas las sesiones de carrera
+    \item \textbf{Graficos de Progreso}: Visualizacion de tendencias y progreso a lo largo del tiempo
+    \item \textbf{Analisis de Rendimiento}: Comparacion de sesiones y identificacion de mejoras
+    \item \textbf{Interfaz Intuitiva}: Diseño limpio y facil de usar para registro rapido
+\end{itemize}
+
+\subsection{Arquitectura General}
+
+El modulo sigue una arquitectura de capas bien definida:
+
+\begin{enumerate}
+    \item \textbf{Capa de Presentacion}: Componentes React con TypeScript
+    \item \textbf{Capa de Logica}: Server Actions de Next.js
+    \item \textbf{Capa de Datos}: Supabase PostgreSQL con RLS
+    \item \textbf{Capa de Servicios}: Calculos y utilidades de metricas
+\end{enumerate}
+
+\section{Estructura de Base de Datos}
+
+\subsection{Diagrama de Relaciones}
+
+\begin{figure}[H]
+\centering
+\begin{verbatim}
+    auth.users
+         |
+    +----+----+
+    |         |
+running_sessions
+    |
+running_history (opcional)
+\end{verbatim}
+\caption{Diagrama de relaciones de las tablas del modulo de running}
+\end{figure}
+
+\subsection{Tabla running\_sessions}
+
+Esta tabla almacena las sesiones de carrera realizadas por los usuarios.
+
+\begin{lstlisting}[style=sqlstyle, caption=Estructura completa de running_sessions]
+CREATE TABLE IF NOT EXISTS public.running_sessions (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    duration_minutes INTEGER NOT NULL CHECK (duration_minutes > 0),
+    distance_km NUMERIC(5,2) NOT NULL CHECK (distance_km > 0),
+    pace_min_km NUMERIC(5,2),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Indices para optimizacion
+CREATE INDEX IF NOT EXISTS idx_running_sessions_user_id ON public.running_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_running_sessions_created_at ON public.running_sessions(created_at);
+CREATE INDEX IF NOT EXISTS idx_running_sessions_distance ON public.running_sessions(distance_km);
+CREATE INDEX IF NOT EXISTS idx_running_sessions_pace ON public.running_sessions(pace_min_km);
+\end{lstlisting}
+
+\textbf{Descripcion de campos:}
+\begin{itemize}
+    \item \texttt{id}: Identificador unico UUID generado automaticamente
+    \item \texttt{user\_id}: Referencia al usuario propietario de la sesion
+    \item \texttt{duration\_minutes}: Duracion de la sesion en minutos (requerido, > 0)
+    \item \texttt{distance\_km}: Distancia recorrida en kilometros (requerido, > 0)
+    \item \texttt{pace\_min\_km}: Ritmo en minutos por kilometro (opcional, calculado automaticamente)
+    \item \texttt{created\_at}: Timestamp de creacion automatico
+\end{itemize}
+
+\subsection{Tabla running\_history (Opcional)}
+
+Tabla adicional para historial detallado de sesiones de running.
+
+\begin{lstlisting}[style=sqlstyle, caption=Estructura de running_history]
+CREATE TABLE IF NOT EXISTS running_history (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    duration INTEGER NOT NULL CHECK (duration > 0),
+    distance DECIMAL(6,2) NOT NULL CHECK (distance > 0),
+    pace DECIMAL(4,2) NOT NULL CHECK (pace > 0),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Indices para optimizacion
+CREATE INDEX IF NOT EXISTS idx_running_history_user_id ON running_history(user_id);
+CREATE INDEX IF NOT EXISTS idx_running_history_created_at ON running_history(created_at);
+\end{lstlisting}
+
+\subsection{Politicas de Seguridad (RLS)}
+
+Todas las tablas implementan Row Level Security para garantizar que los usuarios solo accedan a sus propios datos.
+
+\begin{lstlisting}[style=sqlstyle, caption=Politicas RLS para running_sessions]
+-- Habilitar RLS
+ALTER TABLE public.running_sessions ENABLE ROW LEVEL SECURITY;
+
+-- Politicas para running_sessions
+CREATE POLICY "Users can view own running sessions" 
+ON public.running_sessions
+FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own running sessions" 
+ON public.running_sessions
+FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own running sessions" 
+ON public.running_sessions
+FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own running sessions" 
+ON public.running_sessions
+FOR DELETE USING (auth.uid() = user_id);
+\end{lstlisting}
+
+\section{Server Actions - Logica de Negocio}
+
+Las Server Actions manejan toda la logica de negocio del modulo de running. Estan implementadas en TypeScript con validacion robusta y manejo de errores.
+
+\subsection{Archivo running-actions.ts}
+
+\subsubsection{createRunningSession - Crear Sesion de Running}
+
+\begin{lstlisting}[caption=Funcion createRunningSession completa]
+"use server"
+
+import { revalidatePath } from "next/cache"
+import { createClient } from "@/lib/supabase/server"
+
+export async function createRunningSession(prevState: any, formData: FormData) {
+  // Extraer datos del formulario
+  const duration_minutes = formData.get("duration_minutes")?.toString()
+  const distance_km = formData.get("distance_km")?.toString()
+  const pace_min_km = formData.get("pace_min_km")?.toString()
+
+  // Validacion basica
+  if (!duration_minutes || !distance_km) {
+    return { error: "Duracion y distancia son requeridos" }
+  }
+
+  const durationNum = Number.parseInt(duration_minutes)
+  const distanceNum = Number.parseFloat(distance_km)
+
+  if (durationNum <= 0 || distanceNum <= 0) {
+    return { error: "Duracion y distancia deben ser mayores a 0" }
+  }
+
+  // Calcular ritmo si no se proporciona
+  let calculatedPace: number | null = null
+  if (pace_min_km && pace_min_km.trim() !== "") {
+    calculatedPace = Number.parseFloat(pace_min_km)
+  } else {
+    calculatedPace = durationNum / distanceNum
+  }
+
+  // Verificar autenticacion
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: "Usuario no autenticado" }
+  }
+
+  try {
+    // Preparar datos para insercion
+    const insertData = {
+      user_id: user.id,
+      duration_minutes: durationNum,
+      distance_km: distanceNum,
+      pace_min_km: calculatedPace,
+    }
+
+    // Insertar en base de datos
+    const { error } = await supabase
+      .from("running_sessions")
+      .insert(insertData)
+
+    if (error) {
+      console.error("Database error:", error)
+      return { error: "Error al guardar la sesion" }
+    }
+
+    // Revalidar cache
+    revalidatePath("/running")
+    return { success: true }
+  } catch (error) {
+    console.error("Error:", error)
+    return { error: "Error al guardar la sesion" }
+  }
+}
+\end{lstlisting}
+
+\textbf{Caracteristicas importantes:}
+\begin{itemize}
+    \item \textbf{Validacion de entrada}: Verifica que duracion y distancia esten presentes y sean validos
+    \item \textbf{Calculo automatico de ritmo}: Calcula el ritmo si no se proporciona (duracion / distancia)
+    \item \textbf{Autenticacion}: Confirma que el usuario este autenticado
+    \item \textbf{Sanitizacion}: Convierte y valida valores numericos
+    \item \textbf{Manejo de errores}: Captura y reporta errores de base de datos
+    \item \textbf{Revalidacion}: Actualiza el cache de Next.js
+\end{itemize}
+
+\subsubsection{getRunningSessions - Obtener Sesiones}
+
+\begin{lstlisting}[caption=Funcion getRunningSessions completa]
+export async function getRunningSessions() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return []
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("running_sessions")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      console.error("Database error:", error)
+      return []
+    }
+
+    return data || []
+  } catch (error) {
+    console.error("Error:", error)
+    return []
+  }
+}
+\end{lstlisting}
+
+\subsubsection{deleteRunningSession - Eliminar Sesion}
+
+\begin{lstlisting}[caption=Funcion deleteRunningSession completa]
+export async function deleteRunningSession(sessionId: string) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: "Usuario no autenticado" }
+  }
+
+  try {
+    const { error } = await supabase
+      .from("running_sessions")
+      .delete()
+      .eq("id", sessionId)
+      .eq("user_id", user.id)
+
+    if (error) {
+      console.error("Database error:", error)
+      return { error: "Error al eliminar la sesion" }
+    }
+
+    revalidatePath("/running")
+    return { success: true }
+  } catch (error) {
+    console.error("Error:", error)
+    return { error: "Error al eliminar la sesion" }
+  }
+}
+\end{lstlisting}
+
+\section{Componentes React}
+
+\subsection{Pagina Principal - RunningPage}
+
+El componente principal que coordina toda la funcionalidad del modulo de running.
+
+\begin{lstlisting}[caption=app/running/page.tsx - Estructura completa]
+"use client"
+
+import { useState } from "react"
+import { MapPin, ArrowLeft } from "lucide-react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import RunningForm from "@/components/running/running-form"
+import RunningList from "@/components/running/running-list"
+import RunningStats from "@/components/running/running-stats"
+import RunningCharts from "@/components/running/running-charts"
+
+export default function RunningPage() {
+  // Estados del componente
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const [viewMode, setViewMode] = useState<"sessions" | "charts">("sessions")
+
+  // Handler para cuando se agrega una sesion
+  const handleSessionAdded = () => {
+    setRefreshTrigger((prev) => prev + 1)
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
+      {/* Header con navegacion */}
+      <div className="mb-8">
+        <div className="flex items-center gap-4 mb-4">
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Volver
+            </Link>
+          </Button>
+        </div>
+        <div className="flex items-center gap-3 mb-2">
+          <MapPin className="h-8 w-8 text-green-600" />
+          <h1 className="text-3xl font-bold">Running</h1>
+        </div>
+        <p className="text-gray-600">Registra y analiza tus sesiones de carrera</p>
+      </div>
+
+      {/* Pestanas de navegacion */}
+      <div className="flex gap-2 mb-6">
+        <button
+          onClick={() => setViewMode("sessions")}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            viewMode === "sessions" ? "bg-green-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+          }`}
+        >
+          Sesiones
+        </button>
+        <button
+          onClick={() => setViewMode("charts")}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            viewMode === "charts" ? "bg-green-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+          }`}
+        >
+          Graficos
+        </button>
+      </div>
+
+      {/* Renderizado condicional de componentes */}
+      <div className="grid gap-6">
+        {viewMode === "sessions" && (
+          <>
+            <RunningForm onSessionAdded={handleSessionAdded} />
+            <RunningStats refreshTrigger={refreshTrigger} />
+            <RunningList refreshTrigger={refreshTrigger} />
+          </>
+        )}
+
+        {viewMode === "charts" && <RunningCharts />}
+      </div>
+    </div>
+  )
+}
+\end{lstlisting}
+
+\textbf{Caracteristicas del componente:}
+\begin{itemize}
+    \item \textbf{Estado centralizado}: Maneja el estado de actualizacion y modo de vista
+    \item \textbf{Navegacion por pestanas}: Interfaz intuitiva para cambiar entre sesiones y graficos
+    \item \textbf{Renderizado condicional}: Muestra diferentes componentes segun el modo
+    \item \textbf{Handlers de eventos}: Gestiona las interacciones del usuario
+    \item \textbf{TypeScript}: Tipado estricto para mayor seguridad
+\end{itemize}
+
+\subsection{Componente RunningForm}
+
+Formulario para registrar nuevas sesiones de running.
+
+\begin{lstlisting}[caption=components/running/running-form.tsx - Estructura principal]
+"use client"
+
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Plus, Loader2 } from "lucide-react"
+import { createRunningSession } from "@/lib/running-actions"
+import { useActionState } from "react"
+
+export default function RunningForm({ onSessionAdded }: { onSessionAdded?: () => void }) {
+  const [state, formAction] = useActionState(createRunningSession, null)
+  const [isOpen, setIsOpen] = useState(false)
+
+  const handleSubmit = async (formData: FormData) => {
+    const result = await formAction(formData)
+    if (result?.success) {
+      setIsOpen(false)
+      onSessionAdded?.()
+    }
+  }
+
+  // Renderizar boton si no esta abierto
+  if (!isOpen) {
+    return (
+      <Button onClick={() => setIsOpen(true)} className="w-full bg-green-600 hover:bg-green-700">
+        <Plus className="h-4 w-4 mr-2" />
+        Registrar Sesion de Running
+      </Button>
+    )
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Nueva Sesion de Running</CardTitle>
+        <CardDescription>Registra tu sesion de carrera</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form action={handleSubmit} className="space-y-4">
+          {/* Mostrar errores si existen */}
+          {state?.error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
+              {state.error}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="duration_minutes">Duracion (minutos)</Label>
+                <Input
+                  id="duration_minutes"
+                  name="duration_minutes"
+                  type="number"
+                  min="1"
+                  step="1"
+                  placeholder="30"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="distance_km">Distancia (km)</Label>
+                <Input
+                  id="distance_km"
+                  name="distance_km"
+                  type="number"
+                  min="0.1"
+                  step="0.1"
+                  placeholder="5.0"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="pace_min_km">Ritmo (min/km) - Opcional</Label>
+              <Input 
+                id="pace_min_km" 
+                name="pace_min_km" 
+                type="number" 
+                min="0" 
+                step="0.1" 
+                placeholder="6.0" 
+              />
+              <p className="text-xs text-gray-500">
+                Se calculara automaticamente si no se especifica
+              </p>
+            </div>
+          </div>
+
+          {/* Botones de accion */}
+          <div className="flex gap-2">
+            <Button type="submit" className="bg-green-600 hover:bg-green-700">
+              {state?.success === false ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : null}
+              Guardar Sesion
+            </Button>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => setIsOpen(false)}
+            >
+              Cancelar
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
+  )
+}
+\end{lstlisting}
+
+\textbf{Caracteristicas del formulario:}
+\begin{itemize}
+    \item \textbf{Estado colapsable}: Se muestra como boton inicialmente, se expande al hacer clic
+    \item \textbf{Validacion en cliente}: Campos requeridos y validacion de tipos
+    \item \textbf{Calculo automatico}: El ritmo se calcula automaticamente si no se proporciona
+    \item \textbf{Manejo de errores}: Muestra errores de validacion y base de datos
+    \item \textbf{Feedback visual}: Indicador de carga durante el envio
+\end{itemize}
+
+\subsection{Componente RunningStats}
+
+Componente que calcula y muestra estadisticas detalladas de las sesiones de running.
+
+\begin{lstlisting}[caption=components/running/running-stats.tsx - Logica de calculo]
+interface Stats {
+  totalSessions: number
+  totalDistance: number
+  totalTime: number
+  averagePace: number | null
+  bestPace: number | null
+  longestRun: number
+}
+
+export default function RunningStats({ refreshTrigger }: { refreshTrigger?: number }) {
+  const [stats, setStats] = useState<Stats | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  const calculateStats = (sessions: RunningSession[]): Stats => {
+    if (sessions.length === 0) {
+      return {
+        totalSessions: 0,
+        totalDistance: 0,
+        totalTime: 0,
+        averagePace: null,
+        bestPace: null,
+        longestRun: 0,
+      }
+    }
+
+    // Calcular metricas basicas
+    const totalDistance = sessions.reduce((sum, session) => sum + session.distance_km, 0)
+    const totalTime = sessions.reduce((sum, session) => sum + session.duration_minutes, 0)
+    const longestRun = Math.max(...sessions.map((session) => session.distance_km))
+
+    // Calcular ritmo promedio y mejor ritmo
+    const sessionsWithPace = sessions.filter((session) => session.pace_min_km !== null)
+    const averagePace =
+      sessionsWithPace.length > 0
+        ? sessionsWithPace.reduce((sum, session) => sum + (session.pace_min_km || 0), 0) / sessionsWithPace.length
+        : null
+
+    const bestPace =
+      sessionsWithPace.length > 0
+        ? Math.min(...sessionsWithPace.map((session) => session.pace_min_km || Number.POSITIVE_INFINITY))
+        : null
+
+    return {
+      totalSessions: sessions.length,
+      totalDistance,
+      totalTime,
+      averagePace,
+      bestPace,
+      longestRun,
+    }
+  }
+
+  const loadStats = async () => {
+    try {
+      const sessions = await getRunningSessions()
+      const calculatedStats = calculateStats(sessions || [])
+      setStats(calculatedStats)
+    } catch (error) {
+      console.error("Error loading running stats:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadStats()
+  }, [refreshTrigger])
+
+  // Funcion para formatear el ritmo
+  const formatPace = (pace: number | null) => {
+    if (!pace) return "N/A"
+    const minutes = Math.floor(pace)
+    const seconds = Math.round((pace - minutes) * 60)
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`
+  }
+
+  // Funcion para formatear el tiempo
+  const formatTime = (minutes: number) => {
+    const hours = Math.floor(minutes / 60)
+    const mins = minutes % 60
+    if (hours > 0) {
+      return `${hours}h ${mins}m`
+    }
+    return `${mins}m`
+  }
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center text-gray-500">Cargando estadisticas...</div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Estadisticas de Running</CardTitle>
+        <CardDescription>Resumen de tu actividad de carrera</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-green-600">{stats?.totalSessions}</div>
+            <div className="text-sm text-gray-600">Sesiones Totales</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-green-600">{stats?.totalDistance.toFixed(1)} km</div>
+            <div className="text-sm text-gray-600">Distancia Total</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-green-600">{formatTime(stats?.totalTime || 0)}</div>
+            <div className="text-sm text-gray-600">Tiempo Total</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-green-600">{formatPace(stats?.averagePace)}</div>
+            <div className="text-sm text-gray-600">Ritmo Promedio</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-green-600">{formatPace(stats?.bestPace)}</div>
+            <div className="text-sm text-gray-600">Mejor Ritmo</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-green-600">{stats?.longestRun.toFixed(1)} km</div>
+            <div className="text-sm text-gray-600">Carrera Mas Larga</div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+\end{lstlisting}
+
+\textbf{Metricas calculadas:}
+\begin{itemize}
+    \item \textbf{Sesiones Totales}: Numero total de sesiones registradas
+    \item \textbf{Distancia Total}: Suma de todas las distancias recorridas
+    \item \textbf{Tiempo Total}: Suma de todos los tiempos de carrera
+    \item \textbf{Ritmo Promedio}: Promedio de todos los ritmos registrados
+    \item \textbf{Mejor Ritmo}: El ritmo mas rapido registrado
+    \item \textbf{Carrera Mas Larga}: La distancia mas larga en una sola sesion
+\end{itemize}
+
+\subsection{Componente RunningList}
+
+Lista que muestra todas las sesiones de running registradas.
+
+\begin{lstlisting}[caption=components/running/running-list.tsx - Estructura principal]
+"use client"
+
+import { useState, useEffect } from "react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Trash2, Calendar, Clock, MapPin, Zap } from "lucide-react"
+import { deleteRunningSession, getRunningSessions } from "@/lib/running-actions"
+import { format } from "date-fns"
+import { es } from "date-fns/locale"
+
+interface RunningSession {
+  id: string
+  duration_minutes: number
+  distance_km: number
+  pace_min_km: number | null
+  created_at: string
+}
+
+export default function RunningList({ refreshTrigger }: { refreshTrigger?: number }) {
+  const [sessions, setSessions] = useState<RunningSession[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const loadSessions = async () => {
+    try {
+      const data = await getRunningSessions()
+      setSessions(data || [])
+    } catch (error) {
+      console.error("Error loading running sessions:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadSessions()
+  }, [refreshTrigger])
+
+  const handleDelete = async (id: string) => {
+    if (confirm("Estas seguro de que quieres eliminar esta sesion?")) {
+      const result = await deleteRunningSession(id)
+      if (result?.success) {
+        loadSessions()
+      }
+    }
+  }
+
+  const formatPace = (pace: number | null) => {
+    if (!pace) return null
+    const minutes = Math.floor(pace)
+    const seconds = Math.round((pace - minutes) * 60)
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`
+  }
+
+  const formatTime = (minutes: number) => {
+    const hours = Math.floor(minutes / 60)
+    const mins = minutes % 60
+    if (hours > 0) {
+      return `${hours}h ${mins}m`
+    }
+    return `${mins}m`
+  }
+
+  // Estado de carga
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center text-gray-500">Cargando sesiones...</div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  // Estado vacio
+  if (sessions.length === 0) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center text-gray-500">
+            <MapPin className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+            <p>No hay sesiones de running registradas</p>
+            <p className="text-sm">Registra tu primera carrera para comenzar</p>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-semibold">Historial de Sesiones</h2>
+      {sessions.map((session) => (
+        <Card key={session.id}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-4 mb-2">
+                  <div className="flex items-center gap-1 text-sm text-gray-600">
+                    <Calendar className="h-4 w-4" />
+                    {format(new Date(session.created_at), "dd/MM/yyyy", { locale: es })}
+                  </div>
+                  <div className="flex items-center gap-1 text-sm text-gray-600">
+                    <Clock className="h-4 w-4" />
+                    {formatTime(session.duration_minutes)}
+                  </div>
+                  <div className="flex items-center gap-1 text-sm text-gray-600">
+                    <MapPin className="h-4 w-4" />
+                    {session.distance_km.toFixed(1)} km
+                  </div>
+                  {session.pace_min_km && (
+                    <div className="flex items-center gap-1 text-sm text-gray-600">
+                      <Zap className="h-4 w-4" />
+                      {formatPace(session.pace_min_km)}/km
+                    </div>
+                  )}
+                </div>
+                
+                {/* Badges con metricas */}
+                <div className="flex gap-2">
+                  <Badge variant="secondary">
+                    {session.distance_km.toFixed(1)} km
+                  </Badge>
+                  <Badge variant="secondary">
+                    {formatTime(session.duration_minutes)}
+                  </Badge>
+                  {session.pace_min_km && (
+                    <Badge variant="secondary">
+                      {formatPace(session.pace_min_km)}/km
+                    </Badge>
+                  )}
+                </div>
+              </div>
+
+              {/* Botones de accion */}
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDelete(session.id)}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  )
+}
+\end{lstlisting}
+
+\textbf{Caracteristicas de la lista:}
+\begin{itemize}
+    \item \textbf{Carga asincrona}: Carga las sesiones desde la base de datos
+    \item \textbf{Formateo de datos}: Convierte tiempos y ritmos a formato legible
+    \item \textbf{Estado vacio}: Muestra mensaje cuando no hay sesiones
+    \item \textbf{Eliminacion}: Permite eliminar sesiones con confirmacion
+    \item \textbf{Actualizacion automatica}: Se actualiza cuando se agregan nuevas sesiones
+\end{itemize}
+
+\subsection{Componente RunningCharts}
+
+Componente para visualizar graficos de progreso y tendencias.
+
+\begin{lstlisting}[caption=components/running/running-charts.tsx - Estructura basica]
+"use client"
+
+import { useState, useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { getRunningSessions } from "@/lib/running-actions"
+
+interface RunningSession {
+  id: string
+  duration_minutes: number
+  distance_km: number
+  pace_min_km: number | null
+  created_at: string
+}
+
+export default function RunningCharts() {
+  const [sessions, setSessions] = useState<RunningSession[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadSessions = async () => {
+      try {
+        const data = await getRunningSessions()
+        setSessions(data || [])
+      } catch (error) {
+        console.error("Error loading running sessions:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadSessions()
+  }, [])
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center text-gray-500">Cargando graficos...</div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (sessions.length === 0) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center text-gray-500">
+            <p>No hay datos suficientes para mostrar graficos</p>
+            <p className="text-sm">Registra algunas sesiones para ver tu progreso</p>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Progreso de Distancia</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {/* Aqui se implementarian los graficos con una libreria como Chart.js o Recharts */}
+          <div className="h-64 flex items-center justify-center text-gray-500">
+            Grafico de progreso de distancia (implementar con libreria de graficos)
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Evolucion del Ritmo</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-64 flex items-center justify-center text-gray-500">
+            Grafico de evolucion del ritmo (implementar con libreria de graficos)
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Frecuencia de Entrenamiento</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-64 flex items-center justify-center text-gray-500">
+            Grafico de frecuencia de entrenamiento (implementar con libreria de graficos)
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+\end{lstlisting}
+
+\textbf{Tipos de graficos implementables:}
+\begin{itemize}
+    \item \textbf{Progreso de Distancia}: Linea temporal mostrando la evolucion de las distancias
+    \item \textbf{Evolucion del Ritmo}: Grafico de ritmo promedio por sesion
+    \item \textbf{Frecuencia de Entrenamiento}: Histograma de sesiones por semana/mes
+    \item \textbf{Comparacion de Metricas}: Graficos de barras comparando diferentes periodos
+\end{itemize}
+
+\section{Ejemplos Practicos de Uso}
+
+\subsection{Ejemplos de Insercion a Base de Datos}
+
+\subsubsection{Crear una Sesion de Running}
+
+\begin{lstlisting}[style=sqlstyle, caption=Ejemplo de insercion en running_sessions]
+-- Insertar una sesion de running de 5km en 30 minutos
+INSERT INTO public.running_sessions (
+    user_id,
+    duration_minutes,
+    distance_km,
+    pace_min_km
+) VALUES (
+    '123e4567-e89b-12d3-a456-426614174000', -- UUID del usuario
+    30,                                     -- 30 minutos
+    5.0,                                    -- 5 kilometros
+    6.0                                     -- 6 minutos por kilometro
+);
+
+-- Insertar una sesion de running de 10km en 50 minutos
+INSERT INTO public.running_sessions (
+    user_id,
+    duration_minutes,
+    distance_km,
+    pace_min_km
+) VALUES (
+    '123e4567-e89b-12d3-a456-426614174000',
+    50,                                     -- 50 minutos
+    10.0,                                   -- 10 kilometros
+    5.0                                     -- 5 minutos por kilometro
+);
+
+-- Insertar una sesion sin ritmo especificado (se calcula automaticamente)
+INSERT INTO public.running_sessions (
+    user_id,
+    duration_minutes,
+    distance_km
+) VALUES (
+    '123e4567-e89b-12d3-a456-426614174000',
+    25,                                     -- 25 minutos
+    4.2                                     -- 4.2 kilometros
+    -- pace_min_km se calculara como 25/4.2 = 5.95 min/km
+);
+\end{lstlisting}
+
+\subsubsection{Consultas Utiles para Analisis}
+
+\begin{lstlisting}[style=sqlstyle, caption=Consultas utiles para analisis de running]
+-- Obtener todas las sesiones de un usuario con detalles
+SELECT 
+    rs.duration_minutes,
+    rs.distance_km,
+    rs.pace_min_km,
+    rs.created_at,
+    (rs.distance_km / rs.duration_minutes * 60) as velocidad_kmh
+FROM public.running_sessions rs
+WHERE rs.user_id = '123e4567-e89b-12d3-a456-426614174000'
+ORDER BY rs.created_at DESC;
+
+-- Obtener estadisticas resumidas de un usuario
+SELECT 
+    COUNT(*) as total_sesiones,
+    SUM(distance_km) as distancia_total,
+    SUM(duration_minutes) as tiempo_total,
+    AVG(pace_min_km) as ritmo_promedio,
+    MIN(pace_min_km) as mejor_ritmo,
+    MAX(distance_km) as carrera_mas_larga
+FROM public.running_sessions
+WHERE user_id = '123e4567-e89b-12d3-a456-426614174000';
+
+-- Obtener progreso mensual
+SELECT 
+    DATE_TRUNC('month', created_at) as mes,
+    COUNT(*) as sesiones_mes,
+    SUM(distance_km) as distancia_mes,
+    AVG(pace_min_km) as ritmo_promedio_mes
+FROM public.running_sessions
+WHERE user_id = '123e4567-e89b-12d3-a456-426614174000'
+GROUP BY DATE_TRUNC('month', created_at)
+ORDER BY mes DESC;
+
+-- Obtener las 5 mejores sesiones por ritmo
+SELECT 
+    distance_km,
+    duration_minutes,
+    pace_min_km,
+    created_at
+FROM public.running_sessions
+WHERE user_id = '123e4567-e89b-12d3-a456-426614174000'
+  AND pace_min_km IS NOT NULL
+ORDER BY pace_min_km ASC
+LIMIT 5;
+
+-- Obtener tendencia de mejora en el ultimo mes
+SELECT 
+    DATE_TRUNC('week', created_at) as semana,
+    AVG(pace_min_km) as ritmo_promedio_semana
+FROM public.running_sessions
+WHERE user_id = '123e4567-e89b-12d3-a456-426614174000'
+  AND created_at >= NOW() - INTERVAL '1 month'
+  AND pace_min_km IS NOT NULL
+GROUP BY DATE_TRUNC('week', created_at)
+ORDER BY semana ASC;
+\end{lstlisting}
+
+\subsection{Flujos de Datos Completos}
+
+\subsubsection{Flujo de Creacion de Sesion}
+
+\begin{enumerate}
+    \item \textbf{Usuario completa formulario} en \texttt{RunningForm}
+    \item \textbf{Validacion en cliente} de campos requeridos (duracion y distancia)
+    \item \textbf{Envio a Server Action} \texttt{createRunningSession}
+    \item \textbf{Verificacion de autenticacion} en servidor
+    \item \textbf{Calculo automatico de ritmo} si no se proporciona
+    \item \textbf{Insercion en base de datos} tabla \texttt{running\_sessions}
+    \item \textbf{Revalidacion de cache} con \texttt{revalidatePath}
+    \item \textbf{Actualizacion de UI} con nueva sesion y estadisticas
+\end{enumerate}
+
+\subsubsection{Flujo de Calculo de Estadisticas}
+
+\begin{enumerate}
+    \item \textbf{Carga de sesiones} con \texttt{getRunningSessions}
+    \item \textbf{Calculo de metricas basicas} (total sesiones, distancia, tiempo)
+    \item \textbf{Calculo de ritmo promedio} de sesiones con ritmo registrado
+    \item \textbf{Identificacion del mejor ritmo} (valor minimo)
+    \item \textbf{Identificacion de la carrera mas larga} (distancia maxima)
+    \item \textbf{Formateo de datos} para presentacion
+    \item \textbf{Renderizado de estadisticas} en \texttt{RunningStats}
+\end{enumerate}
+
+\section{Caracteristicas Avanzadas}
+
+\subsection{Calculos Automaticos}
+
+El modulo implementa varios calculos automaticos:
+
+\begin{itemize}
+    \item \textbf{Ritmo por Kilometro}: \texttt{duracion\_minutos / distancia\_km}
+    \item \textbf{Velocidad en km/h}: \texttt{distancia\_km / (duracion\_minutos / 60)}
+    \item \textbf{Ritmo Promedio}: Promedio de todos los ritmos registrados
+    \item \textbf{Mejor Ritmo}: Valor minimo de ritmo (mas rapido)
+    \item \textbf{Distancia Total}: Suma de todas las distancias
+    \item \textbf{Tiempo Total}: Suma de todos los tiempos
+\end{itemize}
+
+\subsection{Validaciones y Restricciones}
+
+\begin{itemize}
+    \item \textbf{Duracion}: Debe ser mayor a 0 minutos
+    \item \textbf{Distancia}: Debe ser mayor a 0 kilometros
+    \item \textbf{Ritmo}: Opcional, se calcula automaticamente si no se proporciona
+    \item \textbf{Usuario}: Debe estar autenticado para todas las operaciones
+    \item \textbf{RLS}: Solo se puede acceder a sesiones propias
+\end{itemize}
+
+\subsection{Formateo de Datos}
+
+\begin{itemize}
+    \item \textbf{Tiempo}: Convierte minutos a formato "Xh Ym" o "Ym"
+    \item \textbf{Ritmo}: Convierte decimal a formato "X:YY" (minutos:segundos)
+    \item \textbf{Distancia}: Muestra con 1 decimal (ej: "5.0 km")
+    \item \textbf{Fechas}: Formato localizado (ej: "14/10/2025")
+\end{itemize}
+
+\section{Mejores Practicas de Desarrollo}
+
+\subsection{Seguridad}
+
+\begin{itemize}
+    \item \textbf{Validacion de entrada}: Siempre validar duracion y distancia
+    \item \textbf{Autenticacion}: Verificar usuario en cada operacion
+    \item \textbf{RLS}: Usar Row Level Security en todas las tablas
+    \item \textbf{Sanitizacion}: Limpiar y convertir datos de entrada
+    \item \textbf{Logs de seguridad}: Registrar operaciones sensibles
+\end{itemize}
+
+\subsection{Performance}
+
+\begin{itemize}
+    \item \textbf{Indices de base de datos}: Optimizar consultas por usuario y fecha
+    \item \textbf{Cache}: Usar revalidatePath para actualizar cache
+    \item \textbf{Calculos eficientes}: Optimizar calculos de estadisticas
+    \item \textbf{Lazy loading}: Cargar graficos bajo demanda
+    \item \textbf{Paginacion}: Implementar para listas largas de sesiones
+\end{itemize}
+
+\subsection{Mantenibilidad}
+
+\begin{itemize}
+    \item \textbf{TypeScript}: Usar tipado estricto en todos los componentes
+    \item \textbf{Interfaces}: Definir interfaces claras para props
+    \item \textbf{Separacion de responsabilidades}: Logica en Server Actions
+    \item \textbf{Reutilizacion}: Componentes modulares y reutilizables
+    \item \textbf{Documentacion}: Comentar codigo complejo
+\end{itemize}
+
+\section{Solucion de Problemas}
+
+\subsection{Problemas Comunes}
+
+\subsubsection{Error: Tabla no existe}
+
+\textbf{Sintomas}: Error al intentar insertar o consultar datos
+\textbf{Causa}: Las tablas no han sido creadas en la base de datos
+\textbf{Solucion}: Ejecutar los scripts SQL en orden:
+\begin{enumerate}
+    \item \texttt{01-create-database-schema.sql}
+    \item \texttt{01-create-user-schema.sql}
+    \item \texttt{02-create-history-schema.sql}
+\end{enumerate}
+
+\subsubsection{Error: Usuario no autenticado}
+
+\textbf{Sintomas}: Server Actions retornan error de autenticacion
+\textbf{Causa}: Usuario no esta logueado o sesion expirada
+\textbf{Solucion}: Verificar estado de autenticacion y redirigir a login
+
+\subsubsection{Error: Calculo de ritmo incorrecto}
+
+\textbf{Sintomas}: El ritmo calculado no coincide con el esperado
+\textbf{Causa}: Division por cero o valores invalidos
+\textbf{Solucion}: Validar que distancia sea mayor a 0 antes del calculo
+
+\subsection{Debugging}
+
+\subsubsection{Logs del Cliente}
+
+\begin{lstlisting}[caption=Debugging en cliente]
+// Habilitar logs detallados
+localStorage.setItem('debug', 'true');
+
+// Verificar estado de autenticacion
+console.log('User:', user);
+console.log('Session:', session);
+
+// Verificar datos de sesiones
+console.log('Running Sessions:', sessions);
+\end{lstlisting}
+
+\subsubsection{Logs del Servidor}
+
+\begin{lstlisting}[caption=Debugging en servidor]
+// En Server Actions
+console.log('Action called with:', { userId, data });
+
+// En consultas de base de datos
+console.log('Query result:', { data, error });
+
+// En calculos de ritmo
+console.log('Pace calculation:', { duration, distance, calculatedPace });
+\end{lstlisting}
+
+\section{Conclusion}
+
+El modulo de running de FitTrack es un sistema completo y robusto que permite a los usuarios gestionar sus sesiones de carrera de manera eficiente. Con su arquitectura bien definida, base de datos optimizada y componentes React modernos, proporciona una experiencia de usuario excepcional.
+
+\textbf{Caracteristicas destacadas:}
+\begin{itemize}
+    \item Arquitectura escalable y mantenible
+    \item Seguridad robusta con RLS
+    \item Interfaz de usuario intuitiva
+    \item Calculos automaticos precisos
+    \item Estadisticas detalladas y utiles
+    \item Codigo bien documentado y tipado
+\end{itemize}
+
+Para contribuir al desarrollo del modulo:
+\begin{enumerate}
+    \item Seguir las convenciones establecidas
+    \item Implementar tests apropiados
+    \item Documentar cambios significativos
+    \item Mantener la compatibilidad con la base de datos
+    \item Respetar las politicas de seguridad
+\end{enumerate}
+
+\end{document}

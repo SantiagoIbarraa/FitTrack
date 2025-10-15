@@ -28,7 +28,11 @@ interface UserProfile {
   profilePhotoUrl: string | null
 }
 
-export default function ProfileForm() {
+interface ProfileFormProps {
+  onSuccess?: () => void
+}
+
+export default function ProfileForm({ onSuccess }: ProfileFormProps) {
   const [state, formAction] = useActionState(updateUserProfile, null)
   const [isOpen, setIsOpen] = useState(false)
   const [profile, setProfile] = useState<UserProfile | null>(null)
@@ -69,8 +73,9 @@ export default function ProfileForm() {
           setProfile(userProfile)
         }
       })
+      onSuccess?.()
     }
-  }, [state])
+  }, [state, onSuccess])
 
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

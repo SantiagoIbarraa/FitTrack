@@ -1,0 +1,1790 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{float}
+
+% Configuración de página
+\geometry{margin=2.5cm}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Módulo de Gimnasio - FitTrack}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Configuración de colores para código
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{bluekeywords}{rgb}{0.13,0.13,1}
+\definecolor{greencomments}{rgb}{0,0.5,0}
+\definecolor{redstrings}{rgb}{0.9,0,0}
+
+% Configuración de listings
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{greencomments},
+    keywordstyle=\color{bluekeywords},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{redstrings},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    frame=single,
+    rulecolor=\color{codegray}
+}
+
+\lstdefinestyle{sqlstyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{greencomments},
+    keywordstyle=\color{bluekeywords},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{redstrings},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    frame=single,
+    rulecolor=\color{codegray},
+    language=SQL
+}
+
+\lstset{style=mystyle}
+
+% Configuración de títulos
+\titleformat{\section}{\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+% Configuración de hipervínculos
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    citecolor=red,
+}
+
+\begin{document}
+
+% Portada
+\begin{titlepage}
+\centering
+\vspace*{2cm}
+
+{\Huge\bfseries Módulo de Gimnasio}\\[0.5cm]
+{\LARGE FitTrack}\\[1cm]
+
+{\large Documentación Técnica Completa}\\[2cm]
+
+\begin{minipage}{0.8\textwidth}
+\centering
+Este documento proporciona una guía técnica exhaustiva del módulo de gimnasio de FitTrack, incluyendo arquitectura, implementación, base de datos, componentes React, Server Actions y ejemplos prácticos de uso.
+\end{minipage}
+
+\vfill
+
+{\large Versión 1.0}\\[0.5cm]
+{\large \today}
+
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section{Introducción al Módulo de Gimnasio}
+
+El módulo de gimnasio es uno de los componentes más complejos y funcionales de FitTrack. Permite a los usuarios registrar entrenamientos individuales, crear y gestionar rutinas personalizadas, hacer seguimiento de su progreso y acceder a un catálogo de ejercicios administrado.
+
+\subsection{Características Principales}
+
+\begin{itemize}
+    \item \textbf{Registro de Entrenamientos}: Permite registrar ejercicios individuales con peso, repeticiones y series
+    \item \textbf{Gestión de Rutinas}: Crear, editar y ejecutar rutinas personalizadas
+    \item \textbf{Catálogo de Ejercicios}: Base de datos de ejercicios administrada por administradores
+    \item \textbf{Historial de Progreso}: Seguimiento detallado del progreso a lo largo del tiempo
+    \item \textbf{Métricas y Estadísticas}: Análisis de rendimiento y tendencias
+    \item \textbf{Selector de Ejercicios}: Interfaz intuitiva para seleccionar ejercicios del catálogo
+    \item \textbf{Imágenes de Ejercicios}: Soporte para imágenes en ejercicios personalizados
+\end{itemize}
+
+\subsection{Arquitectura General}
+
+El módulo sigue una arquitectura de capas bien definida:
+
+\begin{enumerate}
+    \item \textbf{Capa de Presentación}: Componentes React con TypeScript
+    \item \textbf{Capa de Lógica}: Server Actions de Next.js
+    \item \textbf{Capa de Datos}: Supabase PostgreSQL con RLS
+    \item \textbf{Capa de Servicios}: Utilidades y helpers
+\end{enumerate}
+
+\section{Estructura de Base de Datos}
+
+\subsection{Diagrama de Relaciones}
+
+\begin{figure}[H]
+\centering
+\begin{verbatim}
+    auth.users
+         |
+    +----+----+
+    |         |
+gym_workouts routines
+    |         |
+    |    routine_exercises
+    |
+gym_exercises
+\end{verbatim}
+\caption{Diagrama de relaciones de las tablas del módulo de gimnasio}
+\end{figure}
+
+\subsection{Tabla gym\_workouts}
+
+Esta tabla almacena los entrenamientos individuales realizados por los usuarios.
+
+\begin{lstlisting}[style=sqlstyle, caption=Estructura completa de gym_workouts]
+CREATE TABLE IF NOT EXISTS public.gym_workouts (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    exercise_name TEXT NOT NULL,
+    weight_kg NUMERIC(5,2),
+    repetitions INTEGER,
+    sets INTEGER,
+    image_url TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Índices para optimización
+CREATE INDEX IF NOT EXISTS idx_gym_workouts_user_id ON public.gym_workouts(user_id);
+CREATE INDEX IF NOT EXISTS idx_gym_workouts_created_at ON public.gym_workouts(created_at);
+CREATE INDEX IF NOT EXISTS idx_gym_workouts_exercise_name ON public.gym_workouts(exercise_name);
+\end{lstlisting}
+
+\textbf{Descripción de campos:}
+\begin{itemize}
+    \item \texttt{id}: Identificador único UUID generado automáticamente
+    \item \texttt{user\_id}: Referencia al usuario propietario del entrenamiento
+    \item \texttt{exercise\_name}: Nombre del ejercicio realizado (texto libre)
+    \item \texttt{weight\_kg}: Peso utilizado en kilogramos (opcional, máximo 999.99)
+    \item \texttt{repetitions}: Número de repeticiones realizadas (opcional)
+    \item \texttt{sets}: Número de series realizadas (opcional)
+    \item \texttt{image\_url}: URL de imagen del ejercicio (opcional)
+    \item \texttt{created\_at}: Timestamp de creación automático
+\end{itemize}
+
+\subsection{Tabla routines}
+
+Almacena las rutinas personalizadas creadas por los usuarios.
+
+\begin{lstlisting}[style=sqlstyle, caption=Estructura completa de routines]
+CREATE TABLE IF NOT EXISTS public.routines (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    name TEXT NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- Índices para optimización
+CREATE INDEX IF NOT EXISTS idx_routines_user_id ON public.routines(user_id);
+CREATE INDEX IF NOT EXISTS idx_routines_created_at ON public.routines(created_at);
+\end{lstlisting}
+
+\textbf{Descripción de campos:}
+\begin{itemize}
+    \item \texttt{id}: Identificador único UUID de la rutina
+    \item \texttt{user\_id}: Referencia al usuario propietario
+    \item \texttt{name}: Nombre de la rutina (requerido)
+    \item \texttt{description}: Descripción opcional de la rutina
+    \item \texttt{created\_at}: Timestamp de creación
+    \item \texttt{updated\_at}: Timestamp de última modificación
+\end{itemize}
+
+\subsection{Tabla routine\_exercises}
+
+Contiene los ejercicios que pertenecen a cada rutina con su orden específico.
+
+\begin{lstlisting}[style=sqlstyle, caption=Estructura completa de routine_exercises]
+CREATE TABLE IF NOT EXISTS public.routine_exercises (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    routine_id UUID REFERENCES public.routines(id) ON DELETE CASCADE NOT NULL,
+    exercise_name TEXT NOT NULL,
+    weight DECIMAL(6,2) NOT NULL CHECK (weight >= 0),
+    repetitions INTEGER NOT NULL CHECK (repetitions > 0),
+    sets INTEGER NOT NULL CHECK (sets > 0),
+    image_url TEXT,
+    order_index INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- Índices para optimización
+CREATE INDEX IF NOT EXISTS idx_routine_exercises_routine_id ON public.routine_exercises(routine_id);
+CREATE INDEX IF NOT EXISTS idx_routine_exercises_order ON public.routine_exercises(routine_id, order_index);
+\end{lstlisting}
+
+\textbf{Descripción de campos:}
+\begin{itemize}
+    \item \texttt{id}: Identificador único del ejercicio en la rutina
+    \item \texttt{routine\_id}: Referencia a la rutina padre
+    \item \texttt{exercise\_name}: Nombre del ejercicio
+    \item \texttt{weight}: Peso en kilogramos (requerido, >= 0)
+    \item \texttt{repetitions}: Repeticiones (requerido, > 0)
+    \item \texttt{sets}: Series (requerido, > 0)
+    \item \texttt{image\_url}: URL de imagen opcional
+    \item \texttt{order\_index}: Orden del ejercicio en la rutina
+    \item \texttt{created\_at}: Timestamp de creación
+\end{itemize}
+
+\subsection{Tabla gym\_exercises}
+
+Catálogo de ejercicios administrado por administradores del sistema.
+
+\begin{lstlisting}[style=sqlstyle, caption=Estructura completa de gym_exercises]
+CREATE TABLE IF NOT EXISTS gym_exercises (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL,
+    category TEXT NOT NULL CHECK (category IN (
+        'Pecho', 'Bíceps', 'Tríceps', 'Hombros', 
+        'Pierna', 'Espalda', 'Otros'
+    )),
+    description TEXT,
+    image_url TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Índices para optimización
+CREATE INDEX IF NOT EXISTS idx_gym_exercises_category ON gym_exercises(category);
+CREATE INDEX IF NOT EXISTS idx_gym_exercises_name ON gym_exercises(name);
+\end{lstlisting}
+
+\textbf{Descripción de campos:}
+\begin{itemize}
+    \item \texttt{id}: Identificador único del ejercicio
+    \item \texttt{name}: Nombre del ejercicio
+    \item \texttt{category}: Categoría del ejercicio (constraint de valores válidos)
+    \item \texttt{description}: Descripción detallada del ejercicio
+    \item \texttt{image\_url}: URL de imagen del ejercicio
+    \item \texttt{created\_at}: Timestamp de creación
+    \item \texttt{updated\_at}: Timestamp de última modificación
+\end{itemize}
+
+\subsection{Políticas de Seguridad (RLS)}
+
+Todas las tablas implementan Row Level Security para garantizar que los usuarios solo accedan a sus propios datos.
+
+\begin{lstlisting}[style=sqlstyle, caption=Políticas RLS para gym_workouts]
+-- Habilitar RLS
+ALTER TABLE public.gym_workouts ENABLE ROW LEVEL SECURITY;
+
+-- Políticas para gym_workouts
+CREATE POLICY "Usuarios pueden ver sus propios entrenamientos"
+ON public.gym_workouts
+FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Usuarios pueden insertar sus propios entrenamientos"
+ON public.gym_workouts
+FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Usuarios pueden modificar sus propios entrenamientos"
+ON public.gym_workouts
+FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Usuarios pueden eliminar sus propios entrenamientos"
+ON public.gym_workouts
+FOR DELETE USING (auth.uid() = user_id);
+\end{lstlisting}
+
+\begin{lstlisting}[style=sqlstyle, caption=Políticas RLS para routines]
+-- Habilitar RLS
+ALTER TABLE public.routines ENABLE ROW LEVEL SECURITY;
+
+-- Políticas para routines
+CREATE POLICY "Users can view own routines" ON public.routines
+FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own routines" ON public.routines
+FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own routines" ON public.routines
+FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own routines" ON public.routines
+FOR DELETE USING (auth.uid() = user_id);
+\end{lstlisting}
+
+\begin{lstlisting}[style=sqlstyle, caption=Políticas RLS para routine_exercises]
+-- Habilitar RLS
+ALTER TABLE public.routine_exercises ENABLE ROW LEVEL SECURITY;
+
+-- Políticas para routine_exercises
+CREATE POLICY "Users can view own routine exercises" ON public.routine_exercises
+FOR SELECT USING (
+    EXISTS (
+        SELECT 1 FROM public.routines 
+        WHERE routines.id = routine_exercises.routine_id 
+        AND routines.user_id = auth.uid()
+    )
+);
+
+CREATE POLICY "Users can insert own routine exercises" ON public.routine_exercises
+FOR INSERT WITH CHECK (
+    EXISTS (
+        SELECT 1 FROM public.routines 
+        WHERE routines.id = routine_exercises.routine_id 
+        AND routines.user_id = auth.uid()
+    )
+);
+
+CREATE POLICY "Users can update own routine exercises" ON public.routine_exercises
+FOR UPDATE USING (
+    EXISTS (
+        SELECT 1 FROM public.routines 
+        WHERE routines.id = routine_exercises.routine_id 
+        AND routines.user_id = auth.uid()
+    )
+);
+
+CREATE POLICY "Users can delete own routine exercises" ON public.routine_exercises
+FOR DELETE USING (
+    EXISTS (
+        SELECT 1 FROM public.routines 
+        WHERE routines.id = routine_exercises.routine_id 
+        AND routines.user_id = auth.uid()
+    )
+);
+\end{lstlisting}
+
+\begin{lstlisting}[style=sqlstyle, caption=Políticas RLS para gym_exercises]
+-- Habilitar RLS
+ALTER TABLE gym_exercises ENABLE ROW LEVEL SECURITY;
+
+-- Permitir a todos los usuarios autenticados ver ejercicios
+CREATE POLICY "Anyone can view gym exercises"
+ON gym_exercises
+FOR SELECT
+TO authenticated
+USING (true);
+
+-- Solo administradores pueden gestionar ejercicios
+CREATE POLICY "Only admins can manage gym exercises"
+ON gym_exercises
+FOR ALL
+TO authenticated
+USING (
+    EXISTS (
+        SELECT 1 FROM user_profiles
+        WHERE user_profiles.id = auth.uid()
+        AND user_profiles.role = 'admin'
+    )
+);
+\end{lstlisting}
+
+\section{Server Actions - Lógica de Negocio}
+
+Las Server Actions manejan toda la lógica de negocio del módulo de gimnasio. Están implementadas en TypeScript con validación robusta y manejo de errores.
+
+\subsection{Archivo gym-actions.ts}
+
+\subsubsection{createWorkout - Crear Entrenamiento}
+
+\begin{lstlisting}[language=typescript, caption=Función createWorkout completa]
+"use server"
+
+import { revalidatePath } from "next/cache"
+import { createClient } from "@/lib/supabase/server"
+
+export async function createWorkout(prevState: any, formData: FormData) {
+  // Extraer datos del formulario
+  const exercise_name = formData.get("exercise_name")?.toString()
+  const weight_kg = formData.get("weight_kg")?.toString()
+  const repetitions = formData.get("repetitions")?.toString()
+  const sets = formData.get("sets")?.toString()
+  const image_url = formData.get("image_url")?.toString()
+
+  // Validación básica
+  if (!exercise_name) {
+    return { error: "El nombre del ejercicio es requerido" }
+  }
+
+  // Verificar autenticación
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: "Usuario no autenticado" }
+  }
+
+  try {
+    // Preparar datos para inserción
+    const insertData = {
+      user_id: user.id,
+      exercise_name,
+      weight_kg: weight_kg && weight_kg.trim() !== "" ? 
+        Math.max(0, Number.parseFloat(weight_kg)) : null,
+      repetitions: repetitions && repetitions.trim() !== "" ? 
+        Math.max(1, Number.parseInt(repetitions)) : null,
+      sets: sets && sets.trim() !== "" ? 
+        Math.max(1, Number.parseInt(sets)) : null,
+      image_url: image_url && image_url.trim() !== "" ? 
+        image_url.trim() : null,
+    }
+
+    // Insertar en base de datos
+    const { error } = await supabase
+      .from("gym_workouts")
+      .insert(insertData)
+
+    if (error) {
+      console.error("Database error:", error)
+      return { error: "Error al guardar el ejercicio" }
+    }
+
+    // Revalidar cache
+    revalidatePath("/gym")
+    return { success: true }
+  } catch (error) {
+    console.error("Error:", error)
+    return { error: "Error al guardar el ejercicio" }
+  }
+}
+\end{lstlisting}
+
+\textbf{Características importantes:}
+\begin{itemize}
+    \item \textbf{Validación de entrada}: Verifica que el nombre del ejercicio esté presente
+    \item \textbf{Autenticación}: Confirma que el usuario esté autenticado
+    \item \textbf{Sanitización}: Convierte y valida valores numéricos
+    \item \textbf{Manejo de errores}: Captura y reporta errores de base de datos
+    \item \textbf{Revalidación}: Actualiza el cache de Next.js
+\end{itemize}
+
+\subsubsection{updateWorkout - Actualizar Entrenamiento}
+
+\begin{lstlisting}[language=typescript, caption=Función updateWorkout completa]
+export async function updateWorkout(prevState: any, formData: FormData) {
+  const id = formData.get("id")?.toString()
+  const exercise_name = formData.get("exercise_name")?.toString()
+  const weight_kg = formData.get("weight_kg")?.toString()
+  const repetitions = formData.get("repetitions")?.toString()
+  const sets = formData.get("sets")?.toString()
+  const image_url = formData.get("image_url")?.toString()
+
+  // Validación de ID y nombre
+  if (!id || !exercise_name) {
+    return { error: "ID y nombre del ejercicio son requeridos" }
+  }
+
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: "Usuario no autenticado" }
+  }
+
+  try {
+    // Actualizar registro
+    const { error } = await supabase
+      .from("gym_workouts")
+      .update({
+        exercise_name,
+        weight_kg: weight_kg && weight_kg.trim() !== "" ? 
+          Math.max(0, Number.parseFloat(weight_kg)) : null,
+        repetitions: repetitions && repetitions.trim() !== "" ? 
+          Math.max(1, Number.parseInt(repetitions)) : null,
+        sets: sets && sets.trim() !== "" ? 
+          Math.max(1, Number.parseInt(sets)) : null,
+        image_url: image_url && image_url.trim() !== "" ? 
+          image_url.trim() : null,
+      })
+      .eq("id", id)
+      .eq("user_id", user.id) // Seguridad adicional
+
+    if (error) {
+      console.error("Database error:", error)
+      return { error: "Error al actualizar el ejercicio" }
+    }
+
+    revalidatePath("/gym")
+    return { success: true }
+  } catch (error) {
+    console.error("Error:", error)
+    return { error: "Error al actualizar el ejercicio" }
+  }
+}
+\end{lstlisting}
+
+\subsubsection{getWorkouts - Obtener Entrenamientos}
+
+\begin{lstlisting}[language=typescript, caption=Función getWorkouts completa]
+export async function getWorkouts() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return []
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("gym_workouts")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      console.error("Database error:", error)
+      return []
+    }
+
+    return data || []
+  } catch (error) {
+    console.error("Error:", error)
+    return []
+  }
+}
+\end{lstlisting}
+
+\subsubsection{deleteWorkout - Eliminar Entrenamiento}
+
+\begin{lstlisting}[language=typescript, caption=Función deleteWorkout completa]
+export async function deleteWorkout(workoutId: string) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: "Usuario no autenticado" }
+  }
+
+  try {
+    const { error } = await supabase
+      .from("gym_workouts")
+      .delete()
+      .eq("id", workoutId)
+      .eq("user_id", user.id) // Seguridad adicional
+
+    if (error) {
+      console.error("Database error:", error)
+      return { error: "Error al eliminar el ejercicio" }
+    }
+
+    revalidatePath("/gym")
+    return { success: true }
+  } catch (error) {
+    console.error("Error:", error)
+    return { error: "Error al eliminar el ejercicio" }
+  }
+}
+\end{lstlisting}
+
+\subsection{Archivo routine-actions.ts}
+
+\subsubsection{createRoutine - Crear Rutina}
+
+\begin{lstlisting}[language=typescript, caption=Función createRoutine completa]
+export async function createRoutine(prevState: any, formData: FormData) {
+  const name = formData.get("name")?.toString()
+  const description = formData.get("description")?.toString() || ""
+
+  if (!name) {
+    return { error: "El nombre de la rutina es requerido" }
+  }
+
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
+
+    if (userError) {
+      console.error("User auth error:", userError)
+      return { error: `Error de autenticación: ${userError.message}` }
+    }
+
+    if (!user) {
+      return { error: "Usuario no autenticado" }
+    }
+
+    // Verificar que la tabla routines existe
+    const { data: tableCheck, error: tableError } = await supabase
+      .from("routines")
+      .select("id")
+      .limit(1)
+
+    if (tableError) {
+      console.error("Table check error:", tableError)
+      return { error: `Error al verificar tabla: ${tableError.message}` }
+    }
+
+    // Insertar nueva rutina
+    const { data: insertData, error: insertError } = await supabase
+      .from("routines")
+      .insert({
+        user_id: user.id,
+        name,
+        description,
+      })
+      .select()
+
+    if (insertError) {
+      console.error("Database insert error:", insertError)
+      return { error: `Error al crear la rutina: ${insertError.message}` }
+    }
+
+    revalidatePath("/gym")
+    return { success: true, data: insertData }
+  } catch (error) {
+    console.error("Unexpected error in createRoutine:", error)
+    return { error: `Error inesperado: ${error instanceof Error ? error.message : String(error)}` }
+  }
+}
+\end{lstlisting}
+
+\subsubsection{getRoutines - Obtener Rutinas}
+
+\begin{lstlisting}[language=typescript, caption=Función getRoutines completa]
+export async function getRoutines() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return []
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("routines")
+      .select(`
+        *,
+        routine_exercises(count)
+      `)
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      console.error("Database error:", error)
+      return []
+    }
+
+    return data || []
+  } catch (error) {
+    console.error("Error:", error)
+    return []
+  }
+}
+\end{lstlisting}
+
+\subsubsection{addExerciseToRoutine - Agregar Ejercicio a Rutina}
+
+\begin{lstlisting}[language=typescript, caption=Función addExerciseToRoutine completa]
+export async function addExerciseToRoutine(routineId: string, exerciseData: any) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: "Usuario no autenticado" }
+  }
+
+  try {
+    // Obtener el siguiente order_index para esta rutina
+    const { data: maxOrderData } = await supabase
+      .from("routine_exercises")
+      .select("order_index")
+      .eq("routine_id", routineId)
+      .order("order_index", { ascending: false })
+      .limit(1)
+
+    const nextOrderIndex = maxOrderData && maxOrderData.length > 0 ? 
+      maxOrderData[0].order_index + 1 : 0
+
+    // Validar y preparar datos
+    const sets = Math.max(1, Number.parseInt(exerciseData.sets) || 1)
+    const repetitions = Math.max(1, Number.parseInt(exerciseData.repetitions) || 1)
+    const weight = Math.max(0, Number.parseFloat(exerciseData.weight) || 0)
+
+    // Insertar ejercicio en rutina
+    const { error } = await supabase
+      .from("routine_exercises")
+      .insert({
+        routine_id: routineId,
+        exercise_name: exerciseData.exercise_name,
+        weight: weight,
+        repetitions: repetitions,
+        sets: sets,
+        image_url: exerciseData.image_url || null,
+        order_index: nextOrderIndex,
+      })
+
+    if (error) {
+      console.error("Database error:", error)
+      return { error: "Error al agregar ejercicio a la rutina" }
+    }
+
+    revalidatePath("/gym")
+    return { success: true }
+  } catch (error) {
+    console.error("Error:", error)
+    return { error: "Error al agregar ejercicio a la rutina" }
+  }
+}
+\end{lstlisting}
+
+\section{Componentes React}
+
+\subsection{Página Principal - GymPage}
+
+El componente principal que coordina toda la funcionalidad del módulo de gimnasio.
+
+\begin{lstlisting}[language=typescript, caption=app/gym/page.tsx - Estructura completa]
+"use client"
+
+import { useState } from "react"
+import { Dumbbell, ArrowLeft } from "lucide-react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import WorkoutForm from "@/components/gym/workout-form"
+import WorkoutList from "@/components/gym/workout-list"
+import RoutineList from "@/components/gym/routine-list"
+import RoutineForm from "@/components/gym/routine-form"
+import RoutineDetail from "@/components/gym/routine-detail"
+import ExerciseHistory from "@/components/gym/exercise-history"
+import GymMetrics from "@/components/gym/gym-metrics"
+
+// Interfaces TypeScript
+interface Workout {
+  id: string
+  exercise_name: string
+  weight_kg: number | null
+  repetitions: number | null
+  sets: number | null
+  created_at: string
+}
+
+type ViewMode = "routines" | "individual" | "routine-detail" | "create-routine" | "history" | "metrics"
+
+export default function GymPage() {
+  // Estados del componente
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null)
+  const [viewMode, setViewMode] = useState<ViewMode>("routines")
+  const [selectedRoutine, setSelectedRoutine] = useState<{ id: string; name: string } | null>(null)
+
+  // Handlers para diferentes acciones
+  const handleWorkoutAdded = () => {
+    setRefreshTrigger((prev) => prev + 1)
+  }
+
+  const handleEditWorkout = (workout: Workout) => {
+    setEditingWorkout(workout)
+  }
+
+  const handleEditComplete = () => {
+    setEditingWorkout(null)
+    setRefreshTrigger((prev) => prev + 1)
+  }
+
+  const handleViewRoutine = (routineId: string, routineName: string) => {
+    setSelectedRoutine({ id: routineId, name: routineName })
+    setViewMode("routine-detail")
+  }
+
+  const handleCreateRoutine = () => {
+    setViewMode("create-routine")
+  }
+
+  const handleRoutineCreated = () => {
+    setViewMode("routines")
+    setRefreshTrigger((prev) => prev + 1)
+  }
+
+  const handleBackToRoutines = () => {
+    setSelectedRoutine(null)
+    setViewMode("routines")
+    setRefreshTrigger((prev) => prev + 1)
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Header con navegación */}
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Volver
+              </Link>
+            </Button>
+          </div>
+          <div className="flex items-center gap-3 mb-2">
+            <Dumbbell className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gimnasio</h1>
+          </div>
+          <p className="text-gray-600 dark:text-gray-300">
+            Organiza tus entrenamientos por rutinas o registra ejercicios individuales
+          </p>
+        </div>
+
+        {/* Pestañas de navegación */}
+        <div className="flex gap-2 mb-6 flex-wrap">
+          <button
+            onClick={() => setViewMode("routines")}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              viewMode === "routines" || viewMode === "routine-detail" || viewMode === "create-routine"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+            }`}
+          >
+            Rutinas
+          </button>
+          <button
+            onClick={() => setViewMode("individual")}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              viewMode === "individual" ? "bg-blue-600 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+            }`}
+          >
+            Ejercicios Individuales
+          </button>
+          <button
+            onClick={() => setViewMode("history")}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              viewMode === "history" ? "bg-blue-600 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+            }`}
+          >
+            Historial
+          </button>
+          <button
+            onClick={() => setViewMode("metrics")}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              viewMode === "metrics" ? "bg-blue-600 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+            }`}
+          >
+            Métricas
+          </button>
+        </div>
+
+        {/* Renderizado condicional de componentes */}
+        <div className="grid gap-6">
+          {viewMode === "routines" && (
+            <RoutineList
+              refreshTrigger={refreshTrigger}
+              onViewRoutine={handleViewRoutine}
+              onCreateRoutine={handleCreateRoutine}
+            />
+          )}
+
+          {viewMode === "create-routine" && (
+            <RoutineForm 
+              onRoutineCreated={handleRoutineCreated} 
+              onCancel={() => setViewMode("routines")} 
+            />
+          )}
+
+          {viewMode === "routine-detail" && selectedRoutine && (
+            <RoutineDetail
+              routineId={selectedRoutine.id}
+              routineName={selectedRoutine.name}
+              onBack={handleBackToRoutines}
+            />
+          )}
+
+          {viewMode === "individual" && (
+            <>
+              <WorkoutForm
+                onWorkoutAdded={handleWorkoutAdded}
+                editWorkout={editingWorkout}
+                onEditComplete={handleEditComplete}
+              />
+              <WorkoutList 
+                refreshTrigger={refreshTrigger} 
+                onEditWorkout={handleEditWorkout} 
+              />
+            </>
+          )}
+
+          {viewMode === "history" && <ExerciseHistory />}
+          {viewMode === "metrics" && <GymMetrics />}
+        </div>
+      </div>
+    </div>
+  )
+}
+\end{lstlisting}
+
+\textbf{Características del componente:}
+\begin{itemize}
+    \item \textbf{Estado centralizado}: Maneja todos los estados de la aplicación
+    \item \textbf{Navegación por pestañas}: Interfaz intuitiva para cambiar entre vistas
+    \item \textbf{Renderizado condicional}: Muestra diferentes componentes según el modo
+    \item \textbf{Handlers de eventos}: Gestiona todas las interacciones del usuario
+    \item \textbf{TypeScript}: Tipado estricto para mayor seguridad
+\end{itemize}
+
+\subsection{Formulario de Entrenamiento - WorkoutForm}
+
+Componente complejo que maneja la creación y edición de ejercicios.
+
+\begin{lstlisting}[language=typescript, caption=components/gym/workout-form.tsx - Estructura principal]
+"use client"
+
+import { useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Plus, Loader2, Edit, Dumbbell } from "lucide-react"
+import { createWorkout, updateWorkout } from "@/lib/gym-actions"
+import { addExerciseToRoutine, updateExerciseInRoutine } from "@/lib/routine-actions"
+import { useActionState } from "react"
+import ExerciseSelectorModal from "./exercise-selector-modal"
+
+// Interfaces TypeScript
+interface Workout {
+  id: string
+  exercise_name: string
+  weight_kg: number | null
+  repetitions: number | null
+  sets: number | null
+  image_url: string | null
+  created_at: string
+}
+
+interface GymExercise {
+  id: string
+  name: string
+  category: string
+  description: string | null
+  image_url: string | null
+}
+
+interface WorkoutFormProps {
+  onWorkoutAdded?: () => void
+  editWorkout?: Workout | null
+  onEditComplete?: () => void
+  routineId?: string
+}
+
+export default function WorkoutForm({ 
+  onWorkoutAdded, 
+  editWorkout, 
+  onEditComplete, 
+  routineId 
+}: WorkoutFormProps) {
+  // Estados del componente
+  const [state, formAction] = useActionState(editWorkout ? updateWorkout : createWorkout, null)
+  const [isOpen, setIsOpen] = useState(false)
+  const [showExerciseModal, setShowExerciseModal] = useState(false)
+  const [selectedExercise, setSelectedExercise] = useState<GymExercise | null>(null)
+  const [customExerciseName, setCustomExerciseName] = useState("")
+
+  // Efecto para abrir formulario cuando se edita
+  useEffect(() => {
+    if (editWorkout) {
+      setIsOpen(true)
+    }
+  }, [editWorkout])
+
+  // Handler para selección de ejercicio
+  const handleExerciseSelect = (exercise: GymExercise) => {
+    if (exercise.id === "custom") {
+      setSelectedExercise(null)
+      setCustomExerciseName("")
+    } else {
+      setSelectedExercise(exercise)
+      setCustomExerciseName("")
+    }
+  }
+
+  // Handler principal de envío
+  const handleSubmit = async (formData: FormData) => {
+    const exerciseName = selectedExercise?.name || customExerciseName
+
+    if (!exerciseName) {
+      return
+    }
+
+    const imageUrl = selectedExercise?.image_url || formData.get("image_url")?.toString() || null
+
+    // Preparar FormData
+    const newFormData = new FormData()
+    newFormData.append("exercise_name", exerciseName)
+    newFormData.append("weight_kg", formData.get("weight_kg")?.toString() || "")
+    newFormData.append("repetitions", formData.get("repetitions")?.toString() || "")
+    newFormData.append("sets", formData.get("sets")?.toString() || "")
+    newFormData.append("image_url", imageUrl || "")
+
+    if (editWorkout) {
+      newFormData.append("id", editWorkout.id)
+    }
+
+    // Lógica para rutinas vs ejercicios individuales
+    if (routineId) {
+      const exerciseData = {
+        exercise_name: exerciseName,
+        weight_kg: formData.get("weight_kg") ? 
+          Number.parseFloat(formData.get("weight_kg")?.toString() || "0") : null,
+        repetitions: formData.get("repetitions") ? 
+          Number.parseInt(formData.get("repetitions")?.toString() || "0") : null,
+        sets: formData.get("sets") ? 
+          Number.parseInt(formData.get("sets")?.toString() || "0") : null,
+        image_url: imageUrl,
+      }
+
+      let result
+      if (editWorkout) {
+        result = await updateExerciseInRoutine(editWorkout.id, exerciseData)
+      } else {
+        result = await addExerciseToRoutine(routineId, exerciseData)
+      }
+
+      if (result?.success) {
+        setIsOpen(false)
+        setSelectedExercise(null)
+        setCustomExerciseName("")
+        if (editWorkout) {
+          onEditComplete?.()
+        } else {
+          onWorkoutAdded?.()
+        }
+      }
+    } else {
+      // Ejercicio individual
+      const result = await formAction(newFormData)
+      if (result?.success) {
+        setIsOpen(false)
+        setSelectedExercise(null)
+        setCustomExerciseName("")
+        if (editWorkout) {
+          onEditComplete?.()
+        } else {
+          onWorkoutAdded?.()
+        }
+      }
+    }
+  }
+
+  // Handler para cancelar
+  const handleCancel = () => {
+    setIsOpen(false)
+    setSelectedExercise(null)
+    setCustomExerciseName("")
+    if (editWorkout) {
+      onEditComplete?.()
+    }
+  }
+
+  // Renderizar botón si no está abierto
+  if (!isOpen && !editWorkout) {
+    return (
+      <Button onClick={() => setIsOpen(true)} className="w-full bg-blue-600 hover:bg-blue-700">
+        <Plus className="h-4 w-4 mr-2" />
+        {routineId ? "Agregar Ejercicio a la Rutina" : "Agregar Ejercicio"}
+      </Button>
+    )
+  }
+
+  return (
+    <>
+      {/* Modal selector de ejercicios */}
+      <ExerciseSelectorModal
+        open={showExerciseModal}
+        onOpenChange={setShowExerciseModal}
+        onSelectExercise={handleExerciseSelect}
+      />
+
+      {/* Formulario principal */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            {editWorkout ? (
+              <>
+                <Edit className="h-5 w-5" />
+                Editar Ejercicio
+              </>
+            ) : (
+              <>
+                <Plus className="h-5 w-5" />
+                Nuevo Ejercicio
+              </>
+            )}
+          </CardTitle>
+          <CardDescription>
+            {editWorkout
+              ? "Modifica los datos de tu entrenamiento"
+              : routineId
+                ? "Agrega un ejercicio a esta rutina"
+                : "Registra tu entrenamiento de gimnasio"}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form action={handleSubmit} className="space-y-4">
+            {/* Mostrar errores */}
+            {state?.error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm">
+                {state.error}
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 gap-4">
+              {/* Selector de ejercicio (solo para nuevos) */}
+              {!editWorkout && (
+                <div className="space-y-2">
+                  <Label>Ejercicio</Label>
+                  {selectedExercise ? (
+                    <div className="flex items-center gap-3 p-3 border rounded-lg bg-accent/50">
+                      {selectedExercise.image_url ? (
+                        <img
+                          src={selectedExercise.image_url || "/placeholder.svg"}
+                          alt={selectedExercise.name}
+                          className="w-12 h-12 rounded object-cover"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded bg-muted flex items-center justify-center">
+                          <Dumbbell className="h-6 w-6 text-muted-foreground" />
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <div className="font-medium">{selectedExercise.name}</div>
+                        <div className="text-xs text-muted-foreground">{selectedExercise.category}</div>
+                      </div>
+                      <Button type="button" variant="ghost" size="sm" onClick={() => setShowExerciseModal(true)}>
+                        Cambiar
+                      </Button>
+                    </div>
+                  ) : customExerciseName ? (
+                    <div className="flex items-center gap-3 p-3 border rounded-lg bg-accent/50">
+                      <div className="w-12 h-12 rounded bg-muted flex items-center justify-center">
+                        <Dumbbell className="h-6 w-6 text-muted-foreground" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-medium">{customExerciseName}</div>
+                        <div className="text-xs text-muted-foreground">Ejercicio personalizado</div>
+                      </div>
+                      <Button type="button" variant="ghost" size="sm" onClick={() => setShowExerciseModal(true)}>
+                        Cambiar
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full h-auto py-4 bg-transparent"
+                      onClick={() => setShowExerciseModal(true)}
+                    >
+                      <Dumbbell className="h-5 w-5 mr-2" />
+                      Seleccionar ejercicio del catálogo
+                    </Button>
+                  )}
+
+                  {/* Campo para ejercicio personalizado */}
+                  {!selectedExercise && (
+                    <div className="space-y-2">
+                      <Label htmlFor="custom_exercise_name">O escribe un ejercicio personalizado</Label>
+                      <Input
+                        id="custom_exercise_name"
+                        name="custom_exercise_name"
+                        placeholder="Ej: Press de banca, Sentadillas..."
+                        value={customExerciseName}
+                        onChange={(e) => setCustomExerciseName(e.target.value)}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Mostrar nombre del ejercicio en modo edición */}
+              {editWorkout && (
+                <div className="space-y-2">
+                  <Label>Ejercicio</Label>
+                  <Input value={editWorkout.exercise_name} disabled />
+                </div>
+              )}
+
+              {/* Campos de datos del ejercicio */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="weight_kg">Peso (kg)</Label>
+                  <Input
+                    id="weight_kg"
+                    name="weight_kg"
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    placeholder="80"
+                    defaultValue={editWorkout?.weight_kg ?? ""}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="repetitions">Repeticiones</Label>
+                  <Input
+                    id="repetitions"
+                    name="repetitions"
+                    type="number"
+                    min="1"
+                    placeholder="12"
+                    defaultValue={editWorkout?.repetitions ?? ""}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="sets">Series</Label>
+                <Input
+                  id="sets"
+                  name="sets"
+                  type="number"
+                  min="1"
+                  placeholder="3"
+                  defaultValue={editWorkout?.sets ?? ""}
+                />
+              </div>
+
+              {/* Campo para URL de imagen (solo ejercicios personalizados) */}
+              {!editWorkout && !selectedExercise && customExerciseName && (
+                <div className="space-y-2">
+                  <Label htmlFor="image_url">URL de la Imagen (opcional)</Label>
+                  <Input
+                    id="image_url"
+                    name="image_url"
+                    type="url"
+                    placeholder="https://ejemplo.com/imagen-ejercicio.jpg"
+                  />
+                  <p className="text-xs text-gray-500">Solo para ejercicios personalizados</p>
+                </div>
+              )}
+            </div>
+
+            {/* Botones de acción */}
+            <div className="flex gap-2">
+              <Button type="submit" className="flex-1 bg-green-600 hover:bg-green-700">
+                <Loader2 className="h-4 w-4 mr-2 animate-spin hidden" />
+                {editWorkout ? "Actualizar Ejercicio" : "Guardar Ejercicio"}
+              </Button>
+              <Button type="button" variant="outline" onClick={handleCancel}>
+                Cancelar
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </>
+  )
+}
+\end{lstlisting}
+
+\textbf{Características del formulario:}
+\begin{itemize}
+    \item \textbf{Selector de ejercicios}: Modal para elegir del catálogo o crear personalizado
+    \item \textbf{Validación en tiempo real}: Verifica datos antes de enviar
+    \item \textbf{Modo edición}: Reutiliza el mismo componente para editar
+    \item \textbf{Soporte para rutinas}: Funciona tanto para ejercicios individuales como rutinas
+    \item \textbf{Manejo de imágenes}: Soporte para URLs de imágenes
+\end{itemize}
+
+\subsection{Lista de Entrenamientos - WorkoutList}
+
+Componente que muestra y gestiona la lista de entrenamientos del usuario.
+
+\begin{lstlisting}[language=typescript, caption=components/gym/workout-list.tsx - Estructura principal]
+"use client"
+
+import { useState, useEffect } from "react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Trash2, Calendar, Weight, RotateCcw, Hash, Edit } from "lucide-react"
+import { deleteWorkout, getWorkouts } from "@/lib/gym-actions"
+import { format } from "date-fns"
+import { es } from "date-fns/locale"
+
+interface Workout {
+  id: string
+  exercise_name: string
+  weight_kg: number | null
+  repetitions: number | null
+  sets: number | null
+  image_url: string | null
+  created_at: string
+}
+
+interface WorkoutListProps {
+  refreshTrigger?: number
+  onEditWorkout?: (workout: Workout) => void
+}
+
+export default function WorkoutList({ refreshTrigger, onEditWorkout }: WorkoutListProps) {
+  const [workouts, setWorkouts] = useState<Workout[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // Cargar entrenamientos
+  const loadWorkouts = async () => {
+    try {
+      const data = await getWorkouts()
+      setWorkouts(data || [])
+    } catch (error) {
+      console.error("Error loading workouts:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Efecto para recargar cuando cambia el trigger
+  useEffect(() => {
+    loadWorkouts()
+  }, [refreshTrigger])
+
+  // Handler para eliminar entrenamiento
+  const handleDelete = async (id: string) => {
+    if (confirm("¿Estás seguro de que quieres eliminar este ejercicio?")) {
+      const result = await deleteWorkout(id)
+      if (result?.success) {
+        loadWorkouts()
+      }
+    }
+  }
+
+  // Handler para editar entrenamiento
+  const handleEdit = (workout: Workout) => {
+    onEditWorkout?.(workout)
+  }
+
+  // Estado de carga
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center text-gray-500">Cargando entrenamientos...</div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  // Estado vacío
+  if (workouts.length === 0) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center text-gray-500">
+            <Weight className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+            <p>No hay entrenamientos registrados</p>
+            <p className="text-sm">Agrega tu primer ejercicio para comenzar</p>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold">Historial de Entrenamientos</h3>
+      {workouts.map((workout) => (
+        <Card key={workout.id}>
+          <CardContent className="p-4">
+            <div className="flex justify-between items-start">
+              <div className="flex gap-4 flex-1">
+                {/* Imagen del ejercicio */}
+                {workout.image_url && (
+                  <div className="flex-shrink-0">
+                    <img
+                      src={workout.image_url || "/placeholder.svg"}
+                      alt={workout.exercise_name}
+                      className="w-16 h-16 object-cover rounded-lg border"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement
+                        target.style.display = "none"
+                      }}
+                    />
+                  </div>
+                )}
+                
+                {/* Información del ejercicio */}
+                <div className="flex-1">
+                  <h4 className="font-semibold text-lg">{workout.exercise_name}</h4>
+                  
+                  {/* Badges con métricas */}
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {workout.weight_kg && (
+                      <Badge variant="secondary" className="flex items-center gap-1">
+                        <Weight className="h-3 w-3" />
+                        {workout.weight_kg} kg
+                      </Badge>
+                    )}
+                    {workout.repetitions && (
+                      <Badge variant="secondary" className="flex items-center gap-1">
+                        <RotateCcw className="h-3 w-3" />
+                        {workout.repetitions} reps
+                      </Badge>
+                    )}
+                    {workout.sets && (
+                      <Badge variant="secondary" className="flex items-center gap-1">
+                        <Hash className="h-3 w-3" />
+                        {workout.sets} series
+                      </Badge>
+                    )}
+                  </div>
+                  
+                  {/* Fecha y hora */}
+                  <div className="flex items-center gap-1 mt-2 text-sm text-gray-500">
+                    <Calendar className="h-3 w-3" />
+                    {format(new Date(workout.created_at), "PPP 'a las' HH:mm", { locale: es })}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Botones de acción */}
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleEdit(workout)}
+                  className="text-blue-600 hover:text-blue-700"
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDelete(workout.id)}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  )
+}
+\end{lstlisting}
+
+\section{Ejemplos Prácticos de Uso}
+
+\subsection{Ejemplos de Inserción a Base de Datos}
+
+\subsubsection{Crear un Entrenamiento Individual}
+
+\begin{lstlisting}[style=sqlstyle, caption=Ejemplo de inserción en gym_workouts]
+-- Insertar un entrenamiento de press de banca
+INSERT INTO public.gym_workouts (
+    user_id,
+    exercise_name,
+    weight_kg,
+    repetitions,
+    sets,
+    image_url
+) VALUES (
+    '123e4567-e89b-12d3-a456-426614174000', -- UUID del usuario
+    'Press de Banca',
+    80.00,
+    12,
+    3,
+    'https://ejemplo.com/press-banca.jpg'
+);
+
+-- Insertar un entrenamiento de sentadillas
+INSERT INTO public.gym_workouts (
+    user_id,
+    exercise_name,
+    weight_kg,
+    repetitions,
+    sets
+) VALUES (
+    '123e4567-e89b-12d3-a456-426614174000',
+    'Sentadillas',
+    100.00,
+    10,
+    4
+);
+\end{lstlisting}
+
+\subsubsection{Crear una Rutina Completa}
+
+\begin{lstlisting}[style=sqlstyle, caption=Ejemplo de creación de rutina completa]
+-- 1. Crear la rutina
+INSERT INTO public.routines (
+    user_id,
+    name,
+    description
+) VALUES (
+    '123e4567-e89b-12d3-a456-426614174000',
+    'Rutina de Pecho y Tríceps',
+    'Rutina enfocada en el desarrollo del pecho y tríceps, ideal para principiantes'
+);
+
+-- Obtener el ID de la rutina recién creada
+-- (En la aplicación esto se maneja automáticamente)
+
+-- 2. Agregar ejercicios a la rutina
+INSERT INTO public.routine_exercises (
+    routine_id,
+    exercise_name,
+    weight,
+    repetitions,
+    sets,
+    order_index
+) VALUES 
+    ('456e7890-e89b-12d3-a456-426614174001', 'Press de Banca', 80.00, 12, 3, 0),
+    ('456e7890-e89b-12d3-a456-426614174001', 'Aperturas con Mancuernas', 25.00, 15, 3, 1),
+    ('456e7890-e89b-12d3-a456-426614174001', 'Press Francés', 30.00, 12, 3, 2),
+    ('456e7890-e89b-12d3-a456-426614174001', 'Fondos para Tríceps', 0.00, 10, 3, 3);
+\end{lstlisting}
+
+\subsubsection{Consultas Útiles}
+
+\begin{lstlisting}[style=sqlstyle, caption=Consultas útiles para análisis]
+-- Obtener todos los entrenamientos de un usuario con detalles
+SELECT 
+    gw.exercise_name,
+    gw.weight_kg,
+    gw.repetitions,
+    gw.sets,
+    gw.created_at,
+    (gw.weight_kg * gw.repetitions * gw.sets) as volumen_total
+FROM public.gym_workouts gw
+WHERE gw.user_id = '123e4567-e89b-12d3-a456-426614174000'
+ORDER BY gw.created_at DESC;
+
+-- Obtener progreso de un ejercicio específico
+SELECT 
+    exercise_name,
+    weight_kg,
+    repetitions,
+    sets,
+    created_at,
+    (weight_kg * repetitions * sets) as volumen
+FROM public.gym_workouts
+WHERE user_id = '123e4567-e89b-12d3-a456-426614174000'
+  AND exercise_name = 'Press de Banca'
+ORDER BY created_at ASC;
+
+-- Obtener rutinas con conteo de ejercicios
+SELECT 
+    r.name,
+    r.description,
+    r.created_at,
+    COUNT(re.id) as total_ejercicios
+FROM public.routines r
+LEFT JOIN public.routine_exercises re ON r.id = re.routine_id
+WHERE r.user_id = '123e4567-e89b-12d3-a456-426614174000'
+GROUP BY r.id, r.name, r.description, r.created_at
+ORDER BY r.created_at DESC;
+
+-- Obtener ejercicios de una rutina específica en orden
+SELECT 
+    re.exercise_name,
+    re.weight,
+    re.repetitions,
+    re.sets,
+    re.order_index
+FROM public.routine_exercises re
+WHERE re.routine_id = '456e7890-e89b-12d3-a456-426614174001'
+ORDER BY re.order_index ASC;
+\end{lstlisting}
+
+\subsection{Flujos de Datos Completos}
+
+\subsubsection{Flujo de Creación de Entrenamiento}
+
+\begin{enumerate}
+    \item \textbf{Usuario completa formulario} en \texttt{WorkoutForm}
+    \item \textbf{Validación en cliente} de campos requeridos
+    \item \textbf{Envío a Server Action} \texttt{createWorkout}
+    \item \textbf{Verificación de autenticación} en servidor
+    \item \textbf{Sanitización de datos} (conversión de tipos)
+    \item \textbf{Inserción en base de datos} tabla \texttt{gym\_workouts}
+    \item \textbf{Revalidación de cache} con \texttt{revalidatePath}
+    \item \textbf{Actualización de UI} con nuevo entrenamiento
+\end{enumerate}
+
+\subsubsection{Flujo de Gestión de Rutinas}
+
+\begin{enumerate}
+    \item \textbf{Creación de rutina} con \texttt{createRoutine}
+    \item \textbf{Inserción en tabla} \texttt{routines}
+    \item \textbf{Agregar ejercicios} con \texttt{addExerciseToRoutine}
+    \item \textbf{Inserción en tabla} \texttt{routine\_exercises} con \texttt{order\_index}
+    \item \textbf{Visualización de rutina} con \texttt{getRoutineExercises}
+    \item \textbf{Ejecución de rutina} (registro de entrenamientos individuales)
+\end{enumerate}
+
+\section{Características Avanzadas}
+
+\subsection{Selector de Ejercicios}
+
+El módulo incluye un selector modal avanzado que permite:
+
+\begin{itemize}
+    \item \textbf{Catálogo de ejercicios}: Acceso a ejercicios administrados
+    \item \textbf{Filtrado por categoría}: Pecho, Bíceps, Tríceps, etc.
+    \item \textbf{Búsqueda de ejercicios}: Filtrado por nombre
+    \item \textbf{Ejercicios personalizados}: Creación de ejercicios únicos
+    \item \textbf{Imágenes de ejercicios}: Visualización de técnicas
+\end{itemize}
+
+\subsection{Métricas y Estadísticas}
+
+El componente \texttt{GymMetrics} proporciona:
+
+\begin{itemize}
+    \item \textbf{Gráficos de progreso}: Evolución del peso a lo largo del tiempo
+    \item \textbf{Estadísticas de volumen}: Cálculo de volumen total (peso × reps × series)
+    \item \textbf{Tendencias de entrenamiento}: Frecuencia y consistencia
+    \item \textbf{Comparativas temporales}: Progreso mensual/semanal
+    \item \textbf{Análisis por ejercicio}: Progreso específico por ejercicio
+\end{itemize}
+
+\subsection{Historial de Ejercicios}
+
+El componente \texttt{ExerciseHistory} permite:
+
+\begin{itemize}
+    \item \textbf{Historial completo}: Todos los entrenamientos registrados
+    \item \textbf{Filtrado por ejercicio}: Ver progreso de un ejercicio específico
+    \item \textbf{Análisis temporal}: Progreso a lo largo del tiempo
+    \item \textbf{Exportación de datos}: Para análisis externo
+    \item \textbf{Búsqueda avanzada}: Filtros por fecha, ejercicio, peso
+\end{itemize}
+
+\section{Mejores Prácticas de Desarrollo}
+
+\subsection{Seguridad}
+
+\begin{itemize}
+    \item \textbf{Validación de entrada}: Siempre validar datos en Server Actions
+    \item \textbf{Autenticación}: Verificar usuario en cada operación
+    \item \textbf{RLS}: Usar Row Level Security en todas las tablas
+    \item \textbf{Sanitización}: Limpiar y convertir datos de entrada
+    \item \textbf{Logs de seguridad}: Registrar operaciones sensibles
+\end{itemize}
+
+\subsection{Performance}
+
+\begin{itemize}
+    \item \textbf{Índices de base de datos}: Optimizar consultas frecuentes
+    \item \textbf{Paginación}: Implementar para listas largas
+    \item \textbf{Cache}: Usar revalidatePath para actualizar cache
+    \item \textbf{Lazy loading}: Cargar componentes bajo demanda
+    \item \textbf{Optimización de imágenes}: Comprimir y optimizar imágenes
+\end{itemize}
+
+\subsection{Mantenibilidad}
+
+\begin{itemize}
+    \item \textbf{TypeScript}: Usar tipado estricto en todos los componentes
+    \item \textbf{Interfaces}: Definir interfaces claras para props
+    \item \textbf{Separación de responsabilidades}: Lógica en Server Actions
+    \item \textbf{Reutilización}: Componentes modulares y reutilizables
+    \item \textbf{Documentación}: Comentar código complejo
+\end{itemize}
+
+\section{Solución de Problemas}
+
+\subsection{Problemas Comunes}
+
+\subsubsection{Error: "Tabla no existe"}
+
+\textbf{Síntomas}: Error al intentar insertar o consultar datos
+\textbf{Causa}: Las tablas no han sido creadas en la base de datos
+\textbf{Solución}: Ejecutar los scripts SQL en orden:
+\begin{enumerate}
+    \item \texttt{01-create-database-schema.sql}
+    \item \texttt{01-create-user-schema.sql}
+    \item \texttt{08-verify-routines-tables.sql}
+    \item \texttt{26-create-gym-exercises-table.sql}
+\end{enumerate}
+
+\subsubsection{Error: "Usuario no autenticado"}
+
+\textbf{Síntomas}: Server Actions retornan error de autenticación
+\textbf{Causa}: Usuario no está logueado o sesión expirada
+\textbf{Solución}: Verificar estado de autenticación y redirigir a login
+
+\subsubsection{Error: "Política RLS violada"}
+
+\textbf{Síntomas}: Error al acceder a datos de otros usuarios
+\textbf{Causa}: Políticas RLS mal configuradas
+\textbf{Solución}: Verificar y corregir políticas RLS
+
+\subsection{Debugging}
+
+\subsubsection{Logs del Cliente}
+
+\begin{lstlisting}[language=javascript, caption=Debugging en cliente]
+// Habilitar logs detallados
+localStorage.setItem('debug', 'true');
+
+// Verificar estado de autenticación
+console.log('User:', user);
+console.log('Session:', session);
+
+// Verificar datos de entrenamientos
+console.log('Workouts:', workouts);
+\end{lstlisting}
+
+\subsubsection{Logs del Servidor}
+
+
+
+\textbf{Características destacadas:}
+\begin{itemize}
+    \item Seguridad robusta con RLS
+    \item Interfaz de usuario intuitiva
+    \item Funcionalidades avanzadas de análisis
+    \item Código bien documentado y tipado
+\end{itemize}
+
+Para contribuir al desarrollo del módulo:
+\begin{enumerate}
+    \item Seguir las convenciones establecidas
+    \item Implementar tests apropiados
+    \item Documentar cambios significativos
+    \item Mantener la compatibilidad con la base de datos
+    \item Respetar las políticas de seguridad
+\end{enumerate}
+
+\end{document}

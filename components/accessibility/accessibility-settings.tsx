@@ -33,9 +33,15 @@ export function AccessibilitySettings({ initialPreferences, isGuest = false }: A
         } catch (e) {
           console.error("Error loading preferences:", e)
         }
+      } else {
+        // Apply initial preferences even if not saved
+        applyPreferences(initialPreferences)
       }
+    } else {
+      // Apply preferences from database on mount
+      applyPreferences(initialPreferences)
     }
-  }, [isGuest])
+  }, [isGuest, initialPreferences])
 
   const handleSave = async () => {
     setLoading(true)
@@ -78,8 +84,9 @@ export function AccessibilitySettings({ initialPreferences, isGuest = false }: A
   const applyPreferences = (prefs = preferences) => {
     const root = document.documentElement
 
-    // Apply color blind mode
     root.setAttribute("data-color-blind-mode", prefs.color_blind_mode)
+
+    console.log("[v0] Applying colorblind mode:", prefs.color_blind_mode)
 
     // Apply high contrast
     if (prefs.high_contrast) {
@@ -164,13 +171,13 @@ export function AccessibilitySettings({ initialPreferences, isGuest = false }: A
                 Sin ajustes
               </SelectItem>
               <SelectItem value="protanopia" className="dark:text-white dark:focus:bg-gray-700">
-                Protanopía (rojo-verde)
+                Protanopía (dificultad con rojo)
               </SelectItem>
               <SelectItem value="deuteranopia" className="dark:text-white dark:focus:bg-gray-700">
-                Deuteranopía (rojo-verde)
+                Deuteranopía (dificultad con verde)
               </SelectItem>
               <SelectItem value="tritanopia" className="dark:text-white dark:focus:bg-gray-700">
-                Tritanopía (azul-amarillo)
+                Tritanopía (dificultad con azul)
               </SelectItem>
             </SelectContent>
           </Select>

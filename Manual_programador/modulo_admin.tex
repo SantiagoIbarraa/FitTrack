@@ -1,0 +1,689 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{array}
+
+\geometry{margin=2.5cm}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Manual del Programador - FitTrack}
+\fancyhead[R]{Módulo de Administrador}
+\fancyfoot[C]{\thepage}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstset{
+	backgroundcolor=\color{backcolour},   
+	commentstyle=\color{codegreen},
+	keywordstyle=\color{blue},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\ttfamily\footnotesize,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2,
+	language=SQL
+}
+
+\title{\textbf{MÓDULO DE ADMINISTRADOR\\FitTrack}}
+\author{Manual del Programador}
+\date{\today}
+
+\begin{document}
+	
+	\maketitle
+	
+	\tableofcontents
+	\newpage
+	
+	\section{Introducción al Módulo de Administrador}
+	
+	El módulo de administrador en FitTrack es un sistema completo de gestión que permite a usuarios con privilegios administrativos controlar y supervisar toda la aplicación. Este módulo está diseñado con un enfoque de seguridad robusto, utilizando Row Level Security (RLS) de Supabase y un sistema de roles bien definido.
+	
+	\subsection{Características Principales}
+	
+	\begin{itemize}[leftmargin=2cm]
+		\item \textbf{Gestión de Usuarios}: Control completo sobre roles, permisos y estado de usuarios
+		\item \textbf{Administración de Ejercicios}: Gestión del catálogo de ejercicios disponibles
+		\item \textbf{Sistema de Roles}: Implementación de roles de usuario, profesional y administrador
+		\item \textbf{Seguridad Avanzada}: Protección mediante RLS y funciones de seguridad
+		\item \textbf{Interfaz Intuitiva}: Dashboard moderno con componentes React optimizados
+	\end{itemize}
+	
+	\section{Arquitectura del Sistema}
+	
+	\subsection{Estructura de Archivos}
+	
+	El módulo de administrador se organiza en la siguiente estructura:
+	
+	\begin{lstlisting}[language=bash, caption=Estructura del módulo de administrador]
+		app/
+		|-- admin/
+		|   |-- page.tsx                 # Página principal del admin
+		|   |-- exercises/
+		|       |-- page.tsx            # Gestión de ejercicios
+		components/
+		|-- admin/
+		|   |-- admin-dashboard.tsx     # Dashboard principal
+		|   |-- exercise-management.tsx # Gestión de ejercicios
+		lib/
+		|-- admin-actions.ts            # Acciones del servidor
+		scripts/
+		|-- 11-create-messaging-system.sql
+		|-- 12-create-admin-user.sql
+		|-- 16-fix-user-roles-rls.sql
+		|-- 17-add-role-management-functions.sql
+		|-- 18-create-get-all-users-function.sql
+		|-- 19-add-is-professional-field.sql
+		|-- 26-create-gym-exercises-table.sql
+	\end{lstlisting}
+	
+	\subsection{Base de Datos}
+	
+	El sistema utiliza las siguientes tablas principales:
+	
+	\subsubsection{Tabla user\_roles}
+	\begin{lstlisting}[language=SQL, caption=Estructura de la tabla user\_roles]
+		CREATE TABLE user_roles (
+		id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+		user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+		role TEXT NOT NULL CHECK (role IN ('user', 'admin')),
+		is_active BOOLEAN DEFAULT true,
+		is_professional BOOLEAN DEFAULT false,
+		approved_by UUID REFERENCES auth.users(id),
+		approved_at TIMESTAMPTZ,
+		created_at TIMESTAMPTZ DEFAULT NOW(),
+		updated_at TIMESTAMPTZ DEFAULT NOW()
+		);
+	\end{lstlisting}
+	
+	\subsubsection{Tabla gym\_exercises}
+	\begin{lstlisting}[language=SQL, caption=Estructura de la tabla gym\_exercises]
+		CREATE TABLE gym_exercises (
+		id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+		name TEXT NOT NULL,
+		category TEXT NOT NULL CHECK (category IN ('Pecho', 'B\'iceps', 'Tr\'iceps', 'Hombros', 'Pierna', 'Espalda', 'Otros')),
+		description TEXT,
+		image_url TEXT,
+		created_at TIMESTAMPTZ DEFAULT NOW(),
+		updated_at TIMESTAMPTZ DEFAULT NOW()
+		);
+	\end{lstlisting}
+	
+	\section{Sistema de Autenticación y Autorización}
+	
+	\subsection{Verificación de Privilegios de Administrador}
+	
+	La función \texttt{isAdmin()} es el núcleo del sistema de autorización:
+	
+	\begin{lstlisting}[language=JavaScript, caption=Función isAdmin en admin-actions.ts]
+		export async function isAdmin() {
+			try {
+				const supabase = await createClient()
+				const { data: { user }, error: userError } = await supabase.auth.getUser()
+				
+				if (userError || !user) {
+					return false
+				}
+				
+				const { data, error } = await supabase
+				.from("user_roles")
+				.select("role")
+				.eq("user_id", user.id)
+				.maybeSingle()
+				
+				if (error || !data) {
+					return false
+				}
+				
+				return data.role === "admin"
+			} catch (error) {
+				console.error("[v0] Exception in isAdmin:", error)
+				return false
+			}
+		}
+	\end{lstlisting}
+	
+	\subsection{Protección de Rutas}
+	
+	Cada página de administración implementa protección de acceso:
+	
+	\begin{lstlisting}[language=JavaScript, caption=Protección de rutas en page.tsx]
+		export default async function AdminPage() {
+			const admin = await isAdmin()
+			
+			if (!admin) {
+				redirect("/")
+			}
+			// ... resto del componente
+		}
+	\end{lstlisting}
+	
+	\section{Funcionalidades del Dashboard Principal}
+	
+	\subsection{Componente AdminDashboard}
+	
+	El componente principal del dashboard ofrece:
+	
+	\begin{enumerate}
+		\item \textbf{Estadísticas del Sistema}:
+		\begin{itemize}
+			\item Total de usuarios registrados
+			\item Número de profesionales registrados
+			\item Cantidad de administradores
+		\end{itemize}
+		
+		\item \textbf{Gestión de Usuarios}:
+		\begin{itemize}
+			\item Lista completa de usuarios con información detallada
+			\item Cambio de roles (Usuario/Admin)
+			\item Activación/desactivación de usuarios
+			\item Marcado de usuarios como profesionales
+			\item Búsqueda y filtrado de usuarios
+		\end{itemize}
+		
+		\item \textbf{Interfaz de Usuario}:
+		\begin{itemize}
+			\item Diseño responsivo con Tailwind CSS
+			\item Componentes de UI modernos (shadcn/ui)
+			\item Notificaciones toast para feedback
+			\item Estados de carga durante operaciones
+		\end{itemize}
+	\end{enumerate}
+	
+	\subsection{Estados y Gestión de Datos}
+	
+	El dashboard utiliza React hooks para el manejo de estado:
+	
+	\begin{lstlisting}[language=JavaScript, caption=Estados del componente AdminDashboard]
+		const [users, setUsers] = useState(initialUsers)
+		const [loading, setLoading] = useState<string | null>(null)
+		const [searchQuery, setSearchQuery] = useState("")
+		const { toast } = useToast()
+	\end{lstlisting}
+	
+	\subsection{Funciones de Gestión de Usuarios}
+	
+	\subsubsection{Cambio de Roles}
+	\begin{lstlisting}[language=JavaScript, caption=Función handleRoleChange]
+		const handleRoleChange = async (userId: string, role: string) => {
+			setLoading(userId)
+			const user = users.find((u) => u.id === userId)
+			if (!user) return
+			
+			const result = await updateUserRole(userId, role, user.is_active, user.is_professional)
+			
+			if (result.error) {
+				toast({
+					title: "Error",
+					description: result.error,
+					variant: "destructive",
+				})
+			} else {
+				toast({
+					title: "Éxito",
+					description: "Rol actualizado correctamente",
+				})
+				setUsers(users.map((u) => (u.id === userId ? { ...u, role } : u)))
+			}
+			setLoading(null)
+		}
+	\end{lstlisting}
+	
+	\section{Gestión de Ejercicios}
+	
+	\subsection{Componente ExerciseManagement}
+	
+	El sistema de gestión de ejercicios permite a los administradores:
+	
+	\begin{enumerate}
+		\item \textbf{Crear Nuevos Ejercicios}:
+		\begin{itemize}
+			\item Nombre del ejercicio
+			\item Categoría (Pecho, B\'iceps, Tr\'iceps, Hombros, Pierna, Espalda, Otros)
+			\item Descripción opcional
+			\item Imagen del ejercicio (URL externa o subida de archivo)
+		\end{itemize}
+		
+		\item \textbf{Editar Ejercicios Existentes}:
+		\begin{itemize}
+			\item Modificación de todos los campos
+			\item Actualización de imágenes
+			\item Preservación del historial
+		\end{itemize}
+		
+		\item \textbf{Eliminar Ejercicios}:
+		\begin{itemize}
+			\item Eliminación con confirmación
+			\item Limpieza de referencias
+		\end{itemize}
+		
+		\item \textbf{Búsqueda y Filtrado}:
+		\begin{itemize}
+			\item Búsqueda por nombre
+			\item Filtrado por categoría
+			\item Estadísticas por categoría
+		\end{itemize}
+	\end{enumerate}
+	
+	\subsection{Sistema de Imágenes}
+	
+	El sistema soporta dos métodos para manejar imágenes:
+	
+	\begin{enumerate}
+		\item \textbf{URL Externa}: Los administradores pueden proporcionar URLs de imágenes externas
+		\item \textbf{Subida de Archivos}: Sistema de subida a Supabase Storage con:
+		\begin{itemize}
+			\item Validación de tipo de archivo (solo imágenes)
+			\item Límite de tamaño (5MB máximo)
+			\item Generación automática de nombres únicos
+			\item Vista previa en tiempo real
+		\end{itemize}
+	\end{enumerate}
+	
+	\subsection{Función de Subida de Imágenes}
+	
+	\begin{lstlisting}[language=JavaScript, caption=Función uploadExerciseImage]
+		export async function uploadExerciseImage(formData: FormData) {
+			const file = formData.get("file") as File
+			
+			if (!file) {
+				return { error: "No se proporcionó ningún archivo" }
+			}
+			
+			if (!file.type.startsWith("image/")) {
+				return { error: "El archivo debe ser una imagen" }
+			}
+			
+			if (file.size > 5 * 1024 * 1024) {
+				return { error: "El archivo no debe superar los 5MB" }
+			}
+			
+			try {
+				const supabase = await createClient()
+				const { data: { user }, error: userError } = await supabase.auth.getUser()
+				
+				if (userError || !user) {
+					return { error: "Usuario no autenticado" }
+				}
+				
+				const fileExt = file.name.split(".").pop()
+				const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+				const filePath = `exercise-images/${fileName}`
+				
+				const { data, error: uploadError } = await supabase.storage
+				.from("exercise-images")
+				.upload(filePath, file, {
+					cacheControl: "3600",
+					upsert: false,
+				})
+				
+				if (uploadError) {
+					return { error: "Error al subir la imagen" }
+				}
+				
+				const { data: { publicUrl } } = supabase.storage
+				.from("exercise-images")
+				.getPublicUrl(filePath)
+				
+				return { success: true, imageUrl: publicUrl }
+			} catch (error) {
+				return { error: "Error de conexión con la base de datos" }
+			}
+		}
+	\end{lstlisting}
+	
+	\section{Funciones de Base de Datos}
+	
+	\subsection{Función get\_all\_users\_with\_roles}
+	
+	Esta función permite a los administradores obtener información completa de todos los usuarios:
+	
+	\begin{lstlisting}[language=SQL, caption=Función get\_all\_users\_with\_roles]
+		CREATE OR REPLACE FUNCTION get_all_users_with_roles()
+		RETURNS TABLE (
+		id uuid,
+		email text,
+		full_name text,
+		role text,
+		is_active boolean,
+		is_professional boolean,
+		created_at timestamptz
+		)
+		SECURITY DEFINER
+		SET search_path = public
+		LANGUAGE plpgsql
+		AS $$
+		BEGIN
+		-- Check if the current user is an admin
+		IF NOT EXISTS (
+		SELECT 1 FROM user_roles ur_check
+		WHERE ur_check.user_id = auth.uid() 
+		AND ur_check.role = 'admin'
+		) THEN
+		RAISE EXCEPTION 'No autorizado';
+		END IF;
+		
+		-- Return all users with their roles
+		RETURN QUERY
+		SELECT 
+		au.id,
+		au.email::text,
+		COALESCE(
+		au.raw_user_meta_data->>'full_name',
+		CONCAT(
+		COALESCE(au.raw_user_meta_data->>'first_name', ''),
+		' ',
+		COALESCE(au.raw_user_meta_data->>'last_name', '')
+		),
+		'Sin nombre'
+		)::text,
+		COALESCE(ur.role, 'user')::text,
+		COALESCE(ur.is_active, true),
+		COALESCE(ur.is_professional, false),
+		au.created_at
+		FROM auth.users au
+		LEFT JOIN user_roles ur ON ur.user_id = au.id
+		ORDER BY au.created_at DESC;
+		END;
+		$$;
+	\end{lstlisting}
+	
+	\subsection{Función is\_admin}
+	
+	Función auxiliar para verificar privilegios administrativos:
+	
+	\begin{lstlisting}[language=SQL, caption=Función is\_admin]
+		CREATE OR REPLACE FUNCTION public.is_admin(check_user_id UUID)
+		RETURNS BOOLEAN AS $$
+		DECLARE
+		user_role TEXT;
+		BEGIN
+		SELECT role INTO user_role
+		FROM public.user_roles
+		WHERE user_id = check_user_id;
+		
+		RETURN user_role = 'admin';
+		END;
+		$$ LANGUAGE plpgsql SECURITY DEFINER;
+	\end{lstlisting}
+	
+	\section{Seguridad y Row Level Security (RLS)}
+	
+	\subsection{Políticas de Seguridad}
+	
+	El sistema implementa múltiples capas de seguridad:
+	
+	\begin{enumerate}
+		\item \textbf{RLS en user\_roles}:
+		\begin{lstlisting}[language=SQL, caption=Políticas RLS para user\_roles]
+			-- Admins can view all roles
+			CREATE POLICY "Admins can view all roles" ON public.user_roles
+			FOR SELECT USING (public.is_admin(auth.uid()));
+			
+			-- Admins can update roles
+			CREATE POLICY "Admins can update roles" ON public.user_roles
+			FOR UPDATE USING (public.is_admin(auth.uid()));
+			
+			-- Admins can insert roles
+			CREATE POLICY "Admins can insert roles" ON public.user_roles
+			FOR INSERT WITH CHECK (public.is_admin(auth.uid()));
+		\end{lstlisting}
+		
+		\item \textbf{RLS en gym\_exercises}:
+		\begin{lstlisting}[language=SQL, caption=Políticas RLS para gym\_exercises]
+			-- Anyone can view gym exercises
+			CREATE POLICY "Anyone can view gym exercises"
+			ON gym_exercises
+			FOR SELECT
+			TO authenticated
+			USING (true);
+			
+			-- Only admins can manage gym exercises
+			CREATE POLICY "Only admins can manage gym exercises"
+			ON gym_exercises
+			FOR ALL
+			TO authenticated
+			USING (
+			EXISTS (
+			SELECT 1 FROM user_roles
+			WHERE user_roles.user_id = auth.uid()
+			AND user_roles.role = 'admin'
+			)
+			);
+		\end{lstlisting}
+	\end{enumerate}
+	
+	\subsection{Funciones SECURITY DEFINER}
+	
+	Las funciones marcadas como \texttt{SECURITY DEFINER} ejecutan con los privilegios del propietario de la función, permitiendo operaciones que de otro modo estarían restringidas por RLS.
+	
+	\section{Scripts de Configuración}
+	
+	\subsection{Creación del Usuario Administrador}
+	
+	Para establecer un usuario administrador, se debe ejecutar el siguiente script:
+	
+	\begin{lstlisting}[language=SQL, caption=Script para crear usuario administrador]
+		-- Insert admin role for the admin user
+		-- First, create user through Supabase Auth with email: juan@ejemplo.com and password: 123456
+		-- Then run this script to assign the admin role
+		
+		INSERT INTO public.user_roles (user_id, role, is_active, approved_at)
+		SELECT id, 'admin', true, NOW()
+		FROM auth.users
+		WHERE email = 'juan@ejemplo.com'
+		ON CONFLICT (user_id) DO UPDATE
+		SET role = 'admin', is_active = true, approved_at = NOW();
+		
+		-- Verify the admin was created
+		SELECT u.id, u.email, ur.role, ur.is_active
+		FROM auth.users u
+		LEFT JOIN public.user_roles ur ON u.id = ur.user_id
+		WHERE u.email = 'juan@ejemplo.com';
+	\end{lstlisting}
+	
+	\subsection{Inserción de Ejercicios por Defecto}
+	
+	El sistema incluye ejercicios predefinidos para todas las categorías:
+	
+	\begin{lstlisting}[language=SQL, caption=Ejercicios por defecto]
+		INSERT INTO gym_exercises (name, category, description) VALUES
+		-- Pecho
+		('Press de Banca', 'Pecho', 'Ejercicio básico para pecho con barra'),
+		('Press Inclinado', 'Pecho', 'Press de banca en banco inclinado'),
+		('Aperturas con Mancuernas', 'Pecho', 'Aperturas para pecho'),
+		('Fondos en Paralelas', 'Pecho', 'Fondos para pecho y tríceps'),
+		
+		-- B\'iceps
+		('Curl con Barra', 'B\'iceps', 'Curl de bíceps con barra recta'),
+		('Curl con Mancuernas', 'B\'iceps', 'Curl alternado con mancuernas'),
+		('Curl Martillo', 'B\'iceps', 'Curl con agarre neutro'),
+		('Curl en Banco Scott', 'B\'iceps', 'Curl concentrado en banco'),
+		
+		-- Tr\'iceps
+		('Press Francés', 'Tr\'iceps', 'Extensión de tríceps acostado'),
+		('Fondos para Tr\'iceps', 'Tr\'iceps', 'Fondos en banco'),
+		('Extensión en Polea', 'Tr\'iceps', 'Extensión de tríceps en polea alta'),
+		('Patada de Tr\'iceps', 'Tr\'iceps', 'Extensión con mancuerna'),
+		
+		-- Hombros
+		('Press Militar', 'Hombros', 'Press de hombros con barra'),
+		('Elevaciones Laterales', 'Hombros', 'Elevaciones laterales con mancuernas'),
+		('Elevaciones Frontales', 'Hombros', 'Elevaciones frontales'),
+		('Pájaros', 'Hombros', 'Elevaciones posteriores'),
+		
+		-- Pierna
+		('Sentadilla', 'Pierna', 'Sentadilla con barra'),
+		('Prensa de Pierna', 'Pierna', 'Press de piernas en máquina'),
+		('Peso Muerto', 'Pierna', 'Peso muerto convencional'),
+		('Zancadas', 'Pierna', 'Zancadas con mancuernas'),
+		('Extensión de Cuádriceps', 'Pierna', 'Extensión en máquina'),
+		('Curl Femoral', 'Pierna', 'Curl de piernas acostado'),
+		('Elevación de Gemelos', 'Pierna', 'Elevación de pantorrillas'),
+		
+		-- Espalda
+		('Dominadas', 'Espalda', 'Dominadas con peso corporal'),
+		('Remo con Barra', 'Espalda', 'Remo inclinado con barra'),
+		('Remo con Mancuerna', 'Espalda', 'Remo a una mano'),
+		('Jalón al Pecho', 'Espalda', 'Jalón en polea alta'),
+		('Peso Muerto Rumano', 'Espalda', 'Peso muerto para espalda baja'),
+		
+		-- Otros
+		('Plancha', 'Otros', 'Plancha abdominal'),
+		('Abdominales', 'Otros', 'Crunch abdominal'),
+		('Cardio', 'Otros', 'Ejercicio cardiovascular');
+	\end{lstlisting}
+	
+	\section{Integración con Otros Módulos}
+	
+	\subsection{Sistema de Mensajería}
+	
+	El módulo de administrador se integra con el sistema de mensajería permitiendo:
+	
+	\begin{itemize}
+		\item Gestionar qué usuarios son profesionales
+		\item Activar/desactivar profesionales para el sistema de chat
+		\item Controlar la visibilidad de usuarios en el sistema de mensajería
+	\end{itemize}
+	
+	\subsection{Sistema de Ejercicios del Gimnasio}
+	
+	Los ejercicios gestionados por el administrador están disponibles para:
+	
+	\begin{itemize}
+		\item Selección en rutinas de gimnasio
+		\item Creación de historial de ejercicios
+		\item Seguimiento de progreso de usuarios
+	\end{itemize}
+	
+	\section{Consideraciones de Rendimiento}
+	
+	\subsection{Índices de Base de Datos}
+	
+	El sistema incluye índices optimizados:
+	
+	\begin{lstlisting}[language=SQL, caption=Índices para optimización]
+		-- Índice para consultas de categoría de ejercicios
+		CREATE INDEX idx_gym_exercises_category ON gym_exercises(category);
+		
+		-- Índice para consultas de usuarios profesionales
+		CREATE INDEX idx_user_roles_is_professional 
+		ON user_roles(is_professional) 
+		WHERE is_professional = true;
+	\end{lstlisting}
+	
+	\subsection{Optimizaciones de Frontend}
+	
+	\begin{itemize}
+		\item \textbf{Lazy Loading}: Componentes se cargan bajo demanda
+		\item \textbf{Debouncing}: Búsquedas con retraso para reducir consultas
+		\item \textbf{Estados Optimizados}: Actualizaciones locales del estado
+		\item \textbf{Revalidación}: Uso de \texttt{revalidatePath} para cache
+	\end{itemize}
+	
+	\section{Testing y Debugging}
+	
+	\subsection{Logs de Debugging}
+	
+	El sistema incluye logging extensivo para debugging:
+	
+	\begin{lstlisting}[language=JavaScript, caption=Ejemplo de logging]
+		console.log("[v0] Form data before submission:", formData)
+		console.log("[v0] Image URL value:", formData.image_url)
+		console.log("[v0] Server action result:", result)
+	\end{lstlisting}
+	
+	\subsection{Manejo de Errores}
+	
+	\begin{itemize}
+		\item \textbf{Try-Catch}: Captura de excepciones en todas las operaciones
+		\item \textbf{Validación de Datos}: Verificación de entrada en cliente y servidor
+		\item \textbf{Feedback Visual}: Notificaciones toast para todos los estados
+		\item \textbf{Fallbacks}: Comportamiento degradado en caso de errores
+	\end{itemize}
+	
+	\section{Configuración de Desarrollo}
+	
+	\subsection{Variables de Entorno}
+	
+	El módulo requiere las siguientes variables de entorno:
+	
+	\begin{lstlisting}[language=bash, caption=Variables de entorno necesarias]
+		NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+		NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+		SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+	\end{lstlisting}
+	
+	\subsection{Dependencias}
+	
+	Las principales dependencias del módulo incluyen:
+	
+	\begin{lstlisting}[language=json, caption=Dependencias principales]
+		{
+			"@supabase/supabase-js": "^2.38.0",
+			"@radix-ui/react-select": "^2.0.0",
+			"@radix-ui/react-switch": "^1.0.3",
+			"@radix-ui/react-tabs": "^1.0.4",
+			"lucide-react": "^0.292.0",
+			"next": "14.0.0",
+			"react": "^18.0.0",
+			"tailwindcss": "^3.3.0"
+		}
+	\end{lstlisting}
+	
+	\section{Despliegue y Producción}
+	
+	\subsection{Consideraciones de Seguridad}
+	
+	\begin{enumerate}
+		\item \textbf{RLS Habilitado}: Todas las tablas tienen RLS activado
+		\item \textbf{Funciones SECURITY DEFINER}: Solo para operaciones específicas
+		\item \textbf{Validación de Entrada}: Sanitización en cliente y servidor
+		\item \textbf{Autenticación Requerida}: Todas las rutas protegidas
+	\end{enumerate}
+	
+	\subsection{Monitoreo}
+	
+	\begin{itemize}
+		\item \textbf{Logs de Supabase}: Monitoreo de consultas y errores
+		\item \textbf{Analytics}: Seguimiento de uso del dashboard
+		\item \textbf{Alertas}: Notificaciones de errores críticos
+	\end{itemize}
+	
+	\section{Conclusión}
+	
+	El módulo de administrador de FitTrack representa una implementación robusta y segura de un sistema de gestión administrativa. Con su arquitectura bien estructurada, sistema de seguridad multicapa y interfaz de usuario moderna, proporciona las herramientas necesarias para gestionar eficientemente una aplicación de fitness.
+	
+	Las características clave incluyen:
+	
+	\begin{itemize}
+		\item \textbf{Seguridad}: Implementación completa de RLS y funciones de seguridad
+		\item \textbf{Escalabilidad}: Diseño modular que permite fácil extensión
+		\item \textbf{Usabilidad}: Interfaz intuitiva con feedback visual inmediato
+		\item \textbf{Mantenibilidad}: Código bien documentado y estructurado
+		\item \textbf{Rendimiento}: Optimizaciones en base de datos y frontend
+	\end{itemize}
+	
+	Este módulo sirve como base sólida para futuras expansiones y mejoras del sistema FitTrack.
+	
+\end{document}

@@ -1,0 +1,4650 @@
+% =============================================================================
+% PREÁMBULO: Carga de Paquetes
+% =============================================================================
+\documentclass[12pt,a4paper]{article}
+
+% --- Codificación y Lenguaje ---
+\usepackage[utf8]{inputenc}
+\usepackage[spanish, shorthands=off]{babel} % 'shorthands=off' para evitar conflictos con listings
+
+% --- Geometría y Layout ---
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+
+% --- Tipografía y Colores ---
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+% --- Tablas, Listas y Gráficos ---
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{float}
+
+% --- Código y Listings ---
+\usepackage{listings}
+\usepackage{listingsutf8}
+
+% --- Hipervínculos ---
+\usepackage{hyperref}
+
+
+% =============================================================================
+% CONFIGURACIONES GLOBALES
+% =============================================================================
+
+% --- Configuración de página ---
+\geometry{margin=2.5cm}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Manual de Programador - FitTrack}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% --- Configuración de títulos ---
+\titleformat{\section}{\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+% --- Definición de colores para código ---
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{darkgray}{rgb}{0.3,0.3,0.3}
+
+% --- Definición de lenguaje JavaScript para listings ---
+\lstdefinelanguage{JavaScript}{%
+  keywords={typeof, new, true, false, catch, function, return, null, switch, var, if, in, while, do, else, case, break},
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{codegreen},
+  stringstyle=\color{codepurple},
+  morestring=[b]',
+  morestring=[b]"
+}
+
+% --- Estilo global para listings ---
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle} % Aplicar el estilo globalmente
+
+% --- Definición del lenguaje TypeScript ---
+\lstdefinelanguage{TypeScript}{
+    keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break, let, const, async, await, export, import, from, as, interface, type, class, extends, implements, public, private, protected, static, readonly, abstract, enum, namespace, module, declare, any, string, number, boolean, void, never, unknown, object, array, Promise, Response, Request, FormData},
+    keywordstyle=\color{blue}\bfseries,
+    ndkeywords={class, export, boolean, throw, implements, import, this},
+    ndkeywordstyle=\color{darkgray}\bfseries,
+    identifierstyle=\color{black},
+    sensitive=false,
+    comment=[l]{//},
+    morecomment=[s]{/*}{*/},
+    commentstyle=\color{purple}\ttfamily,
+    stringstyle=\color{red}\ttfamily,
+    morestring=[b]',
+    morestring=[b]"
+}
+
+% --- Definición del lenguaje JSON ---
+\lstdefinelanguage{JSON}{
+    keywords={true, false, null},
+    keywordstyle=\color{blue}\bfseries,
+    ndkeywords={},
+    ndkeywordstyle=\color{darkgray}\bfseries,
+    identifierstyle=\color{black},
+    sensitive=false,
+    comment=[l]{//},
+    commentstyle=\color{purple}\ttfamily,
+    stringstyle=\color{red}\ttfamily,
+    morestring=[b]',
+    morestring=[b]"
+}
+
+% --- Configuración de hipervínculos ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    citecolor=red,
+}
+
+
+% =============================================================================
+% INICIO DEL DOCUMENTO
+% =============================================================================
+\begin{document}
+
+% --- Portada ---
+\begin{titlepage}
+\centering
+\vspace*{2cm}
+
+{\Huge\bfseries Manual de Programador}\\[0.5cm]
+{\LARGE FitTrack}\\[1cm]
+
+{\large Aplicación Integral de Seguimiento Fitness}\\[2cm]
+
+\textbf{Integrantes:} \\[0.3cm]
+Santiago Ibarra \\[0.2cm]
+Carlos Insaurralde \\[0.2cm]
+Santino Gómez García \\[0.2cm]
+Curso: 7°2 \\
+
+\vspace*{2cm}
+
+
+\begin{minipage}{0.8\textwidth}
+\centering
+Este manual proporciona una guía completa para desarrolladores que trabajen en el proyecto FitTrack, incluyendo arquitectura, configuración, estructura de base de datos y mejores prácticas de desarrollo.
+\end{minipage}
+
+\vfill
+
+{\large Versión 1.0}\\[0.5cm]
+{\large \today}
+
+\end{titlepage}
+
+% --- Tabla de Contenidos ---
+\tableofcontents
+
+\newpage
+
+% =============================================================================
+% SECCIONES PRINCIPALES
+% =============================================================================
+
+\section{Introducción}
+
+FitTrack es una aplicación web integral de seguimiento fitness desarrollada con Next.js, React y Supabase. Esta sección introduce el propósito del manual, la audiencia a la que está dirigido y las características clave de la aplicación.
+
+\subsection{Propósito del Manual}
+El objetivo de este documento es servir como una guía técnica centralizada para los desarrolladores que trabajan en el proyecto FitTrack. Proporciona información detallada sobre la arquitectura del sistema, las tecnologías utilizadas, la estructura del código, las convenciones de codificación y los procedimientos de despliegue.
+
+\subsection{Audiencia Objetivo}
+Este manual está dirigido a desarrolladores de software, arquitectos de sistemas y cualquier miembro del equipo técnico que necesite comprender el funcionamiento interno de la aplicación FitTrack para su desarrollo, mantenimiento o expansión.
+
+\subsection{Características Principales}
+\begin{itemize}
+    \item Sistema de autenticación completo con roles (Usuario, Profesional, Administrador).
+    \item Registro de entrenamientos de gimnasio con ejercicios personalizados.
+    \item Seguimiento de sesiones de running con métricas detalladas.
+    \item Análisis nutricional de comidas mediante Google Gemini AI.
+    \item Sistema de mensajería entre usuarios y profesionales.
+    \item Monitoreo de métricas de salud (IMC, presión arterial, etc.).
+    \item Panel de administración y configuraciones de accesibilidad avanzadas.
+\end{itemize}
+
+\section{Arquitectura y Stack Tecnológico}
+
+Esta sección detalla la arquitectura de la aplicación y las tecnologías fundamentales sobre las que se construye FitTrack.
+
+\subsection{Tecnologías Principales}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Componente} & \textbf{Tecnología} \\
+\midrule
+Frontend Framework & Next.js 15.2.4 \\
+UI Library & React 19 \\
+Styling & Tailwind CSS 4.1.9 \\
+Database & Supabase (PostgreSQL) \\
+Authentication & Supabase Auth \\
+AI Integration & Google Gemini 1.5 Flash \\
+UI Components & Radix UI + shadcn/ui \\
+State Management & React Hooks + Context \\
+Type Safety & TypeScript 5 \\
+\bottomrule
+\end{tabular}
+\caption{Stack Tecnológico Principal}
+\label{tab:stack}
+\end{table}
+
+\subsection{Dependencias Clave}
+
+\begin{lstlisting}[caption={package.json - Dependencias principales}, label={lst:package-json}]
+{
+  "dependencies": {
+    "next": "15.2.4",
+    "react": "^19",
+    "react-dom": "^19",
+    "@supabase/supabase-js": "latest",
+    "@supabase/ssr": "latest",
+    "@ai-sdk/google": "latest",
+    "@google/generative-ai": "latest",
+    "ai": "latest",
+    "tailwindcss": "^4.1.9",
+    "typescript": "^5"
+  }
+}
+\end{lstlisting}
+
+\subsection{Arquitectura de la Aplicación}
+
+La aplicación sigue una arquitectura de capas con una clara separación de responsabilidades para garantizar la modularidad y escalabilidad del sistema:
+
+\begin{enumerate}
+    \item \textbf{Capa de Presentación (Frontend)}: Construida con componentes de React y estilizada con Tailwind CSS. Se encarga de toda la interacción con el usuario.
+    \item \textbf{Capa de Lógica de Negocio (Backend)}: Implementada mediante Server Actions y API Routes de Next.js. Contiene la lógica principal de la aplicación.
+    \item \textbf{Capa de Datos (Persistencia)}: Gestionada por Supabase, utilizando una base de datos PostgreSQL con Row Level Security (RLS) para el control de acceso a los datos.
+    \item \textbf{Capa de Servicios Externos}: Integra APIs de terceros, como Google Gemini para el análisis nutricional, desacoplando estas funcionalidades del núcleo de la aplicación.
+\end{enumerate}
+
+\section{Estructura del Proyecto}
+
+La organización del código fuente es fundamental para la mantenibilidad. A continuación se describe la estructura de directorios principal del proyecto.
+
+\subsection{Organización de Directorios}
+
+\begin{lstlisting}[language=bash, caption={Estructura de directorios principal}, label={lst:dir-structure}]
+FitTrack/
++-- app/                    # App Router: contiene todas las rutas y paginas.
+|   +-- api/               # Rutas de API para funcionalidades especificas.
+|   +-- auth/              # Flujos de autenticacion (login, registro, etc.).
+|   +-- (modules)/         # Directorios para cada modulo principal (gym, running, etc.).
+|   +-- admin/             # Panel de administracion.
++-- components/            # Componentes de React reutilizables.
+|   +-- ui/               # Componentes base de UI (shadcn/ui).
+|   +-- shared/            # Componentes compartidos especificos de la aplicacion.
++-- lib/                     # Funciones de utilidad, hooks y Server Actions.
+|   +-- supabase/         # Configuracion del cliente de Supabase.
+|   +-- *-actions.ts      # Server Actions por modulo.
++-- scripts/                 # Scripts de base de datos (migraciones, seeds).
++-- public/                  # Archivos estaticos (imagenes, fuentes, etc.).
+\end{lstlisting}
+
+\section{Base de Datos}
+
+La persistencia de datos de FitTrack se gestiona con Supabase, que utiliza una base de datos PostgreSQL. Esta sección describe el esquema, las políticas de seguridad y los scripts de inicialización.
+% ... (rest of the document remains the same)
+
+\subsection{Esquema General y Tablas Principales}
+
+El esquema está organizado en tres categorías lógicas de tablas:
+
+\subsubsection{Tablas de Usuario}
+Gestionan la información del perfil, roles y preferencias del usuario.
+\begin{itemize}
+    \item \texttt{auth.users}: Almacena la información de autenticación (gestionado por Supabase Auth).
+    \item \texttt{user\_profiles}: Contiene datos adicionales del perfil del usuario.
+    \item \texttt{user\_roles}: Asigna roles (usuario, profesional, admin) para control de acceso.
+    \item \texttt{user\_preferences}: Guarda configuraciones de accesibilidad y otras preferencias.
+\end{itemize}
+
+\subsubsection{Tablas de Actividad}
+Registran las acciones y datos generados por los usuarios.
+\begin{itemize}
+    \item \texttt{gym\_workouts}: Almacena cada ejercicio individual realizado en el gimnasio.
+    \item \texttt{routines}: Guarda las rutinas de entrenamiento personalizadas creadas por los usuarios.
+    \item \texttt{routine\_exercises}: Tabla de unión que define los ejercicios dentro de una rutina.
+    \item \texttt{running\_sessions}: Registra las sesiones de carrera.
+    \item \texttt{meals}: Contiene la información de las comidas registradas.
+\end{itemize}
+
+\subsubsection{Tablas de Sistema y Catálogos}
+Contienen datos de soporte y catálogos administrables.
+\begin{itemize}
+    \item \texttt{gym\_exercises}: Catálogo de ejercicios de gimnasio predefinidos y administrables.
+    \item \texttt{health\_metrics}: Almacena métricas de salud como IMC, presión arterial, etc.
+    \item \texttt{conversations} y \texttt{messages}: Soportan el sistema de mensajería interna.
+\end{itemize}
+
+\subsection{Políticas de Seguridad (Row Level Security - RLS)}
+
+Para garantizar la privacidad y seguridad de los datos, todas las tablas sensibles implementan RLS. Estas políticas aseguran que los usuarios solo puedan acceder y modificar su propia información. A continuación, un ejemplo representativo:
+
+\begin{lstlisting}[language=sql, caption={Ejemplo de políticas RLS para la tabla \texttt{gym\_workouts}}]
+-- Habilitar RLS en la tabla
+ALTER TABLE public.gym_workouts ENABLE ROW LEVEL SECURITY;
+
+-- Los usuarios solo pueden ver sus propios entrenamientos.
+CREATE POLICY "Permitir acceso de lectura a los propios datos" 
+ON public.gym_workouts FOR SELECT 
+USING (auth.uid() = user_id);
+
+-- Los usuarios solo pueden insertar entrenamientos para si mismos.
+CREATE POLICY "Permitir insercion de los propios datos" 
+ON public.gym_workouts FOR INSERT 
+WITH CHECK (auth.uid() = user_id);
+
+-- Los usuarios solo pueden actualizar o eliminar sus propios registros.
+CREATE POLICY "Permitir modificacion de los propios datos" 
+ON public.gym_workouts FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Permitir eliminacion de los propios datos" 
+ON public.gym_workouts FOR DELETE USING (auth.uid() = user_id);
+\end{lstlisting}
+
+\subsection{Scripts de Inicialización}
+
+El directorio \texttt{/scripts} contiene los archivos SQL necesarios para inicializar y migrar el esquema de la base de datos. Deben ejecutarse en el orden numérico indicado por su prefijo para asegurar que las dependencias (como claves foráneas) se resuelvan correctamente.
+
+\section{Módulos de la Aplicación}
+
+La lógica de la aplicación está organizada en módulos funcionales. Esta sección describe la arquitectura y los componentes clave de cada módulo, comenzando por el de Gimnasio.
+
+\section{Módulo de Gimnasio}
+
+El módulo de gimnasio es un componente central de FitTrack. Permite a los usuarios registrar entrenamientos, crear y gestionar rutinas, y seguir su progreso a lo largo del tiempo.
+
+\subsection{Características del Módulo de Gimnasio}
+\begin{itemize}
+    \item \textbf{Registro de Entrenamientos}: Interfaz para registrar ejercicios individuales con peso, repeticiones y series.
+    \item \textbf{Gestión de Rutinas}: Funcionalidad para crear, editar, eliminar y ejecutar rutinas personalizadas.
+    \item \textbf{Catálogo de Ejercicios}: Acceso a una base de datos de ejercicios predefinidos, que es administrada por los administradores del sistema.
+    \item \textbf{Historial y Progreso}: Visualización del historial de entrenamientos y seguimiento del progreso a lo largo del tiempo.
+\end{itemize}
+
+\subsection{Server Actions del Módulo de Gimnasio}
+
+Toda la lógica de negocio se maneja a través de Server Actions en el archivo \texttt{lib/gym-actions.ts}. Estas funciones se ejecutan en el servidor y son responsables de interactuar con la base de datos de forma segura.
+
+\begin{lstlisting}[language=typescript, caption={Función `createWorkout` en `gym-actions.ts`}]
+"use server"
+
+import { revalidatePath } from "next/cache"
+import { createClient } from "@/lib/supabase/server"
+
+export async function createWorkout(prevState: any, formData: FormData) {
+  // 1. Extraer y validar datos del formulario
+  const exercise_name = formData.get("exercise_name")?.toString();
+  if (!exercise_name) {
+    return { error: "El nombre del ejercicio es requerido." };
+  }
+
+  // 2. Verificar la autenticacion del usuario
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: "Accion no autorizada." };
+  }
+
+  // 3. Preparar y sanitizar los datos para la insercion
+  const workoutData = {
+    user_id: user.id,
+    exercise_name,
+    weight_kg: Number(formData.get("weight_kg")) || null,
+    repetitions: Number(formData.get("repetitions")) || null,
+    sets: Number(formData.get("sets")) || null,
+  };
+
+  // 4. Insertar en la base de datos y manejar errores
+  const { error } = await supabase.from("gym_workouts").insert(workoutData);
+  if (error) {
+    console.error("Error en createWorkout:", error);
+    return { error: "No se pudo guardar el ejercicio." };
+  }
+
+  // 5. Revalidar el cache para actualizar la UI
+  revalidatePath("/gym");
+  return { success: true };
+}
+\end{lstlisting}
+
+\textbf{Flujo de la Acción:}
+\begin{itemize}
+    \item \textbf{Validación de Entrada}: Se asegura de que los datos requeridos, como el nombre del ejercicio, estén presentes.
+    \item \textbf{Autenticación}: Confirma que la solicitud proviene de un usuario autenticado antes de interactuar con la base de datos.
+    \item \textbf{Sanitización de Datos}: Convierte los datos del formulario a los tipos correctos (e.g., `Number`) y maneja valores nulos.
+    \item \textbf{Interacción con la Base de Datos}: Realiza la operación de inserción en la tabla \texttt{gym\_workouts}.
+    \item \textbf{Revalidación de Caché}: Llama a \texttt{revalidatePath} de Next.js para que la interfaz de usuario refleje los nuevos datos sin necesidad de recargar la página.
+\end{itemize}
+
+\subsubsection{Componentes Principales de React}
+
+\begin{lstlisting}[caption=Funcion createWorkout completa]
+"use server"
+
+import { revalidatePath } from "next/cache"
+import { createClient } from "@/lib/supabase/server"
+
+export async function createWorkout(prevState: any, formData: FormData) {
+  // Extraer datos del formulario
+  const exercise\_name = formData.get("exercise\_name")?.toString()
+  const weight\_kg = formData.get("weight\_kg")?.toString()
+  const repetitions = formData.get("repetitions")?.toString()
+  const sets = formData.get("sets")?.toString()
+  const image\_url = formData.get("image\_url")?.toString()
+
+  // Validacion basica
+  if (!exercise\_name) {
+    return { error: "El nombre del ejercicio es requerido" }
+  }
+
+  // Verificar autenticacion
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: "Usuario no autenticado" }
+  }
+
+  try {
+    // Preparar datos para insercion
+    const insertData = {
+      user\_id: user.id,
+      exercise\_name,
+      weight\_kg: weight\_kg && weight\_kg.trim() !== "" ? 
+        Math.max(0, Number.parseFloat(weight\_kg)) : null,
+      repetitions: repetitions && repetitions.trim() !== "" ? 
+        Math.max(1, Number.parseInt(repetitions)) : null,
+      sets: sets && sets.trim() !== "" ? 
+        Math.max(1, Number.parseInt(sets)) : null,
+      image\_url: image\_url && image\_url.trim() !== "" ? 
+        image\_url.trim() : null,
+    }
+
+    // Insertar en base de datos
+    const { error } = await supabase
+      .from("gym\_workouts")
+      .insert(insertData)
+
+    if (error) {
+      console.error("Database error:", error)
+      return { error: "Error al guardar el ejercicio" }
+    }
+
+    // Revalidar cache
+    revalidatePath("/gym")
+    return { success: true }
+  } catch (error) {
+    console.error("Error:", error)
+    return { error: "Error al guardar el ejercicio" }
+  }
+}
+\end{lstlisting}
+
+\textbf{Caracteristicas importantes:}
+\begin{itemize}
+    \item \textbf{Validacion de entrada}: Verifica que el nombre del ejercicio este presente
+    \item \textbf{Autenticacion}: Confirma que el usuario este autenticado
+    \item \textbf{Sanitizacion}: Convierte y valida valores numericos
+    \item \textbf{Manejo de errores}: Captura y reporta errores de base de datos
+    \item \textbf{Revalidacion}: Actualiza el cache de Next.js
+\end{itemize}
+
+\subsection{Componentes del Módulo de Gimnasio}
+
+\subsubsection{Página Principal - GymPage}
+
+El componente principal que coordina toda la funcionalidad del modulo de gimnasio.
+
+\begin{lstlisting}[caption=app/gym/page.tsx - Estructura completa]
+"use client"
+
+import { useState } from "react"
+import { Dumbbell, ArrowLeft } from "lucide-react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import WorkoutForm from "@/components/gym/workout-form"
+import WorkoutList from "@/components/gym/workout-list"
+import RoutineList from "@/components/gym/routine-list"
+import RoutineForm from "@/components/gym/routine-form"
+import RoutineDetail from "@/components/gym/routine-detail"
+import ExerciseHistory from "@/components/gym/exercise-history"
+import GymMetrics from "@/components/gym/gym-metrics"
+
+// Interfaces TypeScript
+interface Workout {
+  id: string
+  exercise\_name: string
+  weight\_kg: number | null
+  repetitions: number | null
+  sets: number | null
+  created\_at: string
+}
+
+type ViewMode = "routines" | "individual" | "routine-detail" | "create-routine" | "history" | "metrics"
+
+export default function GymPage() {
+  // Estados del componente
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null)
+  const [viewMode, setViewMode] = useState<ViewMode>("routines")
+  const [selectedRoutine, setSelectedRoutine] = useState<{ id: string; name: string } | null>(null)
+
+  // Handlers para diferentes acciones
+  const handleWorkoutAdded = () => {
+    setRefreshTrigger((prev) => prev + 1)
+  }
+
+  const handleEditWorkout = (workout: Workout) => {
+    setEditingWorkout(workout)
+  }
+
+  const handleEditComplete = () => {
+    setEditingWorkout(null)
+    setRefreshTrigger((prev) => prev + 1)
+  }
+
+  const handleViewRoutine = (routineId: string, routineName: string) => {
+    setSelectedRoutine({ id: routineId, name: routineName })
+    setViewMode("routine-detail")
+  }
+
+  const handleCreateRoutine = () => {
+    setViewMode("create-routine")
+  }
+
+  const handleRoutineCreated = () => {
+    setViewMode("routines")
+    setRefreshTrigger((prev) => prev + 1)
+  }
+
+  const handleBackToRoutines = () => {
+    setSelectedRoutine(null)
+    setViewMode("routines")
+    setRefreshTrigger((prev) => prev + 1)
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Header con navegacion */}
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Volver
+              </Link>
+            </Button>
+          </div>
+          <div className="flex items-center gap-3 mb-2">
+            <Dumbbell className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gimnasio</h1>
+          </div>
+          <p className="text-gray-600 dark:text-gray-300">
+            Organiza tus entrenamientos por rutinas o registra ejercicios individuales
+          </p>
+        </div>
+
+        {/* Pestanas de navegacion */}
+        <div className="flex gap-2 mb-6 flex-wrap">
+          <button
+            onClick={() => setViewMode("routines")}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              viewMode === "routines" || viewMode === "routine-detail" || viewMode === "create-routine"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+            }`}
+          >
+            Rutinas
+          </button>
+          <button
+            onClick={() => setViewMode("individual")}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              viewMode === "individual" ? "bg-blue-600 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+            }`}
+          >
+            Ejercicios Individuales
+          </button>
+          <button
+            onClick={() => setViewMode("history")}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              viewMode === "history" ? "bg-blue-600 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+            }`}
+          >
+            Historial
+          </button>
+          <button
+            onClick={() => setViewMode("metrics")}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              viewMode === "metrics" ? "bg-blue-600 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+            }`}
+          >
+            Metricas
+          </button>
+        </div>
+
+        {/* Renderizado condicional de componentes */}
+        <div className="grid gap-6">
+          {viewMode === "routines" && (
+            <RoutineList
+              refreshTrigger={refreshTrigger}
+              onViewRoutine={handleViewRoutine}
+              onCreateRoutine={handleCreateRoutine}
+            />
+          )}
+
+          {viewMode === "create-routine" && (
+            <RoutineForm 
+              onRoutineCreated={handleRoutineCreated} 
+              onCancel={() => setViewMode("routines")} 
+            />
+          )}
+
+          {viewMode === "routine-detail" && selectedRoutine && (
+            <RoutineDetail
+              routineId={selectedRoutine.id}
+              routineName={selectedRoutine.name}
+              onBack={handleBackToRoutines}
+            />
+          )}
+
+          {viewMode === "individual" && (
+            <>
+              <WorkoutForm
+                onWorkoutAdded={handleWorkoutAdded}
+                editWorkout={editingWorkout}
+                onEditComplete={handleEditComplete}
+              />
+              <WorkoutList 
+                refreshTrigger={refreshTrigger} 
+                onEditWorkout={handleEditWorkout} 
+              />
+            </>
+          )}
+
+          {viewMode === "history" && <ExerciseHistory />}
+          {viewMode === "metrics" && <GymMetrics />}
+        </div>
+      </div>
+    </div>
+  )
+}
+\end{lstlisting}
+
+\textbf{Caracteristicas del componente:}
+\begin{itemize}
+    \item \textbf{Estado centralizado}: Maneja todos los estados de la aplicacion
+    \item \textbf{Navegacion por pestanas}: Interfaz intuitiva para cambiar entre vistas
+    \item \textbf{Renderizado condicional}: Muestra diferentes componentes segun el modo
+    \item \textbf{Handlers de eventos}: Gestiona todas las interacciones del usuario
+    \item \textbf{TypeScript}: Tipado estricto para mayor seguridad
+\end{itemize}
+
+\subsection{Ejemplos del Módulo de Gimnasio}
+
+\subsubsection{Ejemplos de Inserción a Base de Datos}
+
+
+
+\subsubsection{Crear una Rutina Completa}
+
+\begin{lstlisting}[caption=Ejemplo de creacion de rutina completa, basicstyle=\ttfamily]
+-- 1. Crear la rutina
+INSERT INTO public.routines (
+    user_id,
+    name,
+    description
+) VALUES (
+    '123e4567-e89b-12d3-a456-426614174000',
+    'Rutina de Pecho y Triceps',
+    'Rutina enfocada en el desarrollo del pecho y triceps, ideal para principiantes'
+);
+
+-- Obtener el ID de la rutina recien creada
+-- (En la aplicacion esto se maneja automaticamente)
+
+-- 2. Agregar ejercicios a la rutina
+INSERT INTO public.routine_exercises (
+    routine_id,
+    exercise_name,
+    weight,
+    repetitions,
+    sets,
+    order_index
+) VALUES 
+    ('456e7890-e89b-12d3-a456-426614174001', 'Press de Banca', 80.00, 12, 3, 0),
+    ('456e7890-e89b-12d3-a456-426614174001', 'Aperturas con Mancuernas', 25.00, 15, 3, 1),
+    ('456e7890-e89b-12d3-a456-426614174001', 'Press Frances', 30.00, 12, 3, 2),
+    ('456e7890-e89b-12d3-a456-426614174001', 'Fondos para Triceps', 0.00, 10, 3, 3);
+\end{lstlisting}
+
+\subsubsection{Consultas Utiles}
+
+\begin{lstlisting}[caption=Consultas utiles para analisis]
+-- Obtener todos los entrenamientos de un usuario con detalles
+SELECT 
+    gw.exercise_name,
+    gw.weight_kg,
+    gw.repetitions,
+    gw.sets,
+    gw.created_at,
+    (gw.weight_kg * gw.repetitions * gw.sets) as volumen_total
+FROM public.gym_workouts gw
+WHERE gw.user_id = '123e4567-e89b-12d3-a456-426614174000'
+ORDER BY gw.created_at DESC;
+
+-- Obtener progreso de un ejercicio especifico
+SELECT 
+    exercise_name,
+    weight_kg,
+    repetitions,
+    sets,
+    created_at,
+    (weight_kg * repetitions * sets) as volumen
+FROM public.gym_workouts
+WHERE user_id = '123e4567-e89b-12d3-a456-426614174000'
+  AND exercise_name = 'Press de Banca'
+ORDER BY created_at ASC;
+
+-- Obtener rutinas con conteo de ejercicios
+SELECT 
+    r.name,
+    r.description,
+    r.created_at,
+    COUNT(re.id) as total_ejercicios
+FROM public.routines r
+LEFT JOIN public.routine_exercises re ON r.id = re.routine_id
+WHERE r.user_id = '123e4567-e89b-12d3-a456-426614174000'
+GROUP BY r.id, r.name, r.description, r.created_at
+ORDER BY r.created_at DESC;
+
+-- Obtener ejercicios de una rutina especifica en orden
+SELECT 
+    re.exercise_name,
+    re.weight,
+    re.repetitions,
+    re.sets,
+    re.order_index
+FROM public.routine_exercises re
+WHERE re.routine_id = '456e7890-e89b-12d3-a456-426614174001'
+ORDER BY re.order_index ASC;
+\end{lstlisting}
+
+\subsection{Flujos de Datos Completos}
+
+\subsubsection{Flujo de Creacion de Entrenamiento}
+
+\begin{enumerate}
+    \item \textbf{Usuario completa formulario} en \texttt{WorkoutForm}
+    \item \textbf{Validacion en cliente} de campos requeridos
+    \item \textbf{Envio a Server Action} \texttt{createWorkout}
+    \item \textbf{Verificacion de autenticacion} en servidor
+    \item \textbf{Sanitizacion de datos} (conversion de tipos)
+    \item \textbf{Insercion en base de datos} tabla \texttt{gym\_workouts}
+    \item \textbf{Revalidacion de cache} con \texttt{revalidatePath}
+    \item \textbf{Actualizacion de UI} con nuevo entrenamiento
+\end{enumerate}
+
+\subsubsection{Flujo de Gestion de Rutinas}
+
+\begin{enumerate}
+    \item \textbf{Creacion de rutina} con \texttt{createRoutine}
+    \item \textbf{Insercion en tabla} \texttt{routines}
+    \item \textbf{Agregar ejercicios} con \texttt{addExerciseToRoutine}
+    \item \textbf{Insercion en tabla} \texttt{routine\_exercises} con \texttt{order\_index}
+    \item \textbf{Visualizacion de rutina} con \texttt{getRoutineExercises}
+    \item \textbf{Ejecucion de rutina} (registro de entrenamientos individuales)
+\end{enumerate}
+
+\section{Caracteristicas Avanzadas}
+
+\subsection{Selector de Ejercicios}
+
+El modulo incluye un selector modal avanzado que permite:
+
+\begin{itemize}
+    \item \textbf{Catalogo de ejercicios}: Acceso a ejercicios administrados
+    \item \textbf{Filtrado por categoria}: Pecho, Biceps, Triceps, etc.
+    \item \textbf{Busqueda de ejercicios}: Filtrado por nombre
+    \item \textbf{Ejercicios personalizados}: Creacion de ejercicios unicos
+    \item \textbf{Imagenes de ejercicios}: Visualizacion de tecnicas
+\end{itemize}
+
+\subsection{Metricas y Estadisticas}
+
+El componente \texttt{GymMetrics} proporciona:
+
+\begin{itemize}
+    \item \textbf{Graficos de progreso}: Evolucion del peso a lo largo del tiempo
+    \item \textbf{Estadisticas de volumen}: Calculo de volumen total (peso × reps × series)
+    \item \textbf{Tendencias de entrenamiento}: Frecuencia y consistencia
+    \item \textbf{Comparativas temporales}: Progreso mensual/semanal
+    \item \textbf{Analisis por ejercicio}: Progreso especifico por ejercicio
+\end{itemize}
+
+\subsection{Historial de Ejercicios}
+
+El componente \texttt{ExerciseHistory} permite:
+
+\begin{itemize}
+    \item \textbf{Historial completo}: Todos los entrenamientos registrados
+    \item \textbf{Filtrado por ejercicio}: Ver progreso de un ejercicio especifico
+    \item \textbf{Analisis temporal}: Progreso a lo largo del tiempo
+    \item \textbf{Exportacion de datos}: Para analisis externo
+    \item \textbf{Busqueda avanzada}: Filtros por fecha, ejercicio, peso
+\end{itemize}
+
+\section{Mejores Practicas de Desarrollo}
+
+\subsection{Seguridad}
+
+\begin{itemize}
+    \item \textbf{Validacion de entrada}: Siempre validar datos en Server Actions
+    \item \textbf{Autenticacion}: Verificar usuario en cada operacion
+    \item \textbf{RLS}: Usar Row Level Security en todas las tablas
+    \item \textbf{Sanitizacion}: Limpiar y convertir datos de entrada
+    \item \textbf{Logs de seguridad}: Registrar operaciones sensibles
+\end{itemize}
+
+\subsection{Performance}
+
+\begin{itemize}
+    \item \textbf{Indices de base de datos}: Optimizar consultas frecuentes
+    \item \textbf{Paginacion}: Implementar para listas largas
+    \item \textbf{Cache}: Usar revalidatePath para actualizar cache
+    \item \textbf{Lazy loading}: Cargar componentes bajo demanda
+    \item \textbf{Optimizacion de imagenes}: Comprimir y optimizar imagenes
+\end{itemize}
+
+\subsection{Mantenibilidad}
+
+\begin{itemize}
+    \item \textbf{TypeScript}: Usar tipado estricto en todos los componentes
+    \item \textbf{Interfaces}: Definir interfaces claras para props
+    \item \textbf{Separacion de responsabilidades}: Logica en Server Actions
+    \item \textbf{Reutilizacion}: Componentes modulares y reutilizables
+    \item \textbf{Documentacion}: Comentar codigo complejo
+\end{itemize}
+
+\section{Solucion de Problemas}
+
+\subsection{Problemas Comunes}
+
+\subsubsection{Error: Tabla no existe}
+
+\textbf{Sintomas}: Error al intentar insertar o consultar datos
+\textbf{Causa}: Las tablas no han sido creadas en la base de datos
+\textbf{Solucion}: Ejecutar los scripts SQL en orden:
+\begin{enumerate}
+    \item \texttt{01-create-database-schema.sql}
+    \item \texttt{01-create-user-schema.sql}
+    \item \texttt{08-verify-routines-tables.sql}
+    \item \texttt{26-create-gym-exercises-table.sql}
+\end{enumerate}
+
+\subsubsection{Error: Usuario no autenticado}
+
+\textbf{Sintomas}: Server Actions retornan error de autenticacion
+\textbf{Causa}: Usuario no esta logueado o sesion expirada
+\textbf{Solucion}: Verificar estado de autenticacion y redirigir a login
+
+\subsubsection{Error: Politica RLS violada}
+
+\textbf{Sintomas}: Error al acceder a datos de otros usuarios
+\textbf{Causa}: Politicas RLS mal configuradas
+\textbf{Solucion}: Verificar y corregir politicas RLS
+
+\subsection{Debugging}
+
+\subsubsection{Logs del Cliente}
+
+\begin{lstlisting}[caption=Debugging en cliente]
+// Habilitar logs detallados
+localStorage.setItem('debug', 'true');
+
+// Verificar estado de autenticacion
+console.log('User:', user);
+console.log('Session:', session);
+
+// Verificar datos de entrenamientos
+console.log('Workouts:', workouts);
+\end{lstlisting}
+
+\subsubsection{Logs del Servidor}
+
+\begin{lstlisting}[caption=Debugging en servidor]
+// En Server Actions
+console.log('Action called with:', { userId, data });
+
+// En consultas de base de datos
+console.log('Query result:', { data, error });
+
+// En validaciones
+console.log('Validation result:', validationResult);
+\end{lstlisting}
+
+\section{Conclusion}
+
+El modulo de gimnasio de FitTrack es un sistema completo y robusto que permite a los usuarios gestionar sus entrenamientos de manera eficiente. Con su arquitectura bien definida, base de datos optimizada y componentes React modernos, proporciona una experiencia de usuario excepcional.
+
+\textbf{Caracteristicas destacadas:}
+\begin{itemize}
+    \item Arquitectura escalable y mantenible
+    \item Seguridad robusta con RLS
+    \item Interfaz de usuario intuitiva
+    \item Funcionalidades avanzadas de analisis
+    \item Codigo bien documentado y tipado
+\end{itemize}
+
+Para contribuir al desarrollo del modulo:
+\begin{enumerate}
+    \item Seguir las convenciones establecidas
+    \item Implementar tests apropiados
+    \item Documentar cambios significativos
+    \item Mantener la compatibilidad con la base de datos
+    \item Respetar las politicas de seguridad
+\end{enumerate}
+
+\section{Módulo de Running}
+
+El módulo de running es un componente fundamental de FitTrack que permite a los usuarios registrar, analizar y hacer seguimiento de sus sesiones de carrera. Proporciona herramientas completas para el monitoreo del progreso, cálculo automático de métricas y visualización de estadísticas detalladas.
+
+\subsection{Características del Módulo de Running}
+
+\begin{itemize}
+    \item \textbf{Registro de Sesiones}: Permite registrar sesiones de carrera con duracion, distancia y ritmo
+    \item \textbf{Calculo Automatico de Ritmo}: Calcula automaticamente el ritmo por kilometro basado en duracion y distancia
+    \item \textbf{Estadisticas Detalladas}: Proporciona metricas completas como total de sesiones, distancia acumulada, tiempo total, ritmo promedio y mejor ritmo
+    \item \textbf{Historial de Sesiones}: Mantiene un registro completo de todas las sesiones de carrera
+    \item \textbf{Graficos de Progreso}: Visualizacion de tendencias y progreso a lo largo del tiempo
+    \item \textbf{Analisis de Rendimiento}: Comparacion de sesiones y identificacion de mejoras
+    \item \textbf{Interfaz Intuitiva}: Diseño limpio y facil de usar para registro rapido
+\end{itemize}
+
+\subsection{Arquitectura General}
+
+El modulo sigue una arquitectura de capas bien definida:
+
+\begin{enumerate}
+    \item \textbf{Capa de Presentacion}: Componentes React con TypeScript
+    \item \textbf{Capa de Logica}: Server Actions de Next.js
+    \item \textbf{Capa de Datos}: Supabase PostgreSQL con RLS
+    \item \textbf{Capa de Servicios}: Calculos y utilidades de metricas
+\end{enumerate}
+
+\subsection{Base de Datos del Módulo de Running}
+
+\subsubsection{Diagrama de Relaciones}
+
+\begin{figure}[h]
+\centering
+\begin{verbatim}
+    auth.users
+         |
+    +----+----+
+    |         |
+running_sessions
+    |
+running_history (opcional)
+\end{verbatim}
+\caption{Diagrama de relaciones de las tablas del modulo de running}
+\end{figure}
+
+\subsection{Tabla running\_sessions}
+
+Esta tabla almacena las sesiones de carrera realizadas por los usuarios.
+
+\begin{lstlisting}[caption=Estructura completa de \texttt{running\_sessions}]
+CREATE TABLE IF NOT EXISTS public.running\_sessions (
+    id UUID DEFAULT gen\_random\_uuid() PRIMARY KEY,
+    user\_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    duration\_minutes INTEGER NOT NULL CHECK (duration\_minutes > 0),
+    distance\_km NUMERIC(5,2) NOT NULL CHECK (distance\_km > 0),
+    pace\_min\_km NUMERIC(5,2),
+    created\_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Indices para optimizacion
+CREATE INDEX IF NOT EXISTS idx\_running\_sessions\_user\_id ON public.running\_sessions(user\_id);
+CREATE INDEX IF NOT EXISTS idx\_running\_sessions\_created\_at ON public.running\_sessions(created\_at);
+CREATE INDEX IF NOT EXISTS idx\_running\_sessions\_distance ON public.running\_sessions(distance\_km);
+CREATE INDEX IF NOT EXISTS idx\_running\_sessions\_pace ON public.running\_sessions(pace\_min\_km);
+\end{lstlisting}
+
+\textbf{Descripcion de campos:}
+\begin{itemize}
+    \item \texttt{id}: Identificador unico UUID generado automaticamente
+    \item \texttt{user\_id}: Referencia al usuario propietario de la sesion
+    \item \texttt{duration\_minutes}: Duracion de la sesion en minutos (requerido, > 0)
+    \item \texttt{distance\_km}: Distancia recorrida en kilometros (requerido, > 0)
+    \item \texttt{pace\_min\_km}: Ritmo en minutos por kilometro (opcional, calculado automaticamente)
+    \item \texttt{created\_at}: Timestamp de creacion automatico
+\end{itemize}
+
+\subsubsection{Lógica de Negocio (Server Actions)}
+
+Las operaciones de backend para el módulo de running se encuentran en \texttt{lib/running-actions.ts}. A continuación se describen las acciones principales.
+
+\begin{lstlisting}[language=typescript, caption={Funciones principales en `running-actions.ts`}]
+"use server"
+
+// createRunningSession: Guarda una nueva sesion de carrera.
+
+}xport async function createRunningSession(prevState: any, formData: FormData) {
+  // 1. Validar duracion y distancia.
+  // 2. Autenticar al usuario.
+  // 3. Calcular el ritmo si es necesario.
+  // 4. Insertar en la tabla `running_sessions`.
+  // 5. Revalidar el path `/running`.
+}
+
+// getRunningSessions: Obtiene todas las sesiones de un usuario.
+export async function getRunningSessions() {
+  // 1. Autenticar al usuario.
+  // 2. Consultar la tabla `running_sessions`.
+  // 3. Ordenar por fecha de creacion descendente.
+  // 4. Devolver los datos o un array vacio.
+}
+
+// deleteRunningSession: Elimina una sesion de carrera.
+export async function deleteRunningSession(sessionId: string) {
+  // 1. Autenticar al usuario.
+  // 2. Eliminar el registro de la tabla `running_sessions` donde el ID y el user_id coincidan.
+  // 3. Revalidar el path `/running`.
+}
+\end{lstlisting}
+
+\subsubsection{Componentes Principales de React}
+
+La interfaz de usuario del módulo se compone de varios componentes que trabajan en conjunto.
+
+\begin{itemize}
+    \item \textbf{\texttt{app/running/page.tsx}}: Es el componente principal que organiza el layout de la página. Gestiona la navegación entre la vista de "Sesiones" y "Gráficos" y coordina la actualización de datos entre sus componentes hijos.
+    
+    \item \textbf{\texttt{components/running/running-form.tsx}}: Un formulario que utiliza \texttt{useActionState} para invocar la Server Action \texttt{createRunningSession}. Muestra un botón para abrir el formulario y gestiona el estado de envío y los errores de validación.
+    
+    \item \textbf{\texttt{components/running/running-list.tsx}}: Muestra una lista de todas las sesiones de carrera del usuario. Obtiene los datos llamando a la Server Action \texttt{getRunningSessions} y permite eliminar sesiones individuales.
+    
+    \item \textbf{\texttt{components/running/running-stats.tsx}}: Calcula y muestra estadísticas agregadas, como la distancia total, el ritmo promedio y la mejor sesión, basándose en los datos obtenidos.
+    
+    \item \textbf{\texttt{components/running/running-charts.tsx}}: Visualiza los datos históricos en forma de gráficos para que el usuario pueda analizar su progreso a lo largo del tiempo.
+\end{itemize}
+
+\textbf{Caracteristicas del formulario:}
+\begin{itemize}
+    \item \textbf{Estado colapsable}: Se muestra como boton inicialmente, se expande al hacer clic
+    \item \textbf{Validacion en cliente}: Campos requeridos y validacion de tipos
+    \item \textbf{Calculo automatico}: El ritmo se calcula automaticamente si no se proporciona
+    \item \textbf{Manejo de errores}: Muestra errores de validacion y base de datos
+    \item \textbf{Feedback visual}: Indicador de carga durante el envio
+\end{itemize}
+
+\subsection{Componentes del Módulo de Running}
+
+\subsubsection{Componente RunningStats}
+
+Componente que calcula y muestra estadisticas detalladas de las sesiones de running.
+
+\begin{lstlisting}[caption=components/running/running-stats.tsx - Logica de calculo]
+interface Stats {
+  totalSessions: number
+  totalDistance: number
+  totalTime: number
+  averagePace: number | null
+  bestPace: number | null
+  longestRun: number
+}
+
+export default function RunningStats({ refreshTrigger }: { refreshTrigger?: number }) {
+  const [stats, setStats] = useState<Stats | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  const calculateStats = (sessions: RunningSession[]): Stats => {
+    if (sessions.length === 0) {
+      return {
+        totalSessions: 0,
+        totalDistance: 0,
+        totalTime: 0,
+        averagePace: null,
+        bestPace: null,
+        longestRun: 0,
+      }
+    }
+
+    // Calcular metricas basicas
+    const totalDistance = sessions.reduce((sum, session) => sum + session.distance_km, 0)
+    const totalTime = sessions.reduce((sum, session) => sum + session.duration_minutes, 0)
+    const longestRun = Math.max(...sessions.map((session) => session.distance_km))
+
+    // Calcular ritmo promedio y mejor ritmo
+    const sessionsWithPace = sessions.filter((session) => session.pace_min_km !== null)
+    const averagePace =
+      sessionsWithPace.length > 0
+        ? sessionsWithPace.reduce((sum, session) => sum + (session.pace_min_km || 0), 0) / sessionsWithPace.length
+        : null
+
+    const bestPace =
+      sessionsWithPace.length > 0
+        ? Math.min(...sessionsWithPace.map((session) => session.pace_min_km || Number.POSITIVE_INFINITY))
+        : null
+
+    return {
+      totalSessions: sessions.length,
+      totalDistance,
+      totalTime,
+      averagePace,
+      bestPace,
+      longestRun,
+    }
+  }
+
+  const loadStats = async () => {
+    try {
+      const sessions = await getRunningSessions()
+      const calculatedStats = calculateStats(sessions || [])
+      setStats(calculatedStats)
+    } catch (error) {
+      console.error("Error loading running stats:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadStats()
+  }, [refreshTrigger])
+
+  // Funcion para formatear el ritmo
+  const formatPace = (pace: number | null) => {
+    if (!pace) return "N/A"
+    const minutes = Math.floor(pace)
+    const seconds = Math.round((pace - minutes) * 60)
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`
+  }
+
+  // Funcion para formatear el tiempo
+  const formatTime = (minutes: number) => {
+    const hours = Math.floor(minutes / 60)
+    const mins = minutes % 60
+    if (hours > 0) {
+      return `${hours}h ${mins}m`
+    }
+    return `${mins}m`
+  }
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center text-gray-500">Cargando estadisticas...</div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Estadisticas de Running</CardTitle>
+        <CardDescription>Resumen de tu actividad de carrera</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-green-600">{stats?.totalSessions}</div>
+            <div className="text-sm text-gray-600">Sesiones Totales</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-green-600">{stats?.totalDistance.toFixed(1)} km</div>
+            <div className="text-sm text-gray-600">Distancia Total</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-green-600">{formatTime(stats?.totalTime || 0)}</div>
+            <div className="text-sm text-gray-600">Tiempo Total</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-green-600">{formatPace(stats?.averagePace)}</div>
+            <div className="text-sm text-gray-600">Ritmo Promedio</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-green-600">{formatPace(stats?.bestPace)}</div>
+            <div className="text-sm text-gray-600">Mejor Ritmo</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-green-600">{stats?.longestRun.toFixed(1)} km</div>
+            <div className="text-sm text-gray-600">Carrera Mas Larga</div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+\end{lstlisting}
+
+\textbf{Metricas calculadas:}
+\begin{itemize}
+    \item \textbf{Sesiones Totales}: Numero total de sesiones registradas
+    \item \textbf{Distancia Total}: Suma de todas las distancias recorridas
+    \item \textbf{Tiempo Total}: Suma de todos los tiempos de carrera
+    \item \textbf{Ritmo Promedio}: Promedio de todos los ritmos registrados
+    \item \textbf{Mejor Ritmo}: El ritmo mas rapido registrado
+    \item \textbf{Carrera Mas Larga}: La distancia mas larga en una sola sesion
+\end{itemize}
+
+\subsubsection{Componente RunningList}
+
+Lista que muestra todas las sesiones de running registradas.
+
+\begin{lstlisting}[caption=components/running/running-list.tsx - Estructura principal]
+"use client"
+
+import { useState, useEffect } from "react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Trash2, Calendar, Clock, MapPin, Zap } from "lucide-react"
+import { deleteRunningSession, getRunningSessions } from "@/lib/running-actions"
+import { format } from "date-fns"
+import { es } from "date-fns/locale"
+
+interface RunningSession {
+  id: string
+  duration_minutes: number
+  distance_km: number
+  pace_min_km: number | null
+  created_at: string
+}
+
+export default function RunningList({ refreshTrigger }: { refreshTrigger?: number }) {
+  const [sessions, setSessions] = useState<RunningSession[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const loadSessions = async () => {
+    try {
+      const data = await getRunningSessions()
+      setSessions(data || [])
+    } catch (error) {
+      console.error("Error loading running sessions:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadSessions()
+  }, [refreshTrigger])
+
+  const handleDelete = async (id: string) => {
+    if (confirm("Estas seguro de que quieres eliminar esta sesion?")) {
+      const result = await deleteRunningSession(id)
+      if (result?.success) {
+        loadSessions()
+      }
+    }
+  }
+
+  const formatPace = (pace: number | null) => {
+    if (!pace) return null
+    const minutes = Math.floor(pace)
+    const seconds = Math.round((pace - minutes) * 60)
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`
+  }
+
+  const formatTime = (minutes: number) => {
+    const hours = Math.floor(minutes / 60)
+    const mins = minutes % 60
+    if (hours > 0) {
+      return `${hours}h ${mins}m`
+    }
+    return `${mins}m`
+  }
+
+  // Estado de carga
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center text-gray-500">Cargando sesiones...</div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  // Estado vacio
+  if (sessions.length === 0) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center text-gray-500">
+            <MapPin className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+            <p>No hay sesiones de running registradas</p>
+            <p className="text-sm">Registra tu primera carrera para comenzar</p>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-semibold">Historial de Sesiones</h2>
+      {sessions.map((session) => (
+        <Card key={session.id}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-4 mb-2">
+                  <div className="flex items-center gap-1 text-sm text-gray-600">
+                    <Calendar className="h-4 w-4" />
+                    {format(new Date(session.created_at), "dd/MM/yyyy", { locale: es })}
+                  </div>
+                  <div className="flex items-center gap-1 text-sm text-gray-600">
+                    <Clock className="h-4 w-4" />
+                    {formatTime(session.duration_minutes)}
+                  </div>
+                  <div className="flex items-center gap-1 text-sm text-gray-600">
+                    <MapPin className="h-4 w-4" />
+                    {session.distance_km.toFixed(1)} km
+                  </div>
+                  {session.pace_min_km && (
+                    <div className="flex items-center gap-1 text-sm text-gray-600">
+                      <Zap className="h-4 w-4" />
+                      {formatPace(session.pace_min_km)}/km
+                    </div>
+                  )}
+                </div>
+                
+                {/* Badges con metricas */}
+                <div className="flex gap-2">
+                  <Badge variant="secondary">
+                    {session.distance_km.toFixed(1)} km
+                  </Badge>
+                  <Badge variant="secondary">
+                    {formatTime(session.duration_minutes)}
+                  </Badge>
+                  {session.pace_min_km && (
+                    <Badge variant="secondary">
+                      {formatPace(session.pace_min_km)}/km
+                    </Badge>
+                  )}
+                </div>
+              </div>
+
+              {/* Botones de accion */}
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDelete(session.id)}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  )
+}
+\end{lstlisting}
+
+\textbf{Caracteristicas de la lista:}
+\begin{itemize}
+    \item \textbf{Carga asincrona}: Carga las sesiones desde la base de datos
+    \item \textbf{Formateo de datos}: Convierte tiempos y ritmos a formato legible
+    \item \textbf{Estado vacio}: Muestra mensaje cuando no hay sesiones
+    \item \textbf{Eliminacion}: Permite eliminar sesiones con confirmacion
+    \item \textbf{Actualizacion automatica}: Se actualiza cuando se agregan nuevas sesiones
+\end{itemize}
+
+\subsubsection{Componente RunningCharts}
+
+Componente para visualizar graficos de progreso y tendencias.
+
+\begin{lstlisting}[caption=components/running/running-charts.tsx - Estructura basica]
+"use client"
+
+import { useState, useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { getRunningSessions } from "@/lib/running-actions"
+
+interface RunningSession {
+  id: string
+  duration_minutes: number
+  distance_km: number
+  pace_min_km: number | null
+  created_at: string
+}
+
+export default function RunningCharts() {
+  const [sessions, setSessions] = useState<RunningSession[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadSessions = async () => {
+      try {
+        const data = await getRunningSessions()
+        setSessions(data || [])
+      } catch (error) {
+        console.error("Error loading running sessions:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadSessions()
+  }, [])
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center text-gray-500">Cargando graficos...</div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (sessions.length === 0) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center text-gray-500">
+            <p>No hay datos suficientes para mostrar graficos</p>
+            <p className="text-sm">Registra algunas sesiones para ver tu progreso</p>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Progreso de Distancia</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {/* Aqui se implementarian los graficos con una libreria como Chart.js o Recharts */}
+          <div className="h-64 flex items-center justify-center text-gray-500">
+            Grafico de progreso de distancia (implementar con libreria de graficos)
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Evolucion del Ritmo</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-64 flex items-center justify-center text-gray-500">
+            Grafico de evolucion del ritmo (implementar con libreria de graficos)
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Frecuencia de Entrenamiento</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-64 flex items-center justify-center text-gray-500">
+            Grafico de frecuencia de entrenamiento (implementar con libreria de graficos)
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+\end{lstlisting}
+
+\textbf{Tipos de graficos implementables:}
+\begin{itemize}
+    \item \textbf{Progreso de Distancia}: Linea temporal mostrando la evolucion de las distancias
+    \item \textbf{Evolucion del Ritmo}: Grafico de ritmo promedio por sesion
+    \item \textbf{Frecuencia de Entrenamiento}: Histograma de sesiones por semana/mes
+    \item \textbf{Comparacion de Metricas}: Graficos de barras comparando diferentes periodos
+\end{itemize}
+
+\subsection{Ejemplos del Módulo de Running}
+
+\subsubsection{Ejemplos de Inserción a Base de Datos}
+
+\subsubsection{Crear una Sesion de Running}
+
+\begin{lstlisting}[caption=Ejemplo de insercion en \texttt{running\_sessions}]
+-- Insertar una sesion de running de 5km en 30 minutos
+INSERT INTO public.running_sessions (
+    user_id,
+    duration_minutes,
+    distance_km,
+    pace_min_km
+) VALUES (
+    '123e4567-e89b-12d3-a456-426614174000', -- UUID del usuario
+    30,                                     -- 30 minutos
+    5.0,                                    -- 5 kilometros
+    6.0                                     -- 6 minutos por kilometro
+);
+
+-- Insertar una sesion de running de 10km en 50 minutos
+INSERT INTO public.running_sessions (
+    user_id,
+    duration_minutes,
+    distance_km,
+    pace_min_km
+) VALUES (
+    '123e4567-e89b-12d3-a456-426614174000',
+    50,                                     -- 50 minutos
+    10.0,                                   -- 10 kilometros
+    5.0                                     -- 5 minutos por kilometro
+);
+
+-- Insertar una sesion sin ritmo especificado (se calcula automaticamente)
+INSERT INTO public.running_sessions (
+    user_id,
+    duration_minutes,
+    distance\_km
+) VALUES (
+    '123e4567-e89b-12d3-a456-426614174000',
+    25,                                     -- 25 minutos
+    4.2                                     -- 4.2 kilometros
+    -- pace\_min\_km se calculara como 25/4.2 = 5.95 min/km
+);
+\end{lstlisting}
+
+\subsubsection{Consultas Utiles para Analisis}
+
+\begin{lstlisting}[caption=Consultas utiles para analisis de running]
+-- Obtener todas las sesiones de un usuario con detalles
+SELECT 
+    rs.duration\_minutes,
+    rs.distance\_km,
+    rs.pace\_min\_km,
+    rs.created\_at,
+    (rs.distance\_km / rs.duration\_minutes * 60) as velocidad\_kmh
+FROM public.running\_sessions rs
+WHERE rs.user\_id = '123e4567-e89b-12d3-a456-426614174000'
+ORDER BY rs.created\_at DESC;
+
+-- Obtener estadisticas resumidas de un usuario
+SELECT 
+    COUNT(*) as total\_sesiones,
+    SUM(distance\_km) as distancia\_total,
+    SUM(duration\_minutes) as tiempo\_total,
+    AVG(pace\_min\_km) as ritmo\_promedio,
+    MIN(pace\_min\_km) as mejor\_ritmo,
+    MAX(distance\_km) as carrera\_mas\_larga
+FROM public.running\_sessions
+WHERE user\_id = '123e4567-e89b-12d3-a456-426614174000';
+
+-- Obtener progreso mensual
+SELECT 
+    DATE\_TRUNC('month', created\_at) as mes,
+    COUNT(*) as sesiones\_mes,
+    SUM(distance\_km) as distancia\_mes,
+    AVG(pace\_min\_km) as ritmo\_promedio\_mes
+FROM public.running\_sessions
+WHERE user\_id = '123e4567-e89b-12d3-a456-426614174000'
+GROUP BY DATE\_TRUNC('month', created\_at)
+ORDER BY mes DESC;
+
+-- Obtener las 5 mejores sesiones por ritmo
+SELECT 
+    distance\_km,
+    duration\_minutes,
+    pace\_min\_km,
+    created\_at
+FROM public.running\_sessions
+WHERE user\_id = '123e4567-e89b-12d3-a456-426614174000'
+  AND pace\_min\_km IS NOT NULL
+ORDER BY pace\_min\_km ASC
+LIMIT 5;
+
+-- Obtener tendencia de mejora en el ultimo mes
+SELECT 
+    DATE\_TRUNC('week', created\_at) as semana,
+    AVG(pace\_min\_km) as ritmo\_promedio\_semana
+FROM public.running\_sessions
+WHERE user\_id = '123e4567-e89b-12d3-a456-426614174000'
+  AND created\_at >= NOW() - INTERVAL '1 month'
+  AND pace\_min\_km IS NOT NULL
+GROUP BY DATE\_TRUNC('week', created\_at)
+ORDER BY semana ASC;
+\end{lstlisting}
+
+\subsection{Flujos de Datos Completos}
+
+\subsubsection{Flujo de Creacion de Sesion}
+
+\begin{enumerate}
+    \item \textbf{Usuario completa formulario} en \texttt{RunningForm}
+    \item \textbf{Validacion en cliente} de campos requeridos (duracion y distancia)
+    \item \textbf{Envio a Server Action} \texttt{createRunningSession}
+    \item \textbf{Verificacion de autenticacion} en servidor
+    \item \textbf{Calculo automatico de ritmo} si no se proporciona
+    \item \textbf{Insercion en base de datos} tabla \texttt{running\_sessions}
+    \item \textbf{Revalidacion de cache} con \texttt{revalidatePath}
+    \item \textbf{Actualizacion de UI} con nueva sesion y estadisticas
+\end{enumerate}
+
+\subsubsection{Flujo de Calculo de Estadisticas}
+
+\begin{enumerate}
+    \item \textbf{Carga de sesiones} con \texttt{getRunningSessions}
+    \item \textbf{Calculo de metricas basicas} (total sesiones, distancia, tiempo)
+    \item \textbf{Calculo de ritmo promedio} de sesiones con ritmo registrado
+    \item \textbf{Identificacion del mejor ritmo} (valor minimo)
+    \item \textbf{Identificacion de la carrera mas larga} (distancia maxima)
+    \item \textbf{Formateo de datos} para presentacion
+    \item \textbf{Renderizado de estadisticas} en \texttt{RunningStats}
+\end{enumerate}
+
+\section{Caracteristicas Avanzadas}
+
+\subsection{Calculos Automaticos}
+
+El modulo implementa varios calculos automaticos:
+
+\begin{itemize}
+    \item \textbf{Ritmo por Kilometro}: \texttt{duracion\_minutos / distancia\_km}
+    \item \textbf{Velocidad en km/h}: \texttt{distancia\_km / (duracion\_minutos / 60)}
+    \item \textbf{Ritmo Promedio}: Promedio de todos los ritmos registrados
+    \item \textbf{Mejor Ritmo}: Valor minimo de ritmo (mas rapido)
+    \item \textbf{Distancia Total}: Suma de todas las distancias
+    \item \textbf{Tiempo Total}: Suma de todos los tiempos
+\end{itemize}
+
+\subsection{Validaciones y Restricciones}
+
+\begin{itemize}
+    \item \textbf{Duracion}: Debe ser mayor a 0 minutos
+    \item \textbf{Distancia}: Debe ser mayor a 0 kilometros
+    \item \textbf{Ritmo}: Opcional, se calcula automaticamente si no se proporciona
+    \item \textbf{Usuario}: Debe estar autenticado para todas las operaciones
+    \item \textbf{RLS}: Solo se puede acceder a sesiones propias
+\end{itemize}
+
+\subsection{Formateo de Datos}
+
+\begin{itemize}
+    \item \textbf{Tiempo}: Convierte minutos a formato "Xh Ym" o "Ym"
+    \item \textbf{Ritmo}: Convierte decimal a formato "X:YY" (minutos:segundos)
+    \item \textbf{Distancia}: Muestra con 1 decimal (ej: "5.0 km")
+    \item \textbf{Fechas}: Formato localizado (ej: "14/10/2025")
+\end{itemize}
+
+\section{Mejores Practicas de Desarrollo}
+
+\subsection{Seguridad}
+
+\begin{itemize}
+    \item \textbf{Validacion de entrada}: Siempre validar duracion y distancia
+    \item \textbf{Autenticacion}: Verificar usuario en cada operacion
+    \item \textbf{RLS}: Usar Row Level Security en todas las tablas
+    \item \textbf{Sanitizacion}: Limpiar y convertir datos de entrada
+    \item \textbf{Logs de seguridad}: Registrar operaciones sensibles
+\end{itemize}
+
+\subsection{Performance}
+
+\begin{itemize}
+    \item \textbf{Indices de base de datos}: Optimizar consultas por usuario y fecha
+    \item \textbf{Cache}: Usar revalidatePath para actualizar cache
+    \item \textbf{Calculos eficientes}: Optimizar calculos de estadisticas
+    \item \textbf{Lazy loading}: Cargar graficos bajo demanda
+    \item \textbf{Paginacion}: Implementar para listas largas de sesiones
+\end{itemize}
+
+\subsection{Mantenibilidad}
+
+\begin{itemize}
+    \item \textbf{TypeScript}: Usar tipado estricto en todos los componentes
+    \item \textbf{Interfaces}: Definir interfaces claras para props
+    \item \textbf{Separacion de responsabilidades}: Logica en Server Actions
+    \item \textbf{Reutilizacion}: Componentes modulares y reutilizables
+    \item \textbf{Documentacion}: Comentar codigo complejo
+\end{itemize}
+
+\section{Solucion de Problemas}
+
+\subsection{Problemas Comunes}
+
+\subsubsection{Error: Tabla no existe}
+
+\textbf{Sintomas}: Error al intentar insertar o consultar datos
+\textbf{Causa}: Las tablas no han sido creadas en la base de datos
+\textbf{Solucion}: Ejecutar los scripts SQL en orden:
+\begin{enumerate}
+    \item \texttt{01-create-database-schema.sql}
+    \item \texttt{01-create-user-schema.sql}
+    \item \texttt{02-create-history-schema.sql}
+\end{enumerate}
+
+\subsubsection{Error: Usuario no autenticado}
+
+\textbf{Sintomas}: Server Actions retornan error de autenticacion
+\textbf{Causa}: Usuario no esta logueado o sesion expirada
+\textbf{Solucion}: Verificar estado de autenticacion y redirigir a login
+
+\subsubsection{Error: Calculo de ritmo incorrecto}
+
+\textbf{Sintomas}: El ritmo calculado no coincide con el esperado
+\textbf{Causa}: Division por cero o valores invalidos
+\textbf{Solucion}: Validar que distancia sea mayor a 0 antes del calculo
+
+\subsection{Debugging}
+
+\subsubsection{Logs del Cliente}
+
+\begin{lstlisting}[caption=Debugging en cliente]
+// Habilitar logs detallados
+localStorage.setItem('debug', 'true');
+
+// Verificar estado de autenticacion
+console.log('User:', user);
+console.log('Session:', session);
+
+// Verificar datos de sesiones
+console.log('Running Sessions:', sessions);
+\end{lstlisting}
+
+\subsubsection{Logs del Servidor}
+
+\begin{lstlisting}[caption=Debugging en servidor]
+// En Server Actions
+console.log('Action called with:', { userId, data });
+
+// En consultas de base de datos
+console.log('Query result:', { data, error });
+
+// En calculos de ritmo
+console.log('Pace calculation:', { duration, distance, calculatedPace });
+\end{lstlisting}
+
+\section{Conclusion}
+
+El modulo de running de FitTrack es un sistema completo y robusto que permite a los usuarios gestionar sus sesiones de carrera de manera eficiente. Con su arquitectura bien definida, base de datos optimizada y componentes React modernos, proporciona una experiencia de usuario excepcional.
+
+\textbf{Caracteristicas destacadas:}
+\begin{itemize}
+    \item Arquitectura escalable y mantenible
+    \item Seguridad robusta con RLS
+    \item Interfaz de usuario intuitiva
+    \item Calculos automaticos precisos
+    \item Estadisticas detalladas y utiles
+    \item Codigo bien documentado y tipado
+\end{itemize}
+
+Para contribuir al desarrollo del modulo:
+\begin{enumerate}
+    \item Seguir las convenciones establecidas
+    \item Implementar tests apropiados
+    \item Documentar cambios significativos
+    \item Mantener la compatibilidad con la base de datos
+    \item Respetar las politicas de seguridad
+\end{enumerate}
+\section{Módulo de Comidas}
+
+Ubicación: \texttt{app/meals/} y \texttt{components/meals/}
+
+\section{Módulo de Asistente Nutricional (IA)}
+
+El módulo de Asistente Nutricional es uno de los componentes más avanzados y tecnológicamente sofisticados de FitTrack. Integra inteligencia artificial de Google Gemini para proporcionar asistencia nutricional personalizada, análisis de imágenes de comida y recomendaciones fitness basadas en el progreso real del usuario.
+
+\subsection{Características del Módulo de Asistente Nutricional}
+
+\begin{itemize}
+    \item \textbf{Chat Inteligente}: Asistente conversacional especializado en nutricion y fitness
+    \item \textbf{Analisis de Imagenes}: Reconocimiento automatico de comidas y calculo de valores nutricionales
+    \item \textbf{Personalizacion Avanzada}: Recomendaciones basadas en perfil, objetivos y progreso del usuario
+    \item \textbf{Integracion Completa}: Acceso a datos de gimnasio, running y metricas de salud
+    \item \textbf{IA de Ultima Generacion}: Utiliza Google Gemini 2.5 Flash para analisis preciso
+    \item \textbf{Interfaz Dual}: Chat conversacional y analizador de imagenes
+    \item \textbf{Calculos Automaticos}: BMR, TDEE, necesidades proteicas personalizadas
+\end{itemize}
+
+\subsection{Arquitectura General}
+
+El modulo sigue una arquitectura de microservicios con separacion clara de responsabilidades:
+
+\begin{enumerate}
+    \item \textbf{Capa de Presentacion}: Componentes React con TypeScript
+    \item \textbf{Capa de API}: Endpoints especializados para chat y analisis de imagenes
+    \item \textbf{Capa de IA}: Integracion con Google Gemini para procesamiento inteligente
+    \item \textbf{Capa de Datos}: Acceso a perfil de usuario y datos de actividad
+    \item \textbf{Capa de Servicios}: Calculos nutricionales y recomendaciones personalizadas
+\end{enumerate}
+
+\section{Estructura de Archivos}
+
+\subsection{Organizacion del Modulo}
+
+\begin{lstlisting}[language=bash, caption=Estructura de archivos del Asistente Fitness]
+app/
++-- meals/                    # Pagina principal del asistente
+|   +-- page.tsx             # Componente principal con tabs
++-- api/                     # APIs del asistente
+|   +-- chat/                # API de chat conversacional
+|   |   +-- route.ts         # Endpoint principal de chat
+|   +-- analyze/             # API de analisis de imagenes
+|   |   +-- route.ts         # Endpoint de analisis nutricional
++-- components/meals/        # Componentes del asistente
+|   +-- chat-interface.tsx   # Interfaz de chat
+|   +-- image-analyzer.tsx   # Analizador de imagenes
+\end{lstlisting}
+
+\section{APIs y Endpoints}
+
+\subsection{API de Chat - /api/chat}
+
+El endpoint principal que maneja tanto el chat conversacional como el analisis de imagenes.
+
+\subsubsection{Estructura del Endpoint}
+
+\begin{lstlisting}[caption=Estructura basica del endpoint /api/chat]
+import { generateText, generateObject } from "ai"
+import { google } from "@ai-sdk/google"
+import { type NextRequest, NextResponse } from "next/server"
+import { createClient } from "@/lib/supabase/server"
+import { z } from "zod"
+
+// Schema para analisis de imagenes
+const foodAnalysisSchema = z.object({
+  foodName: z.string().describe("Nombre del plato o comida"),
+  calories: z.number().describe("Numero estimado de calorias"),
+  protein: z.number().describe("Gramos de proteina"),
+  carbs: z.number().describe("Gramos de carbohidratos"),
+  fats: z.number().describe("Gramos de grasas"),
+  fiber: z.number().optional().describe("Gramos de fibra"),
+  serving: z.string().describe("Descripcion del tamano de la porcion"),
+  ingredients: z.array(z.string()).describe("Lista de ingredientes visibles"),
+  recommendations: z.string().describe("Breve recomendacion nutricional"),
+  confidence: z.enum(["alta", "media", "baja"]).describe("Nivel de confianza en el analisis"),
+})
+
+export async function POST(request: NextRequest) {
+  // Manejo de autenticacion y validacion
+  // Enrutamiento a chat o analisis de imagen
+}
+\end{lstlisting}
+
+\subsubsection{Manejo de Chat Conversacional}
+
+\begin{lstlisting}[caption=Funcion handleChatMessage - Chat personalizado]
+async function handleChatMessage(message: string, userProfile: any) {
+  // 1. Recopilacion de datos del usuario
+  let exerciseData = ""
+  try {
+    const exercises = await getUniqueExercises()
+    if (exercises.length > 0) {
+      exerciseData = `\n\nTus ejercicios registrados: ${exercises.join(", ")}`
+      
+      const lastExercise = exercises[0]
+      const history = await getExerciseHistory(lastExercise, 30)
+      if (history.length > 0) {
+        const latest = history[0]
+        exerciseData += `\n\nUltimo registro de ${lastExercise}: ${latest.weight_kg}kg x ${latest.repetitions} reps`
+      }
+    }
+  } catch (error) {
+    console.log("No se pudo obtener historial de ejercicios")
+  }
+
+  // 2. Datos de running
+  let runningData = ""
+  try {
+    const runningSessions = await getRunningHistory(30)
+    if (runningSessions.length > 0) {
+      const totalDistance = runningSessions.reduce((sum, session) => sum + session.distance, 0)
+      const avgPace = runningSessions.reduce((sum, session) => sum + session.pace, 0) / runningSessions.length
+      const lastSession = runningSessions[0]
+
+      runningData = `\n\nDATOS DE RUNNING (ultimos 30 dias):
+- Total de sesiones: ${runningSessions.length}
+- Distancia total: ${totalDistance.toFixed(2)}km
+- Pace promedio: ${avgPace.toFixed(2)} min/km
+- Ultima sesion: ${lastSession.distance}km en ${lastSession.duration} minutos (${lastSession.pace.toFixed(2)} min/km)`
+    }
+  } catch (error) {
+    console.log("No se pudo obtener historial de running")
+  }
+
+  // 3. Datos de gimnasio
+  let gymData = ""
+  try {
+    const workouts = await getWorkouts()
+    if (workouts.length > 0) {
+      const recentWorkouts = workouts.slice(0, 5)
+      gymData = `\n\nULTIMOS ENTRENAMIENTOS EN GIMNASIO:`
+      recentWorkouts.forEach((workout: any) => {
+        const date = new Date(workout.created_at).toLocaleDateString()
+        gymData += `\n- ${workout.exercise_name}: ${workout.weight_kg || 0}kg x ${workout.repetitions || 0} reps x ${workout.sets || 0} sets (${date})`
+      })
+    }
+  } catch (error) {
+    console.log("No se pudo obtener workouts del gimnasio")
+  }
+
+  // 4. Calculos nutricionales personalizados
+  let bmr = 0, tdee = 0, proteinMin = 0, proteinMax = 0
+
+  if (userProfile?.weight && userProfile?.height && userProfile?.age && userProfile?.sex) {
+    if (userProfile.sex === "male") {
+      bmr = 10 * userProfile.weight + 6.25 * userProfile.height - 5 * userProfile.age + 5
+    } else {
+      bmr = 10 * userProfile.weight + 6.25 * userProfile.height - 5 * userProfile.age - 161
+    }
+    tdee = Math.round(bmr * 1.55)
+    proteinMin = Math.round(userProfile.weight * 1.6)
+    proteinMax = Math.round(userProfile.weight * 2.2)
+  }
+
+  // 5. Generacion de prompt personalizado
+  const model = google("gemini-2.5-flash")
+  
+  const prompt = `Eres un asistente nutricional experto especializado en fitness y salud. Tu nombre es "Asistente Nutricional de FitTrack".
+
+INFORMACION DEL USUARIO:
+${userProfile?.weight ? `- Peso: ${userProfile.weight}kg` : ""}
+${userProfile?.height ? `- Altura: ${userProfile.height}cm` : ""}
+${userProfile?.age ? `- Edad: ${userProfile.age} anos` : ""}
+${userProfile?.sex ? `- Sexo: ${userProfile.sex === "male" ? "Masculino" : "Femenino"}` : ""}
+${userProfile?.bmi ? `- IMC: ${userProfile.bmi} (${userProfile.bmiCategory})` : ""}
+${bmr > 0 ? `- Metabolismo basal (BMR): ${Math.round(bmr)} cal/dia` : ""}
+${tdee > 0 ? `- TDEE (actividad moderada): ${tdee} cal/dia` : ""}
+${proteinMin > 0 ? `- Proteina recomendada: ${proteinMin}-${proteinMax}g/dia` : ""}
+${exerciseData}
+${runningData}
+${gymData}
+
+PREGUNTA DEL USUARIO: ${message}
+
+INSTRUCCIONES:
+- Responde en espanol de forma clara, concisa y util
+- Usa formato markdown para mejor legibilidad
+- Personaliza tu respuesta basandote en TODOS los datos del usuario
+- Si el usuario pregunta sobre su progreso, analiza sus datos de ejercicios
+- Proporciona informacion basada en evidencia cientifica
+- Incluye ejemplos practicos y cantidades especificas
+- Manten un tono motivador y profesional
+
+Responde a la pregunta del usuario ahora:`
+
+  const { text } = await generateText({
+    model,
+    prompt,
+  })
+
+  return NextResponse.json({ response: text })
+}
+\end{lstlisting}
+
+\subsubsection{Manejo de Analisis de Imagenes}
+
+\begin{lstlisting}[caption=Funcion handleImageAnalysis - Analisis con IA]
+async function handleImageAnalysis(image: string) {
+  try {
+    // Remover prefijo data URL
+    const base64Image = image.replace(/^data:image\/\w+;base64,/, "")
+
+    const model = google("gemini-2.0-flash-exp")
+
+    const prompt = `Analiza esta imagen de comida y proporciona la siguiente informacion en formato JSON:
+
+{
+  "foodName": "nombre del plato o comida",
+  "calories": numero estimado de calorias,
+  "protein": gramos de proteina,
+  "carbs": gramos de carbohidratos,
+  "fats": gramos de grasas,
+  "fiber": gramos de fibra (opcional),
+  "serving": "descripcion del tamano de la porcion (ej: '1 plato mediano', '200g')",
+  "ingredients": ["lista", "de", "ingredientes", "visibles"],
+  "recommendations": "breve recomendacion nutricional o consejo sobre esta comida",
+  "confidence": "alta/media/baja - tu nivel de confianza en el analisis"
+}
+
+Se lo mas preciso posible. Si no puedes identificar la comida claramente, indica baja confianza y proporciona tu mejor estimacion.`
+
+    const { object } = await generateObject({
+      model,
+      schema: foodAnalysisSchema,
+      prompt,
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "text", text: prompt },
+            {
+              type: "image",
+              image: `data:image/jpeg;base64,${base64Image}`,
+            },
+          ],
+        },
+      ],
+    })
+
+    return NextResponse.json(object)
+  } catch (error) {
+    console.error("Error analyzing food image:", error)
+    return NextResponse.json({ error: "Error al analizar la imagen. Por favor intenta de nuevo." }, { status: 500 })
+  }
+}
+\end{lstlisting}
+\subsection{API de Analisis - /api/analyze}
+
+Endpoint especializado para el analisis detallado de imagenes de comida.
+
+\subsection{APIs del Módulo de Asistente Nutricional}
+
+\subsubsection{Características Principales}
+\begin{itemize}
+    \item \textbf{Análisis de Comidas por Imagen}: Los usuarios pueden subir una foto de su comida y recibir un análisis nutricional detallado, incluyendo calorías, macronutrientes e ingredientes.
+    \item \textbf{Chat Conversacional}: Un chatbot inteligente que responde a preguntas sobre nutrición, sugiere recetas y ofrece consejos personalizados basados en el perfil del usuario.
+    \item \textbf{Personalización Avanzada}: Las respuestas y análisis de la IA se adaptan al perfil del usuario (peso, altura, objetivos, etc.) para ofrecer recomendaciones más precisas.
+    \item \textbf{Integración de Múltiples Modelos de IA}: Utiliza `Gemini 1.5 Flash` para el chat y `Gemini 1.5 Pro` para el análisis de imágenes, seleccionando el modelo más adecuado para cada tarea.
+\end{itemize}
+
+\subsubsection{Arquitectura de la API}
+
+La lógica de la IA se expone a través de dos API Routes principales que se comunican con los modelos de Google Gemini.
+
+\begin{itemize}
+    \item \textbf{\texttt{/api/chat}}: Gestiona las conversaciones del chatbot. Recibe el mensaje del usuario y el perfil de salud, construye un \textit{prompt} contextualizado y devuelve la respuesta generada por el modelo de texto de Gemini.
+    
+    \item \textbf{\texttt{/api/analyze-image}}: Maneja el análisis de imágenes de comidas. Recibe una imagen en formato base64, la envía al modelo de visión de Gemini con un \textit{prompt} estructurado que solicita un análisis en formato JSON, y devuelve los datos nutricionales extraídos.
+\end{itemize}
+
+\begin{lstlisting}[language=typescript, caption={Lógica simplificada del endpoint `/api/chat`}]
+// POST /api/chat
+export async function POST(request: Request) {
+  // 1. Extraer el mensaje y el perfil del usuario del body.
+  const { message, userProfile } = await request.json();
+
+  // 2. Construir un `systemPrompt` que instruye a la IA sobre su rol como nutricionista.
+  //    Se personaliza el prompt con los datos del `userProfile` (IMC, BMR, etc.).
+  const systemPrompt = buildSystemPrompt(userProfile);
+
+  // 3. Llamar al modelo de texto de Gemini con el prompt.
+  const model = google("gemini-1.5-flash");
+  const { text } = await generateText({ model, prompt: [systemPrompt, message] });
+
+  // 4. Devolver la respuesta de la IA.
+  return NextResponse.json({ response: text });
+}
+\end{lstlisting}
+
+\subsubsection{Componentes Principales de React}
+
+La interfaz de usuario se divide en componentes especializados para cada funcionalidad.
+
+\begin{itemize}
+    \item \textbf{\texttt{app/meals/page.tsx}}: Es la página principal del módulo. Utiliza un sistema de pestañas (\textit{Tabs}) para permitir al usuario cambiar entre el "Chat con IA" y el "Analizador de Comida".
+    
+    \item \textbf{\texttt{components/meals/chat-interface.tsx}}: Implementa la interfaz del chatbot. Gestiona el historial de la conversación, el estado de carga y la obtención del perfil del usuario para enriquecer las consultas a la API. Utiliza \texttt{useActionState} para manejar el envío de mensajes.
+    
+    \item \textbf{\texttt{components/meals/image-analyzer.tsx}}: Permite al usuario subir o capturar una imagen de su comida. Gestiona el estado de la imagen (vista previa, carga), llama al endpoint \texttt{/api/analyze-image} y muestra los resultados del análisis nutricional en un formato claro y estructurado.
+\end{itemize}
+
+\begin{lstlisting}[caption=components/meals/image-analyzer.tsx - Estructura principal]
+"use client"
+
+import type React from "react"
+import { useState, useRef, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Camera, Upload, X, Sparkles, User, Loader2 } from "lucide-react"
+import { getUserProfile } from "@/lib/user-actions"
+import { calculateBMI } from "@/lib/health-actions"
+
+interface UserProfile {
+  weight: number | null
+  height: number | null
+  dateOfBirth: string | null
+  sex: string | null
+  bmi?: number
+  bmiCategory?: string
+  age?: number
+}
+
+export default function ImageAnalyzer() {
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [analysis, setAnalysis] = useState<string | null>(null)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [isClient, setIsClient] = useState(false)
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    setIsClient(true)
+    loadUserProfile()
+  }, [])
+
+  const loadUserProfile = async () => {
+    try {
+      const profile = await getUserProfile()
+      if (profile) {
+        let age: number | undefined
+        let bmi: number | undefined
+        let bmiCategory: string | undefined
+
+        if (profile.dateOfBirth) {
+          const birthDate = new Date(profile.dateOfBirth)
+          age = new Date().getFullYear() - birthDate.getFullYear()
+        }
+
+        if (profile.weight && profile.height) {
+          const bmiResult = await calculateBMI(profile.weight, profile.height, age, profile.sex || undefined)
+          bmi = bmiResult.bmi
+          bmiCategory = bmiResult.category
+        }
+
+        setUserProfile({
+          weight: profile.weight,
+          height: profile.height,
+          dateOfBirth: profile.dateOfBirth,
+          sex: profile.sex,
+          bmi,
+          bmiCategory,
+          age,
+        })
+      }
+    } catch (error) {
+      console.error("Error loading user profile:", error)
+    }
+  }
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setSelectedImage(reader.result as string)
+        setAnalysis(null)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleAnalyze = async () => {
+    if (!selectedImage) return
+
+    setIsAnalyzing(true)
+    setAnalysis(null)
+
+    try {
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          image: selectedImage,
+          userProfile,
+        }),
+      })
+
+      const data: { error: string; analysis: string } = await response.json()
+
+      if (data.error) {
+        throw new Error(data.error)
+      }
+
+      setAnalysis(data.analysis.replaceAll("**", ""))
+    } catch (error) {
+      console.error("Error analyzing image:", error)
+      setAnalysis("Lo siento, hubo un error al analizar la imagen. Por favor intenta de nuevo o verifica tu conexion.")
+    } finally {
+      setIsAnalyzing(false)
+    }
+  }
+
+  const handleClear = () => {
+    setSelectedImage(null)
+    setAnalysis(null)
+    if (fileInputRef.current) fileInputRef.current.value = ""
+    if (cameraInputRef.current) cameraInputRef.current.value = ""
+  }
+
+  // Resto del componente...
+}
+\end{lstlisting}
+
+\textbf{Caracteristicas del analizador:}
+\begin{itemize}
+    \item \textbf{Captura de Imagen}: Soporte para camara y subida de archivos
+    \item \textbf{Previsualizacion}: Vista previa de la imagen seleccionada
+    \item \textbf{Analisis en Tiempo Real}: Procesamiento inmediato con IA
+    \item \textbf{Resultados Detallados}: Informacion nutricional completa
+    \item \textbf{Personalizacion}: Recomendaciones basadas en perfil del usuario
+    \item \textbf{Manejo de Estados}: Carga, error y exito claramente diferenciados
+\end{itemize}
+
+\section{Integracion con IA}
+
+\subsection{Google Gemini Integration}
+
+El modulo utiliza Google Gemini 2.5 Flash para procesamiento de lenguaje natural y analisis de imagenes.
+
+\subsubsection{Configuracion de API}
+
+\begin{lstlisting}[caption=Configuracion de Google Gemini]
+// Variables de entorno requeridas
+GOOGLE_GENERATIVE_AI_API_KEY=tu_clave_de_gemini_aqui
+GEMINI_API_KEY=tu_clave_de_gemini_aqui
+
+// Importaciones necesarias
+import { generateText, generateObject } from "ai"
+import { google } from "@ai-sdk/google"
+import { GoogleGenerativeAI } from "@google/generative-ai"
+\end{lstlisting}
+
+\subsubsection{Modelos Utilizados}
+
+\begin{itemize}
+    \item \textbf{Gemini 2.5 Flash}: Para chat conversacional y analisis de texto
+    \item \textbf{Gemini 2.0 Flash Exp}: Para analisis de imagenes con schema estructurado
+    \item \textbf{GoogleGenerativeAI}: Para analisis detallado de imagenes de comida
+\end{itemize}
+
+\subsection{Schemas de Validacion}
+
+\subsubsection{Schema de Analisis de Comida}
+
+\begin{lstlisting}[caption=Schema Zod para validacion de analisis]
+const foodAnalysisSchema = z.object({
+  foodName: z.string().describe("Nombre del plato o comida"),
+  calories: z.number().describe("Numero estimado de calorias"),
+  protein: z.number().describe("Gramos de proteina"),
+  carbs: z.number().describe("Gramos de carbohidratos"),
+  fats: z.number().describe("Gramos de grasas"),
+  fiber: z.number().optional().describe("Gramos de fibra"),
+  serving: z.string().describe("Descripcion del tamano de la porcion"),
+  ingredients: z.array(z.string()).describe("Lista de ingredientes visibles"),
+  recommendations: z.string().describe("Breve recomendacion nutricional"),
+  confidence: z.enum(["alta", "media", "baja"]).describe("Nivel de confianza en el analisis"),
+})
+\end{lstlisting}
+
+\section{Calculos Nutricionales}
+
+\subsection{Metabolismo Basal (BMR)}
+
+Calculo del metabolismo basal utilizando la ecuacion de Mifflin-St Jeor.
+
+\begin{lstlisting}[caption=Calculo de BMR personalizado]
+// Ecuacion de Mifflin-St Jeor para BMR
+if (userProfile.sex === "male") {
+  bmr = 10 * userProfile.weight + 6.25 * userProfile.height - 5 * userProfile.age + 5
+} else {
+  bmr = 10 * userProfile.weight + 6.25 * userProfile.height - 5 * userProfile.age - 161
+}
+
+// TDEE (Total Daily Energy Expenditure) - Actividad moderada
+tdee = Math.round(bmr * 1.55)
+\end{lstlisting}
+
+\subsection{Necesidades Proteicas}
+
+Calculo de necesidades proteicas basado en el peso corporal.
+
+\begin{lstlisting}[caption=Calculo de proteinas recomendadas]
+// Rango de proteinas para fitness (1.6-2.2g por kg de peso)
+proteinMin = Math.round(userProfile.weight * 1.6)
+proteinMax = Math.round(userProfile.weight * 2.2)
+\end{lstlisting}
+
+\section{Integracion con Datos del Usuario}
+
+\subsection{Acceso a Datos de Actividad}
+
+El asistente integra datos de todos los modulos de FitTrack:
+
+\begin{lstlisting}[caption=Integracion con datos de actividad]
+// Datos de ejercicios de gimnasio
+const exercises = await getUniqueExercises()
+const history = await getExerciseHistory(lastExercise, 30)
+
+// Datos de running
+const runningSessions = await getRunningHistory(30)
+const totalDistance = runningSessions.reduce((sum, session) => sum + session.distance, 0)
+const avgPace = runningSessions.reduce((sum, session) => sum + session.pace, 0) / runningSessions.length
+
+// Datos de entrenamientos
+const workouts = await getWorkouts()
+const recentWorkouts = workouts.slice(0, 5)
+\end{lstlisting}
+
+\subsection{Personalizacion Avanzada}
+
+El sistema utiliza el perfil completo del usuario para personalizar respuestas:
+
+\begin{itemize}
+    \item \textbf{Datos Demograficos}: Peso, altura, edad, sexo
+    \item \textbf{Metricas de Salud}: IMC, categoria de peso
+    \item \textbf{Actividad Reciente}: Ejercicios, running, entrenamientos
+    \item \textbf{Objetivos Fitness}: Basados en patrones de actividad
+    \item \textbf{Progreso Historico}: Tendencias y mejoras
+\end{itemize}
+
+\section{Flujos de Datos}
+
+\subsection{Flujo de Chat Conversacional}
+
+\begin{enumerate}
+    \item \textbf{Usuario escribe mensaje} en ChatInterface
+    \item \textbf{Validacion de entrada} en cliente
+    \item \textbf{Envio a /api/chat} con perfil de usuario
+    \item \textbf{Recopilacion de datos} de gimnasio, running y salud
+    \item \textbf{Calculo de metricas} nutricionales personalizadas
+    \item \textbf{Generacion de prompt} contextualizado
+    \item \textbf{Procesamiento con Gemini} 2.5 Flash
+    \item \textbf{Respuesta personalizada} al usuario
+    \item \textbf{Actualizacion de UI} con mensaje del asistente
+\end{enumerate}
+
+\subsection{Flujo de Analisis de Imagenes}
+
+\begin{enumerate}
+    \item \textbf{Usuario selecciona imagen} (camara o archivo)
+    \item \textbf{Previsualizacion} de la imagen seleccionada
+    \item \textbf{Envio a /api/analyze} con imagen y perfil
+    \item \textbf{Procesamiento de imagen} con Gemini 2.5 Flash
+    \item \textbf{Analisis nutricional} detallado
+    \item \textbf{Recomendaciones personalizadas} basadas en perfil
+    \item \textbf{Presentacion de resultados} estructurados
+    \item \textbf{Opciones de accion} (nuevo analisis, limpiar)
+\end{enumerate}
+
+\section{Caracteristicas Avanzadas}
+
+\subsection{Temas Rapidos}
+
+El chat incluye temas predefinidos para consultas comunes:
+
+\begin{lstlisting}[caption=Temas rapidos del chat]
+const quickTopics = [
+  "Mi perfil",
+  "Mis ejercicios", 
+  "Cuantas calorias necesito",
+  "Ganar musculo",
+  "Perder peso",
+  "Pre entreno",
+  "Post entreno",
+  "Meal prep",
+  "Recetas",
+  "Suplementos",
+  "Proteinas",
+  "Carbohidratos"
+]
+\end{lstlisting}
+
+\subsection{Indicadores de Confianza}
+
+El analisis de imagenes incluye niveles de confianza:
+
+\begin{itemize}
+    \item \textbf{Alta}: Identificacion clara de alimentos y porciones
+    \item \textbf{Media}: Identificacion parcial con estimaciones razonables
+    \item \textbf{Baja}: Imagen poco clara o alimentos no identificables
+\end{itemize}
+
+\subsection{Validacion de Imagenes}
+
+\begin{lstlisting}[caption=Validacion de tipos de archivo]
+// Formatos soportados
+accept="image/*"
+capture="environment"  // Para camara trasera en moviles
+
+// Validacion en cliente
+const file = event.target.files?.[0]
+if (file) {
+  const reader = new FileReader()
+  reader.onloadend = () => {
+    setSelectedImage(reader.result as string)
+    setAnalysis(null)
+  }
+  reader.readAsDataURL(file)
+}
+\end{lstlisting}
+
+\section{Mejores Practicas de Desarrollo}
+
+\subsection{Seguridad}
+
+\begin{itemize}
+    \item \textbf{Validacion de Autenticacion}: Verificar usuario en cada request
+    \item \textbf{Limite de Tamaño}: Validar tamaño de imagenes subidas
+    \item \textbf{Sanitizacion}: Limpiar inputs del usuario
+    \item \textbf{API Keys}: Proteger claves de Gemini en variables de entorno
+    \item \textbf{Rate Limiting}: Implementar limites de uso para APIs
+\end{itemize}
+
+\subsection{Performance}
+
+\begin{itemize}
+    \item \textbf{Lazy Loading}: Cargar componentes bajo demanda
+    \item \textbf{Optimizacion de Imagenes}: Comprimir imagenes antes del envio
+    \item \textbf{Cache de Respuestas}: Almacenar respuestas frecuentes
+    \item \textbf{Debouncing}: Evitar requests excesivos en chat
+    \item \textbf{Loading States}: Feedback visual durante procesamiento
+\end{itemize}
+
+\subsection{Mantenibilidad}
+
+\begin{itemize}
+    \item \textbf{TypeScript}: Tipado estricto en todos los componentes
+    \item \textbf{Interfaces}: Definir interfaces claras para props
+    \item \textbf{Error Handling}: Manejo robusto de errores
+    \item \textbf{Logging}: Registro detallado para debugging
+    \item \textbf{Testing}: Tests unitarios para funciones criticas
+\end{itemize}
+
+\section{Solucion de Problemas}
+
+\subsection{Problemas Comunes}
+
+\subsubsection{Error: API key no configurada}
+
+\textbf{Sintomas}: Error "API key no configurada" en respuestas
+\textbf{Causa}: Variables de entorno no configuradas
+\textbf{Solucion}: 
+\begin{enumerate}
+    \item Crear archivo \texttt{.env.local}
+    \item Agregar \texttt{GOOGLE\_GENERATIVE\_AI\_API\_KEY=tu\_clave}
+    \item Reiniciar servidor de desarrollo
+\end{enumerate}
+
+\subsubsection{Error: Imagen no analizable}
+
+\textbf{Sintomas}: Analisis falla o retorna error
+\textbf{Causa}: Imagen corrupta, muy grande o formato no soportado
+\textbf{Solucion}: 
+\begin{enumerate}
+    \item Verificar formato de imagen (JPG, PNG, WEBP)
+    \item Reducir tamaño de imagen
+    \item Asegurar buena iluminacion en fotos
+\end{enumerate}
+
+\subsubsection{Error: Chat no responde}
+
+\textbf{Sintomas}: Mensajes no se procesan o timeout
+\textbf{Causa}: Problemas de red o limite de cuota de API
+\textbf{Solucion}: 
+\begin{enumerate}
+    \item Verificar conexion a internet
+    \item Comprobar cuota de Gemini API
+    \item Revisar logs del servidor
+\end{enumerate}
+
+\subsection{Debugging}
+
+\subsubsection{Logs del Cliente}
+
+\begin{lstlisting}[caption=Debugging en cliente]
+// Habilitar logs detallados
+console.log('User Profile:', userProfile)
+console.log('Messages:', messages)
+console.log('Selected Image:', selectedImage)
+
+// Verificar estado de carga
+console.log('Is Loading:', isLoading)
+console.log('Is Analyzing:', isAnalyzing)
+\end{lstlisting}
+
+\subsubsection{Logs del Servidor}
+
+\begin{lstlisting}[caption=Debugging en servidor]
+// En API routes
+console.log('Request body:', await request.json())
+console.log('User authenticated:', !!user)
+console.log('Image size:', image.length)
+
+// En analisis de IA
+console.log('Analysis result:', text)
+console.log('Confidence level:', object.confidence)
+\end{lstlisting}
+
+\section{Conclusion}
+
+El modulo de Asistente Fitness representa la vanguardia en aplicaciones de salud y fitness, combinando inteligencia artificial avanzada con personalizacion profunda. Su arquitectura modular y su integracion completa con el ecosistema FitTrack lo convierten en una herramienta poderosa para usuarios que buscan optimizar su nutricion y rendimiento.
+
+\textbf{Caracteristicas destacadas:}
+\begin{itemize}
+    \item Integracion completa con datos de usuario
+    \item IA de ultima generacion para analisis preciso
+    \item Interfaz intuitiva y responsiva
+    \item Personalizacion basada en objetivos reales
+    \item Calculos nutricionales cientificamente validados
+    \item Arquitectura escalable y mantenible
+\end{itemize}
+
+Para contribuir al desarrollo del modulo:
+\begin{enumerate}
+    \item Seguir las convenciones de TypeScript establecidas
+    \item Implementar tests para nuevas funcionalidades
+    \item Documentar cambios en prompts de IA
+    \item Mantener compatibilidad con APIs de Gemini
+    \item Respetar limites de cuota de APIs externas
+\end{enumerate}
+
+\section{Módulo de Salud}
+
+Ubicación: \texttt{app/health/} y \texttt{components/health/}
+
+\subsection{Características del Módulo de Salud}
+\begin{itemize}
+    \item Calculadora de IMC
+    \item Registro de signos vitales
+    \item Evaluación automática de salud
+    \item Historial de métricas
+\end{itemize}
+
+\section{Módulo de Mensajería}
+
+El módulo de mensajería de FitTrack es un sistema integral que combina comunicación en tiempo real entre usuarios y profesionales con un sistema robusto de gestión de roles y configuraciones avanzadas de accesibilidad. Este módulo está diseñado para facilitar la interacción entre usuarios regulares y profesionales de la salud y fitness, mientras garantiza la inclusividad y accesibilidad para todos los usuarios.
+
+\subsection{Características del Módulo de Mensajería}
+
+\begin{itemize}
+    \item \textbf{Sistema de Mensajería en Tiempo Real}: Comunicación instantánea entre usuarios y profesionales
+    \item \textbf{Gestión de Roles Avanzada}: Sistema de tres niveles (Usuario, Profesional, Administrador)
+    \item \textbf{Configuraciones de Accesibilidad}: Soporte completo para usuarios con diferentes necesidades
+    \item \textbf{Panel de Administración}: Gestión centralizada de usuarios y roles
+    \item \textbf{Seguridad Robusta}: Row Level Security (RLS) y validaciones estrictas
+    \item \textbf{Interfaz Intuitiva}: Diseño responsivo y accesible
+    \item \textbf{Notificaciones en Tiempo Real}: Actualizaciones automáticas de mensajes
+\end{itemize}
+
+\subsection{Arquitectura General}
+
+El módulo sigue una arquitectura de microservicios con separación clara de responsabilidades:
+
+\begin{enumerate}
+    \item \textbf{Capa de Presentación}: Componentes React con TypeScript
+    \item \textbf{Capa de Lógica}: Server Actions de Next.js
+    \item \textbf{Capa de Datos}: Supabase PostgreSQL con RLS
+    \item \textbf{Capa de Servicios}: Gestión de roles y accesibilidad
+    \item \textbf{Capa de Seguridad}: Autenticación y autorización
+\end{enumerate}
+
+\section{Estructura de Base de Datos}
+
+\subsection{Diagrama de Relaciones}
+
+\begin{figure}[h]
+\centering
+\begin{verbatim}
+    auth.users
+         |
+    +----+----+----+
+    |         |    |
+user_roles  messages  user_preferences
+    |         |
+    |    conversations
+    |
+user_roles (self-reference)
+\end{verbatim}
+\caption{Diagrama de relaciones de las tablas del módulo de mensajería}
+\end{figure}
+
+\subsection{Tabla user\_roles}
+
+Esta tabla gestiona los roles y permisos de todos los usuarios del sistema.
+
+\begin{lstlisting}[caption=Estructura completa de user\_roles]
+CREATE TABLE IF NOT EXISTS public.user\_roles (
+  id UUID DEFAULT gen\_random\_uuid() PRIMARY KEY,
+  user\_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL UNIQUE,
+  role TEXT NOT NULL CHECK (role IN ('user', 'professional', 'admin')),
+  is\_active BOOLEAN DEFAULT true,
+  is\_professional BOOLEAN DEFAULT false,
+  approved\_by UUID REFERENCES auth.users(id),
+  approved\_at TIMESTAMP WITH TIME ZONE,
+  created\_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  updated\_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+\end{lstlisting}
+
+\textbf{Descripción de campos:}
+\begin{itemize}
+    \item \texttt{id}: Identificador único UUID generado automáticamente
+    \item \texttt{user\_id}: Referencia al usuario en auth.users
+    \item \texttt{role}: Rol del usuario ('user', 'professional', 'admin')
+    \item \texttt{is\_active}: Estado activo/inactivo del usuario
+    \item \texttt{is\_professional}: Indica si el usuario es profesional aprobado
+    \item \texttt{approved\_by}: ID del administrador que aprobó el rol
+    \item \texttt{approved\_at}: Timestamp de aprobación
+    \item \texttt{created\_at}: Timestamp de creación
+    \item \texttt{updated\_at}: Timestamp de última modificación
+\end{itemize}
+
+\subsection{Tabla messages}
+
+Almacena todos los mensajes del sistema de mensajería.
+
+\begin{lstlisting}[caption=Estructura completa de messages]
+CREATE TABLE IF NOT EXISTS public.messages (
+  id UUID DEFAULT gen\_random\_uuid() PRIMARY KEY,
+  sender\_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  receiver\_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  content TEXT NOT NULL,
+  read BOOLEAN DEFAULT false,
+  created\_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+\end{lstlisting}
+
+\textbf{Descripción de campos:}
+\begin{itemize}
+    \item \texttt{id}: Identificador único del mensaje
+    \item \texttt{sender\_id}: ID del usuario que envía el mensaje
+    \item \texttt{receiver\_id}: ID del usuario que recibe el mensaje
+    \item \texttt{content}: Contenido del mensaje
+    \item \texttt{read}: Estado de lectura del mensaje
+    \item \texttt{created\_at}: Timestamp de envío
+\end{itemize}
+
+\subsection{Tabla conversations}
+
+Agrupa los mensajes en conversaciones para facilitar la gestión.
+
+\begin{lstlisting}[caption=Estructura completa de conversations]
+CREATE TABLE IF NOT EXISTS public.conversations (
+  id UUID DEFAULT gen\_random\_uuid() PRIMARY KEY,
+  user1\_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  user2\_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  last\_message\_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  created\_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  UNIQUE(user1\_id, user2\_id)
+);
+\end{lstlisting}
+
+\textbf{Descripción de campos:}
+\begin{itemize}
+    \item \texttt{id}: Identificador único de la conversación
+    \item \texttt{user1\_id}: ID del primer usuario (ordenado alfabéticamente)
+    \item \texttt{user2\_id}: ID del segundo usuario (ordenado alfabéticamente)
+    \item \texttt{last\_message\_at}: Timestamp del último mensaje
+    \item \texttt{created\_at}: Timestamp de creación de la conversación
+\end{itemize}
+
+\subsection{Tabla user\_preferences}
+
+Almacena las configuraciones de accesibilidad de cada usuario.
+
+\begin{lstlisting}[caption=Estructura completa de user\_preferences]
+CREATE TABLE IF NOT EXISTS public.user\_preferences (
+  id UUID DEFAULT gen\_random\_uuid() PRIMARY KEY,
+  user\_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL UNIQUE,
+  color\_blind\_mode TEXT CHECK (color\_blind\_mode IN ('none', 'protanopia', 'deuteranopia', 'tritanopia')),
+  high\_contrast BOOLEAN DEFAULT false,
+  large\_text BOOLEAN DEFAULT false,
+  reduce\_motion BOOLEAN DEFAULT false,
+  screen\_reader\_optimized BOOLEAN DEFAULT false,
+  created\_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  updated\_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+\end{lstlisting}
+
+\textbf{Descripción de campos:}
+\begin{itemize}
+    \item \texttt{id}: Identificador único de las preferencias
+    \item \texttt{user\_id}: Referencia al usuario propietario
+    \item \texttt{color\_blind\_mode}: Modo de daltonismo configurado
+    \item \texttt{high\_contrast}: Activar alto contraste
+    \item \texttt{large\_text}: Activar texto grande
+    \item \texttt{reduce\_motion}: Reducir animaciones
+    \item \texttt{screen\_reader\_optimized}: Optimización para lectores de pantalla
+    \item \texttt{created\_at}: Timestamp de creación
+    \item \texttt{updated\_at}: Timestamp de última modificación
+\end{itemize}
+
+\subsection{Políticas de Seguridad (RLS)}
+
+Todas las tablas implementan Row Level Security para garantizar la privacidad y seguridad de los datos.
+
+\begin{lstlisting}[caption=Políticas RLS para user\_roles]
+-- Habilitar RLS
+ALTER TABLE public.user\_roles ENABLE ROW LEVEL SECURITY;
+
+-- Usuarios pueden ver su propio rol
+CREATE POLICY "Users can view own role" ON public.user\_roles
+  FOR SELECT USING (auth.uid() = user\_id);
+
+-- Administradores pueden ver todos los roles
+CREATE POLICY "Admins can view all roles" ON public.user\_roles
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM public.user\_roles 
+      WHERE user\_id = auth.uid() AND role = 'admin'
+    )
+  );
+
+-- Administradores pueden actualizar roles
+CREATE POLICY "Admins can update roles" ON public.user\_roles
+  FOR UPDATE USING (
+    EXISTS (
+      SELECT 1 FROM public.user\_roles 
+      WHERE user\_id = auth.uid() AND role = 'admin'
+    )
+  );
+\end{lstlisting}
+
+\begin{lstlisting}[caption=Políticas RLS para messages]
+-- Habilitar RLS
+ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
+
+-- Usuarios pueden ver sus propios mensajes
+CREATE POLICY "Users can view own messages" ON public.messages
+  FOR SELECT USING (auth.uid() = sender\_id OR auth.uid() = receiver\_id);
+
+-- Usuarios pueden enviar mensajes
+CREATE POLICY "Users can send messages" ON public.messages
+  FOR INSERT WITH CHECK (auth.uid() = sender\_id);
+
+-- Usuarios pueden marcar mensajes como leidos
+CREATE POLICY "Users can update own messages" ON public.messages
+  FOR UPDATE USING (auth.uid() = receiver\_id);
+\end{lstlisting}
+
+\section{Módulo de Administrador}
+
+\subsection{Base de Datos}
+	
+El sistema utiliza las siguientes tablas principales:
+
+\subsubsection{Tabla user\_roles}
+\begin{lstlisting}[language=SQL, caption=Estructura de la tabla user\_roles]
+  CREATE TABLE user_roles (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  role TEXT NOT NULL CHECK (role IN ('user', 'admin')),
+  is_active BOOLEAN DEFAULT true,
+  is_professional BOOLEAN DEFAULT false,
+  approved_by UUID REFERENCES auth.users(id),
+  approved_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+  );
+\end{lstlisting}
+
+\subsubsection{Tabla gym\_exercises}
+\begin{lstlisting}[language=SQL, caption=Estructura de la tabla gym\_exercises]
+  CREATE TABLE gym_exercises (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  category TEXT NOT NULL CHECK (category IN ('Pecho', 'Biceps', 'Triceps', 'Hombros', 'Pierna', 'Espalda', 'Otros')),
+  description TEXT,
+  image_url TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+  );
+\end{lstlisting}
+
+\section{Sistema de Autenticación y Autorización}
+
+\subsection{Verificación de Privilegios de Administrador}
+
+La función \texttt{isAdmin()} es el núcleo del sistema de autorización:
+
+\begin{lstlisting}[language=JavaScript, caption=Función isAdmin en admin-actions.ts]
+  export async function isAdmin() {
+    try {
+      const supabase = await createClient()
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      
+      if (userError || !user) {
+        return false
+      }
+      
+      const { data, error } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      
+      if (error || !data) {
+        return false
+      }
+      
+      return data.role === "admin"
+    } catch (error) {
+      console.error("[v0] Exception in isAdmin:", error)
+      return false
+    }
+  }
+\end{lstlisting}
+
+\subsection{Protección de Rutas}
+
+Cada página de administración implementa protección de acceso:
+
+\begin{lstlisting}[language=JavaScript, caption=Protección de rutas en page.tsx]
+  export default async function AdminPage() {
+    const admin = await isAdmin()
+    
+    if (!admin) {
+      redirect("/")
+    }
+    // ... resto del componente
+  }
+\end{lstlisting}
+
+\section{Funcionalidades del Dashboard Principal}
+
+\subsection{Componente AdminDashboard}
+
+El componente principal del dashboard ofrece:
+
+\begin{enumerate}
+  \item \textbf{Estadísticas del Sistema}:
+  \begin{itemize}
+    \item Total de usuarios registrados
+    \item Número de profesionales registrados
+    \item Cantidad de administradores
+  \end{itemize}
+  
+  \item \textbf{Gestión de Usuarios}:
+  \begin{itemize}
+    \item Lista completa de usuarios con información detallada
+    \item Cambio de roles (Usuario/Admin)
+    \item Activación/desactivación de usuarios
+    \item Marcado de usuarios como profesionales
+    \item Búsqueda y filtrado de usuarios
+  \end{itemize}
+  
+  \item \textbf{Interfaz de Usuario}:
+  \begin{itemize}
+    \item Diseño responsivo con Tailwind CSS
+    \item Componentes de UI modernos (shadcn/ui)
+    \item Notificaciones toast para feedback
+    \item Estados de carga durante operaciones
+  \end{itemize}
+\end{enumerate}
+
+\subsection{Estados y Gestión de Datos}
+
+El dashboard utiliza React hooks para el manejo de estado:
+
+\begin{lstlisting}[language=JavaScript, caption=Estados del componente AdminDashboard]
+  const [users, setUsers] = useState(initialUsers)
+  const [loading, setLoading] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
+  const { toast } = useToast()
+\end{lstlisting}
+
+\subsection{Funciones de Gestión de Usuarios}
+
+\subsubsection{Cambio de Roles}
+\begin{lstlisting}[language=JavaScript, caption=Función handleRoleChange]
+  const handleRoleChange = async (userId: string, role: string) => {
+    setLoading(userId)
+    const user = users.find((u) => u.id === userId)
+    if (!user) return
+    
+    const result = await updateUserRole(userId, role, user.is_active, user.is_professional)
+    
+    if (result.error) {
+      toast({
+        title: "Error",
+        description: result.error,
+        variant: "destructive",
+      })
+    } else {
+      toast({
+        title: "Exito",
+        description: "Rol actualizado correctamente",
+      })
+      setUsers(users.map((u) => (u.id === userId ? { ...u, role } : u)))
+    }
+    setLoading(null)
+  }
+\end{lstlisting}
+
+\section{Gestión de Ejercicios}
+
+\subsection{Componente ExerciseManagement}
+
+El sistema de gestión de ejercicios permite a los administradores:
+
+\begin{enumerate}
+  \item \textbf{Crear Nuevos Ejercicios}:
+  \begin{itemize}
+    \item Nombre del ejercicio
+    \item Categoría (Pecho, Bíceps, Tríceps, Hombros, Pierna, Espalda, Otros)
+    \item Descripción opcional
+    \item Imagen del ejercicio (URL externa o subida de archivo)
+  \end{itemize}
+  
+  \item \textbf{Editar Ejercicios Existentes}:
+  \begin{itemize}
+    \item Modificación de todos los campos
+    \item Actualización de imágenes
+    \item Preservación del historial
+  \end{itemize}
+  
+  \item \textbf{Eliminar Ejercicios}:
+  \begin{itemize}
+    \item Eliminación con confirmación
+    \item Limpieza de referencias
+  \end{itemize}
+  
+  \item \textbf{Búsqueda y Filtrado}:
+  \begin{itemize}
+    \item Búsqueda por nombre
+    \item Filtrado por categoría
+    \item Estadísticas por categoría
+  \end{itemize}
+\end{enumerate}
+
+\subsection{Sistema de Imágenes}
+
+El sistema soporta dos métodos para manejar imágenes:
+
+\begin{enumerate}
+  \item \textbf{URL Externa}: Los administradores pueden proporcionar URLs de imágenes externas
+  \item \textbf{Subida de Archivos}: Sistema de subida a Supabase Storage con:
+  \begin{itemize}
+    \item Validación de tipo de archivo (solo imágenes)
+    \item Límite de tamaño (5MB máximo)
+    \item Generación automática de nombres únicos
+    \item Vista previa en tiempo real
+  \end{itemize}
+\end{enumerate}
+
+\subsection{Función de Subida de Imágenes}
+
+\begin{lstlisting}[language=JavaScript, caption=Función uploadExerciseImage]
+  export async function uploadExerciseImage(formData: FormData) {
+    const file = formData.get("file") as File
+    
+    if (!file) {
+      return { error: "No se proporciono ningun archivo" }
+    }
+    
+    if (!file.type.startsWith("image/")) {
+      return { error: "El archivo debe ser una imagen" }
+    }
+    
+    if (file.size > 5 * 1024 * 1024) {
+      return { error: "El archivo no debe superar los 5MB" }
+    }
+    
+    try {
+      const supabase = await createClient()
+      const { data: { user }, error: userError } = await supabase.auth.getUser()
+      
+      if (userError || !user) {
+        return { error: "Usuario no autenticado" }
+      }
+      
+      const fileExt = file.name.split(".").pop()
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+      const filePath = `exercise-images/${fileName}`
+      
+      const { data, error: uploadError } = await supabase.storage
+      .from("exercise-images")
+      .upload(filePath, file, {
+        cacheControl: "3600",
+        upsert: false,
+      })
+      
+      if (uploadError) {
+        return { error: "Error al subir la imagen" }
+      }
+      
+      const { data: { publicUrl } } = supabase.storage
+      .from("exercise-images")
+      .getPublicUrl(filePath)
+      
+      return { success: true, imageUrl: publicUrl }
+    } catch (error) {
+      return { error: "Error de conexion con la base de datos" }
+    }
+  }
+\end{lstlisting}
+
+\section{Funciones de Base de Datos}
+
+\subsection{Función get\_all\_users\_with\_roles}
+
+Esta función permite a los administradores obtener información completa de todos los usuarios:
+
+\begin{lstlisting}[language=SQL, caption=Función get\_all\_users\_with\_roles]
+  CREATE OR REPLACE FUNCTION get_all_users_with_roles()
+  RETURNS TABLE (
+  id uuid,
+  email text,
+  full_name text,
+  role text,
+  is_active boolean,
+  is_professional boolean,
+  created_at timestamptz
+  )
+  SECURITY DEFINER
+  SET search_path = public
+  LANGUAGE plpgsql
+  AS $$
+  BEGIN
+  -- Check if the current user is an admin
+  IF NOT EXISTS (
+  SELECT 1 FROM user_roles ur_check
+  WHERE ur_check.user_id = auth.uid() 
+  AND ur_check.role = 'admin'
+  ) THEN
+  RAISE EXCEPTION 'No autorizado';
+  END IF;
+  
+  -- Return all users with their roles
+  RETURN QUERY
+  SELECT 
+  au.id,
+  au.email::text,
+  COALESCE(
+  au.raw_user_meta_data->>'full_name',
+  CONCAT(
+  COALESCE(au.raw_user_meta_data->>'first_name', ''),
+  ' ',
+  COALESCE(au.raw_user_meta_data->>'last_name', '')
+  ),
+  'Sin nombre'
+  )::text,
+  COALESCE(ur.role, 'user')::text,
+  COALESCE(ur.is_active, true),
+  COALESCE(ur.is_professional, false),
+  au.created_at
+  FROM auth.users au
+  LEFT JOIN user_roles ur ON ur.user_id = au.id
+  ORDER BY au.created_at DESC;
+  END;
+  $$;
+\end{lstlisting}
+
+\subsection{Función is\_admin}
+
+Función auxiliar para verificar privilegios administrativos:
+
+\begin{lstlisting}[language=SQL, caption=Función is\_admin]
+  CREATE OR REPLACE FUNCTION public.is_admin(check_user_id UUID)
+  RETURNS BOOLEAN AS $$
+  DECLARE
+  user_role TEXT;
+  BEGIN
+  SELECT role INTO user_role
+  FROM public.user_roles
+  WHERE user_id = check_user_id;
+  
+  RETURN user_role = 'admin';
+  END;
+  $$ LANGUAGE plpgsql SECURITY DEFINER;
+\end{lstlisting}
+
+\section{Seguridad y Row Level Security (RLS)}
+
+\subsection{Políticas de Seguridad}
+
+El sistema implementa múltiples capas de seguridad:
+
+\begin{enumerate}
+  \item \textbf{RLS en user\_roles}:
+  \begin{lstlisting}[language=SQL, caption=Políticas RLS para user\_roles]
+    -- Admins can view all roles
+    CREATE POLICY "Admins can view all roles" ON public.user_roles
+    FOR SELECT USING (public.is_admin(auth.uid()));
+    
+    -- Admins can update roles
+    CREATE POLICY "Admins can update roles" ON public.user_roles
+    FOR UPDATE USING (public.is_admin(auth.uid()));
+    
+    -- Admins can insert roles
+    CREATE POLICY "Admins can insert roles" ON public.user_roles
+    FOR INSERT WITH CHECK (public.is_admin(auth.uid()));
+  \end{lstlisting}
+  
+  \item \textbf{RLS en gym\_exercises}:
+  \begin{lstlisting}[language=SQL, caption=Políticas RLS para gym\_exercises]
+    -- Anyone can view gym exercises
+    CREATE POLICY "Anyone can view gym exercises"
+    ON gym_exercises
+    FOR SELECT
+    TO authenticated
+    USING (true);
+    
+    -- Only admins can manage gym exercises
+    CREATE POLICY "Only admins can manage gym exercises"
+    ON gym_exercises
+    FOR ALL
+    TO authenticated
+    USING (
+    EXISTS (
+    SELECT 1 FROM user_roles
+    WHERE user_roles.user_id = auth.uid()
+    AND user_roles.role = 'admin'
+    )
+    );
+  \end{lstlisting}
+\end{enumerate}
+
+\subsection{Funciones SECURITY DEFINER}
+
+Las funciones marcadas como \texttt{SECURITY DEFINER} ejecutan con los privilegios del propietario de la función, permitiendo operaciones que de otro modo estarían restringidas por RLS.
+
+\section{Scripts de Configuración}
+
+\subsection{Creación del Usuario Administrador}
+
+Para establecer un usuario administrador, se debe ejecutar el siguiente script:
+
+\begin{lstlisting}[language=SQL, caption=Script para crear usuario administrador]
+  -- Insert admin role for the admin user
+  -- First, create user through Supabase Auth with email: juan@ejemplo.com and password: 123456
+  -- Then run this script to assign the admin role
+  
+  INSERT INTO public.user_roles (user_id, role, is_active, approved_at)
+  SELECT id, 'admin', true, NOW()
+  FROM auth.users
+  WHERE email = 'juan@ejemplo.com'
+  ON CONFLICT (user_id) DO UPDATE
+  SET role = 'admin', is_active = true, approved_at = NOW();
+  
+  -- Verify the admin was created
+  SELECT u.id, u.email, ur.role, ur.is_active
+  FROM auth.users u
+  LEFT JOIN public.user_roles ur ON u.id = ur.user_id
+  WHERE u.email = 'juan@ejemplo.com';
+\end{lstlisting}
+
+\subsection{Inserción de Ejercicios por Defecto}
+
+El sistema incluye ejercicios predefinidos para todas las categorías:
+
+\begin{lstlisting}[language=SQL, caption=Ejercicios por defecto]
+  INSERT INTO gym_exercises (name, category, description) VALUES
+  -- Pecho
+  ('Press de Banca', 'Pecho', 'Ejercicio basico para pecho con barra'),
+  ('Press Inclinado', 'Pecho', 'Press de banca en banco inclinado'),
+  ('Aperturas con Mancuernas', 'Pecho', 'Aperturas para pecho'),
+  ('Fondos en Paralelas', 'Pecho', 'Fondos para pecho y triceps'),
+  
+  -- Biceps
+  ('Curl con Barra', 'Biceps', 'Curl de biceps con barra recta'),
+  ('Curl con Mancuernas', 'Biceps', 'Curl alternado con mancuernas'),
+  ('Curl Martillo', 'Biceps', 'Curl con agarre neutro'),
+  ('Curl en Banco Scott', 'Biceps', 'Curl concentrado en banco'),
+  
+  -- Triceps
+  ('Press Frances', 'Triceps', 'Extension de triceps acostado'),
+  ('Fondos para Triceps', 'Triceps', 'Fondos en banco'),
+  ('Extension en Polea', 'Triceps', 'Extension de triceps en polea alta'),
+  ('Patada de Triceps', 'Triceps', 'Extension con mancuerna'),
+  
+  -- Hombros
+  ('Press Militar', 'Hombros', 'Press de hombros con barra'),
+  ('Elevaciones Laterales', 'Hombros', 'Elevaciones laterales con mancuernas'),
+  ('Elevaciones Frontales', 'Hombros', 'Elevaciones frontales'),
+  ('Pajaros', 'Hombros', 'Elevaciones posteriores'),
+  
+  -- Pierna
+  ('Sentadilla', 'Pierna', 'Sentadilla con barra'),
+  ('Prensa de Pierna', 'Pierna', 'Press de piernas en maquina'),
+  ('Peso Muerto', 'Pierna', 'Peso muerto convencional'),
+  ('Zancadas', 'Pierna', 'Zancadas con mancuernas'),
+  ('Extension de Cuadriceps', 'Pierna', 'Extension en maquina'),
+  ('Curl Femoral', 'Pierna', 'Curl de piernas acostado'),
+  ('Elevacion de Gemelos', 'Pierna', 'Elevacion de pantorrillas'),
+  
+  -- Espalda
+  ('Dominadas', 'Espalda', 'Dominadas con peso corporal'),
+  ('Remo con Barra', 'Espalda', 'Remo inclinado con barra'),
+  ('Remo con Mancuerna', 'Espalda', 'Remo a una mano'),
+  ('Jalon al Pecho', 'Espalda', 'Jalon en polea alta'),
+  ('Peso Muerto Rumano', 'Espalda', 'Peso muerto para espalda baja'),
+  
+  -- Otros
+  ('Plancha', 'Otros', 'Plancha abdominal'),
+  ('Abdominales', 'Otros', 'Crunch abdominal'),
+  ('Cardio', 'Otros', 'Ejercicio cardiovascular');
+\end{lstlisting}
+
+\section{Integración con Otros Módulos}
+
+\subsection{Sistema de Mensajería}
+
+El módulo de administrador se integra con el sistema de mensajería permitiendo:
+
+\begin{itemize}
+  \item Gestionar qué usuarios son profesionales
+  \item Activar/desactivar profesionales para el sistema de chat
+  \item Controlar la visibilidad de usuarios en el sistema de mensajería
+\end{itemize}
+
+\subsection{Sistema de Ejercicios del Gimnasio}
+
+Los ejercicios gestionados por el administrador están disponibles para:
+
+\begin{itemize}
+  \item Selección en rutinas de gimnasio
+  \item Creación de historial de ejercicios
+  \item Seguimiento de progreso de usuarios
+\end{itemize}
+
+\section{Consideraciones de Rendimiento}
+
+\subsection{Índices de Base de Datos}
+
+El sistema incluye índices optimizados:
+
+\begin{lstlisting}[language=SQL, caption=Índices para optimización]
+  -- indice para consultas de categoria de ejercicios
+  CREATE INDEX idx_gym_exercises_category ON gym_exercises(category);
+  
+  -- indice para consultas de usuarios profesionales
+  CREATE INDEX idx_user_roles_is_professional 
+  ON user_roles(is_professional) 
+  WHERE is_professional = true;
+\end{lstlisting}
+
+\subsection{Optimizaciones de Frontend}
+
+\begin{itemize}
+  \item \textbf{Lazy Loading}: Componentes se cargan bajo demanda
+  \item \textbf{Debouncing}: Búsquedas con retraso para reducir consultas
+  \item \textbf{Estados Optimizados}: Actualizaciones locales del estado
+  \item \textbf{Revalidación}: Uso de \texttt{revalidatePath} para cache
+\end{itemize}
+
+\section{Testing y Debugging}
+
+\subsection{Logs de Debugging}
+
+El sistema incluye logging extensivo para debugging:
+
+\begin{lstlisting}[language=JavaScript, caption=Ejemplo de logging]
+  console.log("[v0] Form data before submission:", formData)
+  console.log("[v0] Image URL value:", formData.image_url)
+  console.log("[v0] Server action result:", result)
+\end{lstlisting}
+
+\subsection{Manejo de Errores}
+
+\begin{itemize}
+  \item \textbf{Try-Catch}: Captura de excepciones en todas las operaciones
+  \item \textbf{Validación de Datos}: Verificación de entrada en cliente y servidor
+  \item \textbf{Feedback Visual}: Notificaciones toast para todos los estados
+  \item \textbf{Fallbacks}: Comportamiento degradado en caso de errores
+\end{itemize}
+
+\section{Configuración de Desarrollo}
+
+\subsection{Variables de Entorno}
+
+El módulo requiere las siguientes variables de entorno:
+
+\begin{lstlisting}[language=bash, caption=Variables de entorno necesarias]
+  NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+  NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+  SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+\end{lstlisting}
+
+\subsection{Dependencias}
+
+Las principales dependencias del módulo incluyen:
+
+\begin{lstlisting}[language=json, caption=Dependencias principales]
+  {
+    "@supabase/supabase-js": "^2.38.0",
+    "@radix-ui/react-select": "^2.0.0",
+    "@radix-ui/react-switch": "^1.0.3",
+    "@radix-ui/react-tabs": "^1.0.4",
+    "lucide-react": "^0.292.0",
+    "next": "14.0.0",
+    "react": "^18.0.0",
+    "tailwindcss": "^3.3.0"
+  }
+\end{lstlisting}
+
+\section{Despliegue y Producción}
+
+\subsection{Consideraciones de Seguridad}
+
+\begin{enumerate}
+  \item \textbf{RLS Habilitado}: Todas las tablas tienen RLS activado
+  \item \textbf{Funciones SECURITY DEFINER}: Solo para operaciones específicas
+  \item \textbf{Validación de Entrada}: Sanitización en cliente y servidor
+  \item \textbf{Autenticación Requerida}: Todas las rutas protegidas
+\end{enumerate}
+
+\subsection{Monitoreo}
+
+\begin{itemize}
+  \item \textbf{Logs de Supabase}: Monitoreo de consultas y errores
+  \item \textbf{Analytics}: Seguimiento de uso del dashboard
+  \item \textbf{Alertas}: Notificaciones de errores críticos
+\end{itemize}
+
+\section{Conclusión}
+
+El módulo de administrador de FitTrack representa una implementación robusta y segura de un sistema de gestión administrativa. Con su arquitectura bien estructurada, sistema de seguridad multicapa y interfaz de usuario moderna, proporciona las herramientas necesarias para gestionar eficientemente una aplicación de fitness.
+
+Las características clave incluyen:
+
+\begin{itemize}
+  \item \textbf{Seguridad}: Implementación completa de RLS y funciones de seguridad
+  \item \textbf{Escalabilidad}: Diseño modular que permite fácil extensión
+  \item \textbf{Usabilidad}: Interfaz intuitiva con feedback visual inmediato
+  \item \textbf{Mantenibilidad}: Código bien documentado y estructurado
+  \item \textbf{Rendimiento}: Optimizaciones en base de datos y frontend
+\end{itemize}
+
+Este módulo sirve como base sólida para futuras expansiones y mejoras del sistema FitTrack.
+
+\section{Server Actions - Lógica de Negocio}
+
+Las Server Actions manejan toda la lógica de negocio del módulo de mensajería. Están implementadas en TypeScript con validación robusta y manejo de errores.
+
+\subsection{Archivo messaging-actions.ts}
+
+\subsubsection{sendMessage - Enviar Mensaje}
+
+\begin{lstlisting}[caption=Función sendMessage completa]
+"use server"
+
+import { createClient } from "@/lib/supabase/server"
+
+export async function sendMessage(receiverId: string, content: string) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: "No autenticado" }
+  }
+
+  // Crear o actualizar conversacion
+  const { error: convError } = await supabase.from("conversations").upsert(
+    {
+      user1\_id: user.id < receiverId ? user.id : receiverId,
+      user2\_id: user.id < receiverId ? receiverId : user.id,
+      last\_message\_at: new Date().toISOString(),
+    },
+    {
+      onConflict: "user1\_id,user2\_id",
+    },
+  )
+
+  if (convError) {
+    console.error("Error creating conversation:", convError)
+  }
+
+  // Enviar mensaje
+  const { error } = await supabase.from("messages").insert({
+    sender\_id: user.id,
+    receiver\_id: receiverId,
+    content,
+  })
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  return { success: true }
+}
+\end{lstlisting}
+
+\textbf{Características importantes:}
+\begin{itemize}
+    \item \textbf{Validación de autenticación}: Verifica que el usuario esté autenticado
+    \item \textbf{Creación automática de conversación}: Crea la conversación si no existe
+    \item \textbf{Ordenamiento consistente}: user1\_id siempre es menor que user2\_id
+    \item \textbf{Manejo de errores}: Captura y reporta errores de base de datos
+    \item \textbf{Actualización de timestamp}: Actualiza last\_message\_at automáticamente
+\end{itemize}
+
+\subsubsection{getMessages - Obtener Mensajes}
+
+\begin{lstlisting}[caption=Función getMessages completa]
+export async function getMessages(otherUserId: string) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: "No autenticado" }
+  }
+
+  const { data, error } = await supabase
+    .from("messages")
+    .select("*")
+    .or(
+      `and(sender\_id.eq.${user.id},receiver\_id.eq.${otherUserId}),and(sender\_id.eq.${otherUserId},receiver\_id.eq.${user.id})`,
+    )
+    .order("created\_at", { ascending: true })
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  return { messages: data }
+}
+\end{lstlisting}
+
+\subsubsection{getAvailableContacts - Obtener Contactos Disponibles}
+
+\begin{lstlisting}[caption=Función getAvailableContacts completa]
+export async function getAvailableContacts() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: "No autenticado" }
+  }
+
+  const result = await getAllActiveUsers()
+
+  if (result.error) {
+    return { error: result.error }
+  }
+
+  // Retornar todos los usuarios activos (ya filtrados para excluir usuario actual)
+  return { professionals: result.users || [] }
+}
+\end{lstlisting}
+
+\subsection{Archivo role-actions.ts}
+
+\subsubsection{updateUserRole - Actualizar Rol de Usuario}
+
+\begin{lstlisting}[caption=Función updateUserRole completa]
+export async function updateUserRole(
+  userId: string,
+  role: UserRole,
+  isApproved: boolean = false
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = await createClient()
+    const admin = await isAdmin()
+
+    if (!admin) {
+      return { success: false, error: "No tienes permisos de administrador" }
+    }
+
+    const { error } = await supabase
+      .from("user\_roles")
+      .update({
+        role,
+        is\_approved: role === "professional" ? isApproved : true,
+        updated\_at: new Date().toISOString(),
+      })
+      .eq("user\_id", userId)
+
+    if (error) throw error
+
+    return { success: true }
+  } catch (error) {
+    console.error("Error updating user role:", error)
+    return { success: false, error: "Error al actualizar rol" }
+  }
+}
+\end{lstlisting}
+
+\subsection{Archivo accessibility-actions.ts}
+
+\subsubsection{updateUserPreferences - Actualizar Preferencias de Accesibilidad}
+
+\begin{lstlisting}[caption=Función updateUserPreferences completa]
+export async function updateUserPreferences(preferences: {
+  color\_blind\_mode?: string
+  high\_contrast?: boolean
+  large\_text?: boolean
+  reduce\_motion?: boolean
+  screen\_reader\_optimized?: boolean
+}) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: "No autenticado" }
+  }
+
+  const { error } = await supabase.from("user\_preferences").upsert(
+    {
+      user\_id: user.id,
+      ...preferences,
+    },
+    {
+      onConflict: "user\_id",
+    },
+  )
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  return { success: true }
+}
+\end{lstlisting}
+
+\section{Componentes React}
+
+\subsection{Página Principal - MessagesPage}
+
+El componente principal que coordina toda la funcionalidad del módulo de mensajería.
+
+\begin{lstlisting}[caption=app/messages/page.tsx - Estructura completa]
+import { redirect } from "next/navigation"
+import { createClient } from "@/lib/supabase/server"
+import { MessagingInterface } from "@/components/messaging/messaging-interface"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
+import { ArrowLeft } from "lucide-react"
+
+export default async function MessagesPage() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect("/auth/login")
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-6">
+          <Button variant="outline" asChild>
+            <Link href="/">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Volver al inicio
+            </Link>
+          </Button>
+        </div>
+
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Mensajes</h1>
+          <p className="text-lg text-gray-700 dark:text-gray-300">Comunicate con otros usuarios de FitTrack</p>
+        </div>
+
+        <MessagingInterface userId={user.id} />
+      </div>
+    </div>
+  )
+}
+\end{lstlisting}
+
+\textbf{Características del componente:}
+\begin{itemize}
+    \item \textbf{Verificación de autenticación}: Redirige a login si no está autenticado
+    \item \textbf{Diseño responsivo}: Adaptable a diferentes tamaños de pantalla
+    \item \textbf{Tema oscuro}: Soporte completo para modo oscuro
+    \item \textbf{Navegación}: Botón de regreso al dashboard principal
+    \item \textbf{Server Component}: Renderizado en servidor para mejor performance
+\end{itemize}
+
+\subsection{Componente MessagingInterface}
+
+Interfaz principal de mensajería con lista de contactos y área de chat.
+
+\begin{lstlisting}[caption=components/messaging/messaging-interface.tsx - Estructura principal]
+"use client"
+
+import { useState, useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { getAvailableContacts, getMessages, sendMessage } from "@/lib/messaging-actions"
+import { useToast } from "@/hooks/use-toast"
+import { Send, MessageSquare, Search } from "lucide-react"
+
+interface Professional {
+  id: string
+  email: string
+  full\_name: string
+  is\_professional?: boolean
+  profile\_photo\_url?: string
+}
+
+interface Message {
+  id: string
+  sender\_id: string
+  receiver\_id: string
+  content: string
+  read: boolean
+  created\_at: string
+}
+
+interface MessagingInterfaceProps {
+  userId: string
+}
+
+export function MessagingInterface({ userId }: MessagingInterfaceProps) {
+  const [professionals, setProfessionals] = useState<Professional[]>([])
+  const [selectedProfessional, setSelectedProfessional] = useState<Professional | null>(null)
+  const [messages, setMessages] = useState<Message[]>([])
+  const [newMessage, setNewMessage] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [userFilter, setUserFilter] = useState<"all" | "professionals" | "non-professionals">("all")
+  const { toast } = useToast()
+
+  useEffect(() => {
+    loadProfessionals()
+  }, [])
+
+  useEffect(() => {
+    if (selectedProfessional) {
+      loadMessages(selectedProfessional.id)
+      const interval = setInterval(() => loadMessages(selectedProfessional.id), 5000)
+      return () => clearInterval(interval)
+    }
+  }, [selectedProfessional])
+
+  const loadProfessionals = async () => {
+    console.log("[v0] Loading professionals...")
+    const result = await getAvailableContacts()
+    console.log("[v0] getAvailableContacts result:", result)
+
+    if (result.error) {
+      toast({
+        title: "Error",
+        description: result.error,
+        variant: "destructive",
+      })
+    } else {
+      console.log("[v0] Setting professionals:", result.professionals)
+      setProfessionals(result.professionals || [])
+    }
+  }
+
+  const loadMessages = async (professionalId: string) => {
+    const result = await getMessages(professionalId)
+    if (result.error) {
+      toast({
+        title: "Error",
+        description: result.error,
+        variant: "destructive",
+      })
+    } else {
+      setMessages(result.messages || [])
+    }
+  }
+
+  const handleSendMessage = async () => {
+    if (!selectedProfessional || !newMessage.trim()) return
+
+    setLoading(true)
+    const result = await sendMessage(selectedProfessional.id, newMessage)
+
+    if (result.error) {
+      toast({
+        title: "Error",
+        description: result.error,
+        variant: "destructive",
+      })
+    } else {
+      setNewMessage("")
+      loadMessages(selectedProfessional.id)
+    }
+    setLoading(false)
+  }
+
+  // Resto del componente...
+}
+\end{lstlisting}
+
+\textbf{Características del componente:}
+\begin{itemize}
+    \item \textbf{Estado centralizado}: Maneja todos los estados de la aplicación
+    \item \textbf{Actualización automática}: Polling cada 5 segundos para nuevos mensajes
+    \item \textbf{Filtrado y búsqueda}: Filtros por tipo de usuario y búsqueda por nombre
+    \item \textbf{Manejo de errores}: Notificaciones toast para errores
+    \item \textbf{TypeScript}: Tipado estricto para mayor seguridad
+    \item \textbf{Interfaz responsiva}: Diseño adaptable a diferentes pantallas
+\end{itemize}
+
+\subsection{Componente AccessibilitySettings}
+
+Configuraciones avanzadas de accesibilidad para usuarios.
+
+\begin{lstlisting}[caption=components/accessibility/accessibility-settings.tsx - Estructura principal]
+"use client"
+
+import { useState } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
+import { updateUserPreferences } from "@/lib/accessibility-actions"
+import { useToast } from "@/hooks/use-toast"
+import { Eye, Type, Zap, Volume2, Palette, Moon, Sun } from "lucide-react"
+import { useTheme } from "next-themes"
+
+interface AccessibilitySettingsProps {
+  initialPreferences: any
+}
+
+export function AccessibilitySettings({ initialPreferences }: AccessibilitySettingsProps) {
+  const [preferences, setPreferences] = useState(initialPreferences)
+  const [loading, setLoading] = useState(false)
+  const { toast } = useToast()
+  const { theme, setTheme } = useTheme()
+
+  const handleSave = async () => {
+    setLoading(true)
+    const result = await updateUserPreferences(preferences)
+
+    if (result.error) {
+      toast({
+        title: "Error",
+        description: result.error,
+        variant: "destructive",
+      })
+    } else {
+      toast({
+        title: "Exito",
+        description: "Preferencias guardadas correctamente",
+      })
+      // Aplicar preferencias al documento
+      applyPreferences()
+    }
+    setLoading(false)
+  }
+
+  const applyPreferences = () => {
+    const root = document.documentElement
+
+    // Aplicar modo de daltonismo
+    root.setAttribute("data-color-blind-mode", preferences.color\_blind\_mode)
+
+    // Aplicar alto contraste
+    if (preferences.high\_contrast) {
+      root.classList.add("high-contrast")
+    } else {
+      root.classList.remove("high-contrast")
+    }
+
+    // Aplicar texto grande
+    if (preferences.large\_text) {
+      root.classList.add("large-text")
+    } else {
+      root.classList.remove("large-text")
+    }
+
+    // Aplicar reducir movimiento
+    if (preferences.reduce\_motion) {
+      root.classList.add("reduce-motion")
+    } else {
+      root.classList.remove("reduce-motion")
+    }
+  }
+
+  // Resto del componente...
+}
+\end{lstlisting}
+
+\textbf{Características del componente:}
+\begin{itemize}
+    \item \textbf{Configuraciones múltiples}: Modo de daltonismo, alto contraste, texto grande, etc.
+    \item \textbf{Aplicación inmediata}: Los cambios se aplican al DOM en tiempo real
+    \item \textbf{Persistencia}: Las preferencias se guardan en la base de datos
+    \item \textbf{Interfaz intuitiva}: Switches y selectores fáciles de usar
+    \item \textbf{Feedback visual}: Notificaciones de éxito/error
+    \item \textbf{Tema integrado}: Integración con el sistema de temas
+\end{itemize}
+
+\section{Sistema de Roles y Permisos}
+
+\subsection{Tipos de Roles}
+
+El sistema implementa tres tipos de roles principales:
+
+\begin{enumerate}
+    \item \textbf{Usuario (user)}: Rol por defecto para todos los usuarios registrados
+    \item \textbf{Profesional (professional)}: Usuarios aprobados por administradores para brindar servicios
+    \item \textbf{Administrador (admin)}: Usuarios con permisos completos del sistema
+\end{enumerate}
+
+\subsection{Jerarquía de Permisos}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Funcionalidad} & \textbf{Usuario} & \textbf{Profesional} & \textbf{Admin} \\
+\midrule
+Enviar mensajes & X & X & X \\
+Recibir mensajes & X & X & X \\
+Ver contactos & X & X & X \\
+Gestionar roles & - & - & X \\
+Aprobar profesionales & - & - & X \\
+Ver todos los usuarios & - & - & X \\
+Configurar accesibilidad & X & X & X \\
+\bottomrule
+\end{tabular}
+\caption{Matriz de permisos por rol}
+\end{table}
+
+\subsection{Funciones de Administración}
+
+\subsubsection{isAdmin - Verificar Administrador}
+
+\begin{lstlisting}[caption=Función isAdmin completa]
+export async function isAdmin() {
+  try {
+    const supabase = await createClient()
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
+
+    if (userError) {
+      console.error("[v0] Error getting user:", userError)
+      return false
+    }
+
+    if (!user) {
+      return false
+    }
+
+    const { data, error } = await supabase
+      .from("user\_roles")
+      .select("role")
+      .eq("user\_id", user.id)
+      .maybeSingle()
+
+    if (error) {
+      console.error("[v0] Error checking admin role:", error)
+      return false
+    }
+
+    if (!data) {
+      return false
+    }
+
+    return data.role === "admin"
+  } catch (error) {
+    console.error("[v0] Exception in isAdmin:", error)
+    return false
+  }
+}
+\end{lstlisting}
+
+\subsubsection{getAllUsers - Obtener Todos los Usuarios}
+
+\lstset{caption={Función getAllUsers completa}, language=JavaScript}
+\begin{lstlisting}
+export async function getAllUsers() {
+  const supabase = await createClient()
+
+  if (!(await isAdmin())) {
+    return { error: "No autorizado" }
+  }
+
+  const { data: users, error } = await supabase
+    .from("user\_roles")
+    .select(`
+      user\_id,
+      role,
+      is\_active,
+      is\_professional,
+      created\_at,
+      updated\_at,
+      user:user\_id (
+        id,
+        email,
+        raw\_user\_meta\_data
+      )
+    `)
+    .order("created\_at", { ascending: false })
+
+  if (error) {
+    console.error("[v0] Error getting all users:", error)
+    return { error: error.message }
+  }
+
+  return {
+    users: users?.map((user) => ({
+      id: user.user\_id,
+      email: user.user?.email || "N/A",
+      role: user.role,
+      is\_active: user.is\_active,
+      is\_professional: user.is\_professional,
+      created\_at: user.created\_at,
+      updated\_at: user.updated\_at,
+    })) || [],
+  }
+}
+\end{lstlisting}
+
+\section{Configuraciones de Accesibilidad}
+
+\subsection{Tipos de Configuraciones}
+
+\subsubsection{Modo de Daltonismo}
+
+Soporte para diferentes tipos de daltonismo:
+
+\begin{itemize}
+    \item \textbf{Ninguno}: Sin ajustes de color
+    \item \textbf{Protanopía}: Dificultad con rojo-verde (ausencia de conos L)
+    \item \textbf{Deuteranopía}: Dificultad con rojo-verde (ausencia de conos M)
+    \item \textbf{Tritanopía}: Dificultad con azul-amarillo (ausencia de conos S)
+\end{itemize}
+
+\textbf{Configuraciones adicionales:} Alto contraste, texto grande, reducir movimiento y optimización para lectores de pantalla.
+
+\subsection{Implementación CSS}
+
+\begin{lstlisting}[caption=Implementación de estilos de accesibilidad]
+/* Modo de daltonismo - Protanopia */
+[data-color-blind-mode="protanopia"] {
+  --primary: #0066cc;
+  --secondary: #00cc66;
+  --accent: #cc6600;
+}
+
+/* Modo de daltonismo - Deuteranopia */
+[data-color-blind-mode="deuteranopia"] {
+  --primary: #0066cc;
+  --secondary: #cc0066;
+  --accent: #66cc00;
+}
+
+/* Modo de daltonismo - Tritanopia */
+[data-color-blind-mode="tritanopia"] {
+  --primary: #cc0066;
+  --secondary: #00cc66;
+  --accent: #0066cc;
+}
+
+/* Alto contraste */
+.high-contrast {
+  --background: #000000;
+  --foreground: #ffffff;
+  --primary: #ffffff;
+  --secondary: #cccccc;
+}
+
+/* Texto grande */
+.large-text {
+  font-size: 1.2em;
+}
+
+.large-text h1 { font-size: 2.5em; }
+.large-text h2 { font-size: 2em; }
+.large-text h3 { font-size: 1.75em; }
+
+/* Reducir movimiento */
+.reduce-motion * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+\end{lstlisting}
+
+\section{Ejemplos Prácticos de Uso}
+
+\subsection{Ejemplos de Inserción a Base de Datos}
+
+\textbf{Crear un Usuario con Rol:}
+
+\begin{lstlisting}[caption=Ejemplo de inserción de rol de usuario]
+-- Crear rol de usuario normal
+INSERT INTO public.user\_roles (
+    user\_id,
+    role,
+    is\_active,
+    is\_professional
+) VALUES (
+    '123e4567-e89b-12d3-a456-426614174000',
+    'user',
+    true,
+    false
+);
+
+-- Crear rol de profesional (requiere aprobacion)
+INSERT INTO public.user\_roles (
+    user\_id,
+    role,
+    is\_active,
+    is\_professional,
+    approved\_by,
+    approved\_at
+) VALUES (
+    '456e7890-e89b-12d3-a456-426614174001',
+    'professional',
+    true,
+    true,
+    '789e0123-e89b-12d3-a456-426614174002',
+    NOW()
+);
+
+-- Crear rol de administrador
+INSERT INTO public.user\_roles (
+    user\_id,
+    role,
+    is\_active,
+    is\_professional
+) VALUES (
+    '789e0123-e89b-12d3-a456-426614174002',
+    'admin',
+    true,
+    false
+);
+\end{lstlisting}
+
+\textbf{Enviar un Mensaje:}
+
+\begin{lstlisting}[caption=Ejemplo de envío de mensaje]
+-- Crear conversacion
+INSERT INTO public.conversations (
+    user1\_id,
+    user2\_id,
+    last\_message\_at
+) VALUES (
+    '123e4567-e89b-12d3-a456-426614174000',
+    '456e7890-e89b-12d3-a456-426614174001',
+    NOW()
+);
+
+-- Enviar mensaje
+INSERT INTO public.messages (
+    sender\_id,
+    receiver\_id,
+    content,
+    read
+) VALUES (
+    '123e4567-e89b-12d3-a456-426614174000',
+    '456e7890-e89b-12d3-a456-426614174001',
+    'Hola, necesito ayuda con mi rutina de ejercicios',
+    false
+);
+\end{lstlisting}
+
+\subsubsection{Configurar Preferencias de Accesibilidad}
+
+\begin{lstlisting}[caption=Ejemplo de configuración de accesibilidad]
+INSERT INTO public.user\_preferences (
+    user\_id,
+    color\_blind\_mode,
+    high\_contrast,
+    large\_text,
+    reduce\_motion,
+    screen\_reader\_optimized
+) VALUES (
+    '123e4567-e89b-12d3-a456-426614174000',
+    'protanopia',
+    true,
+    false,
+    false,
+    true
+);
+\end{lstlisting}
+
+\subsection{Consultas Útiles}
+
+\subsubsection{Obtener Mensajes de una Conversación}
+
+\begin{lstlisting}[caption=Consulta de mensajes de conversación]
+SELECT 
+    m.id,
+    m.content,
+    m.created\_at,
+    m.read,
+    sender.email as sender\_email,
+    receiver.email as receiver\_email
+FROM public.messages m
+JOIN auth.users sender ON m.sender\_id = sender.id
+JOIN auth.users receiver ON m.receiver\_id = receiver.id
+WHERE (m.sender\_id = '123e4567-e89b-12d3-a456-426614174000' 
+       AND m.receiver\_id = '456e7890-e89b-12d3-a456-426614174001')
+   OR (m.sender\_id = '456e7890-e89b-12d3-a456-426614174001' 
+       AND m.receiver\_id = '123e4567-e89b-12d3-a456-426614174000')
+ORDER BY m.created\_at ASC;
+\end{lstlisting}
+
+\textbf{Obtener Usuarios por Rol:}
+
+\begin{lstlisting}[caption=Consulta de usuarios por rol]
+SELECT 
+    u.id,
+    u.email,
+    ur.role,
+    ur.is\_active,
+    ur.is\_professional,
+    ur.created\_at
+FROM auth.users u
+JOIN public.user\_roles ur ON u.id = ur.user\_id
+WHERE ur.role = 'professional'
+  AND ur.is\_active = true
+  AND ur.is\_professional = true
+ORDER BY ur.created\_at DESC;
+\end{lstlisting}
+
+\subsubsection{Obtener Estadísticas de Mensajería}
+
+\begin{lstlisting}[caption=Consulta de estadísticas de mensajería]
+SELECT 
+    COUNT(*) as total\_messages,
+    COUNT(CASE WHEN read = false THEN 1 END) as unread\_messages,
+    COUNT(DISTINCT sender\_id) as unique\_senders,
+    COUNT(DISTINCT receiver\_id) as unique\_receivers,
+    MAX(created\_at) as last\_message\_time
+FROM public.messages
+WHERE sender\_id = '123e4567-e89b-12d3-a456-426614174000' 
+   OR receiver\_id = '123e4567-e89b-12d3-a456-426614174000';
+\end{lstlisting}
+
+\section{Flujos de Datos Completos}
+
+\subsection{Flujo de Envío de Mensaje}
+
+\begin{enumerate}
+    \item \textbf{Usuario escribe mensaje} en MessagingInterface
+    \item \textbf{Validación en cliente} de contenido no vacío
+    \item \textbf{Envío a Server Action} sendMessage
+    \item \textbf{Verificación de autenticación} en servidor
+    \item \textbf{Creación/actualización de conversación} en tabla conversations
+    \item \textbf{Inserción del mensaje} en tabla messages
+    \item \textbf{Actualización de timestamp} de conversación
+    \item \textbf{Respuesta de éxito} al cliente
+    \item \textbf{Actualización de UI} con nuevo mensaje
+\end{enumerate}
+
+\subsection{Flujo de Carga de Contactos}
+
+\begin{enumerate}
+    \item \textbf{Inicialización del componente} MessagingInterface
+    \item \textbf{Llamada a getAvailableContacts} Server Action
+    \item \textbf{Verificación de autenticación} en servidor
+    \item \textbf{Consulta a getAllActiveUsers} función RPC
+    \item \textbf{Filtrado de usuarios} (excluir usuario actual)
+    \item \textbf{Formateo de datos} para presentación
+    \item \textbf{Retorno de lista} de contactos disponibles
+    \item \textbf{Renderizado en UI} con avatares y roles
+\end{enumerate}
+
+\subsection{Flujo de Actualización de Roles}
+
+\begin{enumerate}
+    \item \textbf{Administrador selecciona usuario} en panel de administración
+    \item \textbf{Selección de nuevo rol} (usuario/profesional/admin)
+    \item \textbf{Envío a updateUserRole} Server Action
+    \item \textbf{Verificación de permisos} de administrador
+    \item \textbf{Actualización en user\_roles} tabla
+    \item \textbf{Registro de aprobación} (si es profesional)
+    \item \textbf{Respuesta de éxito} al cliente
+    \item \textbf{Actualización de UI} con nuevo rol
+\end{enumerate}
+
+\section{Características Avanzadas}
+
+\subsection{Sistema de Notificaciones en Tiempo Real}
+
+El módulo implementa un sistema de polling para actualizaciones en tiempo real:
+
+\begin{lstlisting}[caption=Implementación de polling]
+useEffect(() => {
+  if (selectedProfessional) {
+    loadMessages(selectedProfessional.id)
+    const interval = setInterval(() => loadMessages(selectedProfessional.id), 5000)
+    return () => clearInterval(interval)
+  }
+}, [selectedProfessional])
+\end{lstlisting}
+
+\subsection{Filtrado y Búsqueda Avanzada}
+
+\begin{lstlisting}[caption=Filtrado de contactos]
+const filteredProfessionals = professionals.filter((prof) => {
+  const matchesSearch =
+    prof.full\_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    prof.email.toLowerCase().includes(searchTerm.toLowerCase())
+
+  const matchesFilter =
+    userFilter === "all" ||
+    (userFilter === "professionals" && prof.is\_professional) ||
+    (userFilter === "non-professionals" && !prof.is\_professional)
+
+  return matchesSearch && matchesFilter
+})
+\end{lstlisting}
+
+\subsection{Aplicación Dinámica de Preferencias}
+
+\begin{lstlisting}[caption=Aplicación de preferencias de accesibilidad]
+const applyPreferences = () => {
+  const root = document.documentElement
+
+  // Aplicar modo de daltonismo
+  root.setAttribute("data-color-blind-mode", preferences.color\_blind\_mode)
+
+  // Aplicar alto contraste
+  if (preferences.high\_contrast) {
+    root.classList.add("high-contrast")
+  } else {
+    root.classList.remove("high-contrast")
+  }
+
+  // Aplicar texto grande
+  if (preferences.large\_text) {
+    root.classList.add("large-text")
+  } else {
+    root.classList.remove("large-text")
+  }
+
+  // Aplicar reducir movimiento
+  if (preferences.reduce\_motion) {
+    root.classList.add("reduce-motion")
+  } else {
+    root.classList.remove("reduce-motion")
+  }
+}
+\end{lstlisting}
+
+\section{Mejores Prácticas de Desarrollo}
+
+\subsection{Seguridad}
+
+\begin{itemize}
+    \item \textbf{Validación de entrada}: Siempre validar datos en Server Actions
+    \item \textbf{Autenticación}: Verificar usuario en cada operación
+    \item \textbf{RLS}: Usar Row Level Security en todas las tablas
+    \item \textbf{Sanitización}: Limpiar inputs del usuario
+    \item \textbf{Logs de seguridad}: Registrar operaciones sensibles
+    \item \textbf{Verificación de roles}: Validar permisos antes de operaciones
+\end{itemize}
+
+\subsection{Performance}
+
+\begin{itemize}
+    \item \textbf{Índices de base de datos}: Optimizar consultas frecuentes
+    \item \textbf{Polling eficiente}: Intervalos apropiados para actualizaciones
+    \item \textbf{Lazy loading}: Cargar componentes bajo demanda
+    \item \textbf{Cache}: Usar revalidatePath para actualizar cache
+    \item \textbf{Optimización de consultas}: Usar joins apropiados
+\end{itemize}
+
+\subsection{Accesibilidad}
+
+\begin{itemize}
+    \item \textbf{ARIA labels}: Implementar etiquetas descriptivas
+    \item \textbf{Navegación por teclado}: Soporte completo para teclado
+    \item \textbf{Alto contraste}: Asegurar legibilidad en todos los modos
+    \item \textbf{Lectores de pantalla}: Optimizar para tecnologías asistivas
+    \item \item \textbf{Reducir movimiento}: Respetar preferencias de movimiento
+\end{itemize}
+
+\subsection{Mantenibilidad}
+
+\begin{itemize}
+    \item \textbf{TypeScript}: Usar tipado estricto en todos los componentes
+    \item \textbf{Interfaces}: Definir interfaces claras para props
+    \item \textbf{Separación de responsabilidades}: Lógica en Server Actions
+    \item \textbf{Reutilización}: Componentes modulares y reutilizables
+    \item \textbf{Documentación}: Comentar código complejo
+\end{itemize}
+
+\section{Solución de Problemas}
+
+\subsection{Problemas Comunes}
+
+\subsubsection{Error: Usuario no autenticado}
+
+\textbf{Síntomas}: Server Actions retornan error de autenticación
+\textbf{Causa}: Usuario no está logueado o sesión expirada
+\textbf{Solución}: Verificar estado de autenticación y redirigir a login
+
+\subsubsection{Error: Sin permisos de administrador}
+
+\textbf{Síntomas}: Error al intentar gestionar roles
+\textbf{Causa}: Usuario no tiene rol de administrador
+\textbf{Solución}: Verificar rol del usuario con isAdmin()
+
+\subsubsection{Error: Mensajes no se actualizan}
+
+\textbf{Síntomas}: Los mensajes no aparecen en tiempo real
+\textbf{Causa}: Polling deshabilitado o error en consulta
+\textbf{Solución}: Verificar intervalo de polling y consultas de base de datos
+
+\subsubsection{Error: Preferencias no se aplican}
+
+\textbf{Síntomas}: Los cambios de accesibilidad no se reflejan
+\textbf{Causa}: Función applyPreferences no se ejecuta
+\textbf{Solución}: Verificar llamada a applyPreferences() después de guardar
+
+\subsection{Debugging}
+
+\subsubsection{Logs del Cliente}
+
+\begin{lstlisting}[caption=Debugging en cliente]
+// Habilitar logs detallados
+console.log('Professionals:', professionals)
+console.log('Selected Professional:', selectedProfessional)
+console.log('Messages:', messages)
+console.log('User Filter:', userFilter)
+console.log('Search Term:', searchTerm)
+
+// Verificar estado de autenticacion
+console.log('User ID:', userId)
+console.log('Is Loading:', loading)
+\end{lstlisting}
+
+\subsubsection{Logs del Servidor}
+
+\begin{lstlisting}[caption=Debugging en servidor]
+// En Server Actions
+console.log('Action called with:', { userId, data })
+console.log('User authenticated:', !!user)
+console.log('User role:', userRole)
+
+// En consultas de base de datos
+console.log('Query result:', { data, error })
+console.log('RLS policies active:', true)
+\end{lstlisting}
+
+\section{Integración con Otros Módulos}
+
+\subsection{Integración con Sistema de Usuarios}
+
+El módulo de mensajería se integra estrechamente con el sistema de usuarios:
+
+\begin{itemize}
+    \item \textbf{Perfiles de usuario}: Utiliza datos de user\_profiles para mostrar información
+    \item \textbf{Avatares}: Integra con sistema de avatares de Supabase Storage
+    \item \textbf{Metadatos}: Utiliza raw\_user\_meta\_data para información adicional
+\end{itemize}
+
+\subsection{Integración con Panel de Administración}
+
+\begin{itemize}
+    \item \textbf{Gestión de roles}: Administradores pueden gestionar roles desde el panel
+    \item \textbf{Aprobación de profesionales}: Sistema de aprobación para profesionales
+    \item \textbf{Estadísticas}: Métricas de uso del sistema de mensajería
+\end{itemize}
+
+\subsection{Integración con Sistema de Accesibilidad}
+
+\begin{itemize}
+    \item \textbf{Preferencias globales}: Las configuraciones se aplican a toda la aplicación
+    \item \textbf{Persistencia}: Las preferencias se guardan por usuario
+    \item \textbf{Aplicación dinámica}: Los cambios se aplican sin recargar la página
+\end{itemize}
+
+\section{Conclusión}
+
+El módulo de mensajería de FitTrack representa una solución integral para la comunicación entre usuarios y profesionales, combinada con un sistema robusto de gestión de roles y configuraciones avanzadas de accesibilidad. Su arquitectura modular, seguridad robusta y enfoque en la inclusividad lo convierten en una herramienta poderosa para facilitar la interacción en el ecosistema FitTrack.
+
+\textbf{Características destacadas:}
+\begin{itemize}
+    \item Sistema de mensajería en tiempo real robusto
+    \item Gestión de roles y permisos granular
+    \item Configuraciones de accesibilidad completas
+    \item Seguridad robusta con RLS
+    \item Interfaz intuitiva y responsiva
+    \item Integración completa con el ecosistema FitTrack
+    \item Código bien documentado y tipado
+\end{itemize}
+
+Para contribuir al desarrollo del módulo:
+\begin{enumerate}
+    \item Seguir las convenciones de TypeScript establecidas
+    \item Implementar tests para nuevas funcionalidades
+    \item Documentar cambios en políticas de seguridad
+    \item Mantener compatibilidad con el sistema de roles
+    \item Respetar las mejores prácticas de accesibilidad
+    \item Validar cambios con usuarios de diferentes capacidades
+\end{enumerate}
+
+
+\section{APIs y Endpoints}
+
+\subsection{API Routes}
+
+\subsubsection{Análisis de Comidas}
+\texttt{POST /api/analyze}
+\begin{itemize}
+    \item Analiza imágenes de comida usando Gemini AI
+    \item Requiere autenticación
+    \item Retorna análisis nutricional detallado
+\end{itemize}
+
+\subsubsection{Chat con IA}
+\texttt{POST /api/chat}
+\begin{itemize}
+    \item Interfaz de chat con el asistente nutricional
+    \item Utiliza Gemini 1.5 Flash
+    \item Contexto personalizado del usuario
+\end{itemize}
+
+\subsubsection{Estadísticas}
+\texttt{GET /api/stats}
+\begin{itemize}
+    \item Obtiene estadísticas del usuario
+    \item Datos agregados de entrenamientos y comidas
+\end{itemize}
+
+\subsection{Server Actions}
+
+Las Server Actions se encuentran en \texttt{lib/} y manejan la lógica de negocio:
+
+\begin{itemize}
+    \item \texttt{auth-actions.ts} - Autenticación
+    \item \texttt{gym-actions.ts} - Operaciones de gimnasio
+    \item \texttt{running-actions.ts} - Operaciones de running
+    \item \texttt{health-actions.ts} - Operaciones de salud
+    \item \texttt{messaging-actions.ts} - Sistema de mensajería
+    \item \texttt{admin-actions.ts} - Funciones de administración
+\end{itemize}
+
+\section{Configuración y Deployment}
+
+\subsection{Variables de Entorno}
+
+Crear archivo \texttt{.env.local}:
+
+\begin{lstlisting}[language=bash, caption=Variables de entorno requeridas]
+# Google Gemini API Key
+GOOGLE_GENERATIVE_AI_API_KEY=tu_clave_de_gemini_aqui
+
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=tu_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_supabase_anon_key
+\end{lstlisting}
+
+\subsection{Configuración de Supabase}
+
+\subsubsection{Storage Buckets}
+\begin{itemize}
+    \item \texttt{avatars} - Fotos de perfil de usuarios
+    \item Configurado como público con políticas RLS
+\end{itemize}
+
+\subsubsection{Políticas de Storage}
+\begin{lstlisting}[language=sql, caption=Políticas de storage para avatars]
+-- Permitir acceso publico a avatars
+CREATE POLICY "Avatar images are publicly accessible" 
+ON storage.objects FOR SELECT 
+USING (bucket_id = 'avatars');
+
+-- Solo usuarios autenticados pueden subir
+CREATE POLICY "Users can upload their own avatar" 
+ON storage.objects FOR INSERT 
+WITH CHECK (bucket_id = 'avatars' AND auth.uid()::text = (storage.foldername(name))[1]);
+\end{lstlisting}
+
+\subsection{Scripts de Desarrollo}
+
+\begin{lstlisting}[language=bash, caption=Comandos de desarrollo]
+# Instalacion de dependencias
+npm install
+
+# Desarrollo local
+npm run dev
+
+# Build para produccion
+npm run build
+
+# Iniciar servidor de produccion
+npm start
+
+# Linting
+npm run lint
+\end{lstlisting}
+
+\section{Guías de Desarrollo}
+
+\subsection{Convenciones de Código}
+
+\subsubsection{TypeScript}
+\begin{itemize}
+    \item Usar tipos estrictos en todas las funciones
+    \item Definir interfaces para props de componentes
+    \item Utilizar tipos de Supabase generados
+\end{itemize}
+
+\subsubsection{Componentes React}
+\begin{itemize}
+    \item Usar Server Components por defecto
+    \item Client Components solo cuando sea necesario
+    \item Implementar Suspense para loading states
+    \item Usar shadcn/ui como base de componentes
+\end{itemize}
+
+\subsubsection{Estilos}
+\begin{itemize}
+    \item Usar Tailwind CSS para estilos
+    \item Implementar modo oscuro con next-themes
+    \item Seguir el sistema de diseño de shadcn/ui
+\end{itemize}
+
+\subsection{Mejores Prácticas}
+
+\subsubsection{Seguridad}
+\begin{itemize}
+    \item Siempre validar datos en Server Actions
+    \item Usar RLS en todas las tablas
+    \item Sanitizar inputs del usuario
+    \item Implementar rate limiting en APIs
+\end{itemize}
+
+\subsubsection{Performance}
+\begin{itemize}
+    \item Usar Server Components para reducir bundle size
+    \item Implementar lazy loading para imágenes
+    \item Optimizar consultas de base de datos
+    \item Usar React.memo para componentes pesados
+\end{itemize}
+
+\subsubsection{Accesibilidad}
+\begin{itemize}
+    \item Implementar ARIA labels
+    \item Soporte para lectores de pantalla
+    \item Navegación por teclado
+    \item Alto contraste y texto grande
+\end{itemize}
+
+\subsection{Testing}
+
+\subsubsection{Estrategia de Testing}
+\begin{itemize}
+    \item Unit tests para utilidades y helpers
+    \item Integration tests para Server Actions
+    \item E2E tests para flujos críticos
+    \item Testing de accesibilidad
+\end{itemize}
+
+\section{Solución de Problemas}
+
+\subsection{Problemas Comunes}
+
+\subsubsection{Error de Hidratación}
+\textbf{Problema}: HTML renderizado en servidor no coincide con cliente
+\textbf{Solución}: Usar \texttt{suppressHydrationWarning} en elementos dinámicos
+
+\subsubsection{Error de API Key}
+\textbf{Problema}: "API key no configurada"
+\textbf{Solución}: Verificar archivo \texttt{.env.local} y reiniciar servidor
+
+\subsubsection{Error de Base de Datos}
+\textbf{Problema}: Tablas no existen
+\textbf{Solución}: Ejecutar scripts SQL en orden correcto
+
+\subsection{Logs y Debugging}
+
+\subsubsection{Logs del Cliente}
+\begin{lstlisting}[caption=Debugging en cliente]
+// Habilitar logs detallados
+localStorage.setItem('debug', 'true');
+
+// Verificar estado de autenticacion
+console.log('User:', user);
+console.log('Session:', session);
+\end{lstlisting}
+
+\subsubsection{Logs del Servidor}
+\begin{lstlisting}[caption=Debugging en servidor]
+// En Server Actions
+console.log('Action called with:', { userId, data });
+
+// En API Routes
+console.log('Request body:', await request.json());
+\end{lstlisting}
+
+\section{Recursos y Referencias}
+
+\subsection{Documentación Oficial}
+\begin{itemize}
+    \item \href{https://nextjs.org/docs}{Next.js Documentation}
+    \item \href{https://supabase.com/docs}{Supabase Documentation}
+    \item \href{https://ui.shadcn.com/}{shadcn/ui Documentation}
+    \item \href{https://tailwindcss.com/docs}{Tailwind CSS Documentation}
+\end{itemize}
+
+\subsection{APIs Externas}
+\begin{itemize}
+    \item \href{https://ai.google.dev/}{Google AI Studio}
+    \item \href{https://vercel.com/ai}{Vercel AI SDK}
+\end{itemize}
+
+\subsection{Herramientas de Desarrollo}
+\begin{itemize}
+    \item \href{https://supabase.com/dashboard}{Supabase Dashboard}
+    \item \href{https://vercel.com/}{Vercel Dashboard}
+    \item \href{https://aistudio.google.com/}{Google AI Studio}
+\end{itemize}
+
+\section{Conclusión}
+
+Este manual proporciona una guía completa para desarrolladores que trabajen en FitTrack. La aplicación está diseñada con una arquitectura moderna, escalable y segura, utilizando las mejores prácticas de desarrollo web.
+
+Para contribuir al proyecto:
+\begin{enumerate}
+    \item Revisar este manual completamente
+    \item Configurar el entorno de desarrollo
+    \item Seguir las convenciones establecidas
+    \item Implementar tests apropiados
+    \item Documentar cambios significativos
+\end{enumerate}
+
+Para soporte adicional, consultar la documentación oficial de las tecnologías utilizadas o contactar al equipo de desarrollo.
+
+\end{document}

@@ -198,3 +198,82 @@ export async function getActiveProfessionals() {
 
   return { professionals }
 }
+
+export async function getUnreadMessageCount() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { count: 0 }
+  }
+
+  const { count, error } = await supabase
+    .from("messages")
+    .select("*", { count: "exact", head: true })
+    .eq("receiver_id", user.id)
+    .eq("read", false)
+
+  if (error) {
+    console.error("Error fetching unread count:", error)
+    return { count: 0 }
+  }
+
+  return { count: count || 0 }
+}
+
+export async function getUnreadMessagesByUser() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { unreadCounts: {} }
+  }
+
+  const { data, error } = await supabase
+    .from("messages")
+    .select("sender_id")
+    .eq("receiver_id", user.id)
+    .eq("read", false)
+
+  if (error) {
+    console.error("Error fetching unread messages by user:", error)
+    return { unreadCounts: {} }
+  }
+
+  // Count unread messages per sender
+  const unreadCounts: { [key: string]: number } = {}
+  data?.forEach((msg) => {
+    unreadCounts[msg.sender_id] = (unreadCounts[msg.sender_id] || 0) + 1
+  })
+
+  return { unreadCounts }
+}
+
+export async function markConversationAsRead(otherUserId: string) {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: "No autenticado" }
+  }
+
+  const { error } = await supabase
+    .from("messages")
+    .update({ read: true })
+    .eq("receiver_id", user.id)
+    .eq("sender_id", otherUserId)
+    .eq("read", false)
+
+  if (error) {
+    console.error("Error marking conversation as read:", error)
+    return { error: error.message }
+  }
+
+  return { success: true }
+}

@@ -1,15 +1,5 @@
 import Link from "next/link"
-import {
-  Dumbbell,
-  LogOut,
-  User,
-  Settings,
-  Footprints,
-  Utensils,
-  MessageSquare,
-  Shield,
-  Accessibility,
-} from "lucide-react"
+import { Dumbbell, LogOut, User, Footprints, Utensils, MessageSquare, Shield, Accessibility } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import ActivityTabs from "@/components/dashboard/activity-tabs"
@@ -19,6 +9,8 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { signOut } from "@/lib/auth-actions"
 import { isAdmin } from "@/lib/admin-actions"
+import ProfileModal from "@/components/user/profile-modal"
+import { UnreadBadge } from "@/components/messaging/unread-badge"
 
 export default async function Home() {
   const supabase = await createClient()
@@ -73,12 +65,7 @@ export default async function Home() {
                 </Link>
               </Button>
               <ThemeToggle />
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/profile">
-                  <Settings className="h-4 w-4 mr-2" />
-                  <span className="hidden sm:inline">Perfil</span>
-                </Link>
-              </Button>
+              <ProfileModal />
               <form action={signOut}>
                 <Button type="submit" variant="outline" size="sm">
                   <LogOut className="h-4 w-4 mr-2" />
@@ -148,12 +135,15 @@ export default async function Home() {
 
             <Link
               href="/messages"
-              className="group flex-1 min-w-[280px] md:min-w-[300px] lg:basis-[calc(33.333%-1rem)]"
+              className="group flex-1 min-w-[280px] md:min-w-[300px] lg:basis-[calc(33.333%-1rem)] relative"
             >
               <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                 <CardHeader className="text-center">
-                  <MessageSquare className="h-12 w-12 mx-auto mb-4 text-teal-600 group-hover:scale-110 transition-transform" />
-                  <CardTitle className="text-gray-900 dark:text-white">Mensajes</CardTitle>
+                  <div className="relative inline-block mx-auto">
+                    <MessageSquare className="h-12 w-12 text-teal-600 group-hover:scale-110 transition-transform" />
+                    <UnreadBadge />
+                  </div>
+                  <CardTitle className="text-gray-900 dark:text-white mt-4">Mensajes</CardTitle>
                   <CardDescription className="text-gray-700 dark:text-gray-50">
                     Comunícate con profesionales
                   </CardDescription>

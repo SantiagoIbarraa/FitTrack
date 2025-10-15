@@ -169,6 +169,8 @@ export async function addExerciseToRoutine(routineId: string, exerciseData: any)
   }
 
   try {
+    console.log("[v0] addExerciseToRoutine called with:", { routineId, exerciseData })
+
     // Get the current max order_index for this routine
     const { data: maxOrderData } = await supabase
       .from("routine_exercises")
@@ -179,29 +181,31 @@ export async function addExerciseToRoutine(routineId: string, exerciseData: any)
 
     const nextOrderIndex = maxOrderData && maxOrderData.length > 0 ? maxOrderData[0].order_index + 1 : 0
 
-    const sets = Math.max(1, Number.parseInt(exerciseData.sets) || 1)
-    const repetitions = Math.max(1, Number.parseInt(exerciseData.repetitions) || 1)
-    const weight = Math.max(0, Number.parseFloat(exerciseData.weight) || 0)
-
-    const { error } = await supabase.from("routine_exercises").insert({
+    const insertData = {
       routine_id: routineId,
       exercise_name: exerciseData.exercise_name,
-      weight: weight,
-      repetitions: repetitions,
-      sets: sets,
+      weight: exerciseData.weight, // Changed from weight_kg to weight
+      repetitions: exerciseData.repetitions,
+      sets: exerciseData.sets,
       image_url: exerciseData.image_url || null,
       order_index: nextOrderIndex,
-    })
+    }
+
+    console.log("[v0] Inserting data:", insertData)
+
+    const { data, error } = await supabase.from("routine_exercises").insert(insertData).select()
 
     if (error) {
-      console.error("Database error:", error)
-      return { error: "Error al agregar ejercicio a la rutina" }
+      console.error("[v0] Database error:", error)
+      return { error: `Error al agregar ejercicio a la rutina: ${error.message}` }
     }
+
+    console.log("[v0] Insert successful:", data)
 
     revalidatePath("/gym")
     return { success: true }
   } catch (error) {
-    console.error("Error:", error)
+    console.error("[v0] Unexpected error:", error)
     return { error: "Error al agregar ejercicio a la rutina" }
   }
 }
@@ -219,17 +223,11 @@ export async function updateExerciseInRoutine(exerciseId: string, exerciseData: 
   try {
     console.log("[v0] updateExerciseInRoutine called with:", { exerciseId, exerciseData })
 
-    const sets = Math.max(1, Number.parseInt(exerciseData.sets) || 1)
-    const repetitions = Math.max(1, Number.parseInt(exerciseData.repetitions) || 1)
-    const weight = Math.max(0, Number.parseFloat(exerciseData.weight) || 0)
-
-    console.log("[v0] Parsed values:", { sets, repetitions, weight })
-
     const updateData = {
       exercise_name: exerciseData.exercise_name,
-      weight: weight,
-      repetitions: repetitions,
-      sets: sets,
+      weight: exerciseData.weight, // Changed from weight_kg to weight
+      repetitions: exerciseData.repetitions,
+      sets: exerciseData.sets,
       image_url: exerciseData.image_url || null,
     }
 
@@ -239,7 +237,7 @@ export async function updateExerciseInRoutine(exerciseId: string, exerciseData: 
 
     if (error) {
       console.error("[v0] Database error:", error)
-      return { error: "Error al actualizar ejercicio" }
+      return { error: `Error al actualizar ejercicio: ${error.message}` }
     }
 
     console.log("[v0] Update successful, data returned:", data)

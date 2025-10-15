@@ -1,0 +1,1128 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{float}
+
+% Configuracion de pagina
+\geometry{margin=2.5cm}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Manual de Programador - Asistente Fitness}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Configuracion de colores para codigo
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+% Configuracion de listings
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+% Configuracion de titulos
+\titleformat{\section}{\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+% Configuracion de hipervinculos
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    citecolor=red,
+}
+
+\begin{document}
+
+% Portada
+\begin{titlepage}
+\centering
+\vspace*{2cm}
+
+{\Huge\bfseries Modulo de Asistente Fitness}\\[0.5cm]
+{\LARGE FitTrack}\\[1cm]
+
+{\large Sistema Inteligente de Asistencia Nutricional y Fitness}\\[2cm]
+
+\begin{minipage}{0.8\textwidth}
+\centering
+Este modulo proporciona un asistente inteligente basado en IA que combina analisis nutricional de imagenes, chat personalizado y recomendaciones fitness integradas con el progreso del usuario.
+\end{minipage}
+
+\vfill
+
+{\large Versión 1.0}\\[0.5cm]
+{\large \today}
+
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section{Introduccion al Modulo de Asistente Fitness}
+
+El modulo de Asistente Fitness es uno de los componentes mas avanzados y tecnologicamente sofisticados de FitTrack. Integra inteligencia artificial de Google Gemini para proporcionar asistencia nutricional personalizada, analisis de imagenes de comida y recomendaciones fitness basadas en el progreso real del usuario.
+
+\subsection{Caracteristicas Principales}
+
+\begin{itemize}
+    \item \textbf{Chat Inteligente}: Asistente conversacional especializado en nutricion y fitness
+    \item \textbf{Analisis de Imagenes}: Reconocimiento automatico de comidas y calculo de valores nutricionales
+    \item \textbf{Personalizacion Avanzada}: Recomendaciones basadas en perfil, objetivos y progreso del usuario
+    \item \textbf{Integracion Completa}: Acceso a datos de gimnasio, running y metricas de salud
+    \item \textbf{IA de Ultima Generacion}: Utiliza Google Gemini 2.5 Flash para analisis preciso
+    \item \textbf{Interfaz Dual}: Chat conversacional y analizador de imagenes
+    \item \textbf{Calculos Automaticos}: BMR, TDEE, necesidades proteicas personalizadas
+\end{itemize}
+
+\subsection{Arquitectura General}
+
+El modulo sigue una arquitectura de microservicios con separacion clara de responsabilidades:
+
+\begin{enumerate}
+    \item \textbf{Capa de Presentacion}: Componentes React con TypeScript
+    \item \textbf{Capa de API}: Endpoints especializados para chat y analisis de imagenes
+    \item \textbf{Capa de IA}: Integracion con Google Gemini para procesamiento inteligente
+    \item \textbf{Capa de Datos}: Acceso a perfil de usuario y datos de actividad
+    \item \textbf{Capa de Servicios}: Calculos nutricionales y recomendaciones personalizadas
+\end{enumerate}
+
+\section{Estructura de Archivos}
+
+\subsection{Organizacion del Modulo}
+
+\begin{lstlisting}[language=bash, caption=Estructura de archivos del Asistente Fitness]
+app/
++-- meals/                    # Pagina principal del asistente
+|   +-- page.tsx             # Componente principal con tabs
++-- api/                     # APIs del asistente
+|   +-- chat/                # API de chat conversacional
+|   |   +-- route.ts         # Endpoint principal de chat
+|   +-- analyze/             # API de analisis de imagenes
+|   |   +-- route.ts         # Endpoint de analisis nutricional
++-- components/meals/        # Componentes del asistente
+|   +-- chat-interface.tsx   # Interfaz de chat
+|   +-- image-analyzer.tsx   # Analizador de imagenes
+\end{lstlisting}
+
+\section{APIs y Endpoints}
+
+\subsection{API de Chat - /api/chat}
+
+El endpoint principal que maneja tanto el chat conversacional como el analisis de imagenes.
+
+\subsubsection{Estructura del Endpoint}
+
+\begin{lstlisting}[caption=Estructura basica del endpoint /api/chat]
+import { generateText, generateObject } from "ai"
+import { google } from "@ai-sdk/google"
+import { type NextRequest, NextResponse } from "next/server"
+import { createClient } from "@/lib/supabase/server"
+import { z } from "zod"
+
+// Schema para analisis de imagenes
+const foodAnalysisSchema = z.object({
+  foodName: z.string().describe("Nombre del plato o comida"),
+  calories: z.number().describe("Numero estimado de calorias"),
+  protein: z.number().describe("Gramos de proteina"),
+  carbs: z.number().describe("Gramos de carbohidratos"),
+  fats: z.number().describe("Gramos de grasas"),
+  fiber: z.number().optional().describe("Gramos de fibra"),
+  serving: z.string().describe("Descripcion del tamano de la porcion"),
+  ingredients: z.array(z.string()).describe("Lista de ingredientes visibles"),
+  recommendations: z.string().describe("Breve recomendacion nutricional"),
+  confidence: z.enum(["alta", "media", "baja"]).describe("Nivel de confianza en el analisis"),
+})
+
+export async function POST(request: NextRequest) {
+  // Manejo de autenticacion y validacion
+  // Enrutamiento a chat o analisis de imagen
+}
+\end{lstlisting}
+
+\subsubsection{Manejo de Chat Conversacional}
+
+\begin{lstlisting}[caption=Funcion handleChatMessage - Chat personalizado]
+async function handleChatMessage(message: string, userProfile: any) {
+  // 1. Recopilacion de datos del usuario
+  let exerciseData = ""
+  try {
+    const exercises = await getUniqueExercises()
+    if (exercises.length > 0) {
+      exerciseData = `\n\nTus ejercicios registrados: ${exercises.join(", ")}`
+      
+      const lastExercise = exercises[0]
+      const history = await getExerciseHistory(lastExercise, 30)
+      if (history.length > 0) {
+        const latest = history[0]
+        exerciseData += `\n\nUltimo registro de ${lastExercise}: ${latest.weight_kg}kg x ${latest.repetitions} reps`
+      }
+    }
+  } catch (error) {
+    console.log("No se pudo obtener historial de ejercicios")
+  }
+
+  // 2. Datos de running
+  let runningData = ""
+  try {
+    const runningSessions = await getRunningHistory(30)
+    if (runningSessions.length > 0) {
+      const totalDistance = runningSessions.reduce((sum, session) => sum + session.distance, 0)
+      const avgPace = runningSessions.reduce((sum, session) => sum + session.pace, 0) / runningSessions.length
+      const lastSession = runningSessions[0]
+
+      runningData = `\n\nDATOS DE RUNNING (ultimos 30 dias):
+- Total de sesiones: ${runningSessions.length}
+- Distancia total: ${totalDistance.toFixed(2)}km
+- Pace promedio: ${avgPace.toFixed(2)} min/km
+- Ultima sesion: ${lastSession.distance}km en ${lastSession.duration} minutos (${lastSession.pace.toFixed(2)} min/km)`
+    }
+  } catch (error) {
+    console.log("No se pudo obtener historial de running")
+  }
+
+  // 3. Datos de gimnasio
+  let gymData = ""
+  try {
+    const workouts = await getWorkouts()
+    if (workouts.length > 0) {
+      const recentWorkouts = workouts.slice(0, 5)
+      gymData = `\n\nULTIMOS ENTRENAMIENTOS EN GIMNASIO:`
+      recentWorkouts.forEach((workout: any) => {
+        const date = new Date(workout.created_at).toLocaleDateString()
+        gymData += `\n- ${workout.exercise_name}: ${workout.weight_kg || 0}kg x ${workout.repetitions || 0} reps x ${workout.sets || 0} sets (${date})`
+      })
+    }
+  } catch (error) {
+    console.log("No se pudo obtener workouts del gimnasio")
+  }
+
+  // 4. Calculos nutricionales personalizados
+  let bmr = 0, tdee = 0, proteinMin = 0, proteinMax = 0
+
+  if (userProfile?.weight && userProfile?.height && userProfile?.age && userProfile?.sex) {
+    if (userProfile.sex === "male") {
+      bmr = 10 * userProfile.weight + 6.25 * userProfile.height - 5 * userProfile.age + 5
+    } else {
+      bmr = 10 * userProfile.weight + 6.25 * userProfile.height - 5 * userProfile.age - 161
+    }
+    tdee = Math.round(bmr * 1.55)
+    proteinMin = Math.round(userProfile.weight * 1.6)
+    proteinMax = Math.round(userProfile.weight * 2.2)
+  }
+
+  // 5. Generacion de prompt personalizado
+  const model = google("gemini-2.5-flash")
+  
+  const prompt = `Eres un asistente nutricional experto especializado en fitness y salud. Tu nombre es "Asistente Nutricional de FitTrack".
+
+INFORMACION DEL USUARIO:
+${userProfile?.weight ? `- Peso: ${userProfile.weight}kg` : ""}
+${userProfile?.height ? `- Altura: ${userProfile.height}cm` : ""}
+${userProfile?.age ? `- Edad: ${userProfile.age} anos` : ""}
+${userProfile?.sex ? `- Sexo: ${userProfile.sex === "male" ? "Masculino" : "Femenino"}` : ""}
+${userProfile?.bmi ? `- IMC: ${userProfile.bmi} (${userProfile.bmiCategory})` : ""}
+${bmr > 0 ? `- Metabolismo basal (BMR): ${Math.round(bmr)} cal/dia` : ""}
+${tdee > 0 ? `- TDEE (actividad moderada): ${tdee} cal/dia` : ""}
+${proteinMin > 0 ? `- Proteina recomendada: ${proteinMin}-${proteinMax}g/dia` : ""}
+${exerciseData}
+${runningData}
+${gymData}
+
+PREGUNTA DEL USUARIO: ${message}
+
+INSTRUCCIONES:
+- Responde en espanol de forma clara, concisa y util
+- Usa formato markdown para mejor legibilidad
+- Personaliza tu respuesta basandote en TODOS los datos del usuario
+- Si el usuario pregunta sobre su progreso, analiza sus datos de ejercicios
+- Proporciona informacion basada en evidencia cientifica
+- Incluye ejemplos practicos y cantidades especificas
+- Manten un tono motivador y profesional
+
+Responde a la pregunta del usuario ahora:`
+
+  const { text } = await generateText({
+    model,
+    prompt,
+  })
+
+  return NextResponse.json({ response: text })
+}
+\end{lstlisting}
+
+\subsubsection{Manejo de Analisis de Imagenes}
+
+\begin{lstlisting}[caption=Funcion handleImageAnalysis - Analisis con IA]
+async function handleImageAnalysis(image: string) {
+  try {
+    // Remover prefijo data URL
+    const base64Image = image.replace(/^data:image\/\w+;base64,/, "")
+
+    const model = google("gemini-2.0-flash-exp")
+
+    const prompt = `Analiza esta imagen de comida y proporciona la siguiente informacion en formato JSON:
+
+{
+  "foodName": "nombre del plato o comida",
+  "calories": numero estimado de calorias,
+  "protein": gramos de proteina,
+  "carbs": gramos de carbohidratos,
+  "fats": gramos de grasas,
+  "fiber": gramos de fibra (opcional),
+  "serving": "descripcion del tamano de la porcion (ej: '1 plato mediano', '200g')",
+  "ingredients": ["lista", "de", "ingredientes", "visibles"],
+  "recommendations": "breve recomendacion nutricional o consejo sobre esta comida",
+  "confidence": "alta/media/baja - tu nivel de confianza en el analisis"
+}
+
+Se lo mas preciso posible. Si no puedes identificar la comida claramente, indica baja confianza y proporciona tu mejor estimacion.`
+
+    const { object } = await generateObject({
+      model,
+      schema: foodAnalysisSchema,
+      prompt,
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "text", text: prompt },
+            {
+              type: "image",
+              image: `data:image/jpeg;base64,${base64Image}`,
+            },
+          ],
+        },
+      ],
+    })
+
+    return NextResponse.json(object)
+  } catch (error) {
+    console.error("Error analyzing food image:", error)
+    return NextResponse.json({ error: "Error al analizar la imagen. Por favor intenta de nuevo." }, { status: 500 })
+  }
+}
+\end{lstlisting}
+
+\subsection{API de Analisis - /api/analyze}
+
+Endpoint especializado para el analisis detallado de imagenes de comida.
+
+\begin{lstlisting}[caption=API de analisis de imagenes especializada]
+import { GoogleGenerativeAI } from "@google/generative-ai"
+import { NextResponse } from "next/server"
+import { createClient } from "@/lib/supabase/server"
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "AIzaSyDYVDyl_8rod_HvIKxgrUgLHMfMjPc5uNA")
+
+export async function POST(request: Request) {
+  try {
+    const { image, userProfile } = await request.json()
+
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: "No autenticado" }, { status: 401 })
+    }
+
+    // Prompt del sistema personalizado
+    let systemPrompt = `Eres un experto nutricionista y analista de alimentos de FitTrack. Tu tarea es analizar imagenes de comidas y proporcionar informacion nutricional detallada y personalizada.
+
+Cuando analices una imagen de comida, debes:
+1. Identificar todos los alimentos visibles en la imagen
+2. Estimar las porciones de cada alimento
+3. Calcular aproximadamente las calorias totales
+4. Desglosar macronutrientes (proteinas, carbohidratos, grasas)
+5. Evaluar la calidad nutricional de la comida
+6. Proporcionar recomendaciones personalizadas segun el perfil del usuario
+7. Sugerir mejoras o alternativas mas saludables si es apropiado
+
+Formato de respuesta:
+- Se especifico y detallado
+- Usa lenguaje claro y motivador
+- Incluye numeros aproximados (calorias, gramos de macros)
+- Personaliza segun el perfil del usuario (objetivos, IMC, etc.)
+- Responde en espanol de forma natural
+
+Si la imagen no contiene comida o no es clara, indicalo amablemente y pide una mejor imagen.`
+
+    // Personalizacion segun perfil del usuario
+    if (userProfile) {
+      systemPrompt += `\n\nPerfil del usuario:`
+      if (userProfile.weight) systemPrompt += `\n- Peso: ${userProfile.weight} kg`
+      if (userProfile.height) systemPrompt += `\n- Estatura: ${userProfile.height} cm`
+      if (userProfile.age) systemPrompt += `\n- Edad: ${userProfile.age} anos`
+      if (userProfile.sex) systemPrompt += `\n- Sexo: ${userProfile.sex}`
+      if (userProfile.bmi) systemPrompt += `\n- IMC: ${userProfile.bmi} (${userProfile.bmiCategory})`
+
+      // Calculo de BMR personalizado
+      if (userProfile.weight && userProfile.height && userProfile.age && userProfile.sex) {
+        let bmr: number
+        if (userProfile.sex === "male") {
+          bmr = 10 * userProfile.weight + 6.25 * userProfile.height - 5 * userProfile.age + 5
+        } else {
+          bmr = 10 * userProfile.weight + 6.25 * userProfile.height - 5 * userProfile.age - 161
+        }
+
+        systemPrompt += `\n- Metabolismo basal (BMR): ${Math.round(bmr)} cal/dia`
+        systemPrompt += `\n\nUsa esta informacion para personalizar tus recomendaciones y evaluar si esta comida se ajusta a sus necesidades.`
+      }
+    }
+
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
+
+    // Procesamiento de imagen
+    const base64Image = image.replace(/^data:image\/\w+;base64,/, "")
+
+    const result = await model.generateContent([
+      systemPrompt,
+      {
+        inlineData: {
+          data: base64Image,
+          mimeType: "image/jpeg",
+        },
+      },
+    ])
+
+    const response = await result.response
+    const text = response.text()
+
+    return NextResponse.json({ analysis: text })
+  } catch (error) {
+    console.error("Error analyzing image:", error)
+    return NextResponse.json({ error: "Error al analizar la imagen. Por favor intenta de nuevo." }, { status: 500 })
+  }
+}
+\end{lstlisting}
+
+\section{Componentes React}
+
+\subsection{Pagina Principal - MealsPage}
+
+El componente principal que coordina toda la funcionalidad del asistente fitness.
+
+\begin{lstlisting}[caption=app/meals/page.tsx - Estructura completa]
+import ChatInterface from "@/components/meals/chat-interface"
+import ImageAnalyzer from "@/components/meals/image-analyzer"
+import { MessageCircle, ArrowLeft, Camera } from "lucide-react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
+export default function MealsPage() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Volver
+              </Link>
+            </Button>
+          </div>
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <MessageCircle className="h-10 w-10 text-orange-600" />
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Asistente Nutricional</h1>
+            </div>
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Obten consejos personalizados sobre alimentacion, analiza tus comidas con IA y planifica tu nutricion
+            </p>
+          </div>
+        </div>
+
+        <Tabs defaultValue="chat" className="w-full">
+          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
+            <TabsTrigger value="chat" className="flex items-center gap-2">
+              <MessageCircle className="h-4 w-4" />
+              Chat con IA
+            </TabsTrigger>
+            <TabsTrigger value="image" className="flex items-center gap-2">
+              <Camera className="h-4 w-4" />
+              Analizar Comida
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="chat">
+            <ChatInterface />
+          </TabsContent>
+          <TabsContent value="image">
+            <ImageAnalyzer/>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  )
+}
+\end{lstlisting}
+
+\textbf{Caracteristicas del componente:}
+\begin{itemize}
+    \item \textbf{Interfaz de Tabs}: Navegacion entre chat y analisis de imagenes
+    \item \textbf{Header Informativo}: Descripcion clara de las funcionalidades
+    \item \textbf{Diseño Responsivo}: Adaptable a diferentes tamanos de pantalla
+    \item \textbf{Tema Oscuro}: Soporte completo para modo oscuro
+    \item \textbf{Navegacion}: Boton de regreso al dashboard principal
+\end{itemize}
+
+\subsection{Componente ChatInterface}
+
+Interfaz de chat conversacional con el asistente nutricional.
+
+\begin{lstlisting}[caption=components/meals/chat-interface.tsx - Estructura principal]
+"use client"
+
+import type React from "react"
+import { useState, useRef, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Send, MessageCircle, Utensils, Apple, Coffee, Calculator, User } from "lucide-react"
+import { getUserProfile } from "@/lib/user-actions"
+import { calculateBMI } from "@/lib/health-actions"
+
+interface Message {
+  id: string
+  content: string
+  isUser: boolean
+  timestamp: Date
+}
+
+interface UserProfile {
+  weight: number | null
+  height: number | null
+  dateOfBirth: string | null
+  sex: string | null
+  bmi?: number
+  bmiCategory?: string
+  age?: number
+}
+
+export default function ChatInterface() {
+  const messageIdCounter = useRef(0)
+  const [messages, setMessages] = useState<Message[]>([])
+  const [inputValue, setInputValue] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [isClient, setIsClient] = useState(false)
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Funciones de utilidad
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
+
+  useEffect(() => {
+    setIsClient(true)
+    loadUserProfile()
+    setMessages([
+      {
+        id: (++messageIdCounter.current).toString(),
+        content: "Hola! Soy tu asistente nutricional de FitTrack. Puedo ayudarte con consejos sobre alimentacion, calcular tus necesidades caloricas, sugerir recetas y crear planes de comidas. Preguntame sobre: calorias, proteinas, ganar musculo, perder peso, meal prep, recetas, suplementos, y mucho mas. En que puedo ayudarte?",
+        isUser: false,
+        timestamp: new Date(),
+      },
+    ])
+  }, [])
+
+  const loadUserProfile = async () => {
+    try {
+      const profile = await getUserProfile()
+      if (profile) {
+        let age: number | undefined
+        let bmi: number | undefined
+        let bmiCategory: string | undefined
+
+        if (profile.dateOfBirth) {
+          const birthDate = new Date(profile.dateOfBirth)
+          age = new Date().getFullYear() - birthDate.getFullYear()
+        }
+
+        if (profile.weight && profile.height) {
+          const bmiResult = await calculateBMI(profile.weight, profile.height, age, profile.sex || undefined)
+          bmi = bmiResult.bmi
+          bmiCategory = bmiResult.category
+        }
+
+        setUserProfile({
+          weight: profile.weight,
+          height: profile.height,
+          dateOfBirth: profile.dateOfBirth,
+          sex: profile.sex,
+          bmi,
+          bmiCategory,
+          age,
+        })
+      }
+    } catch (error) {
+      console.error("Error loading user profile:", error)
+    }
+  }
+
+  const handleSendMessage = async () => {
+    if (!inputValue.trim()) return
+
+    const userMessage: Message = {
+      id: (++messageIdCounter.current).toString(),
+      content: inputValue,
+      isUser: true,
+      timestamp: new Date(),
+    }
+
+    setMessages((prev) => [...prev, userMessage])
+    setInputValue("")
+    setIsLoading(true)
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: inputValue,
+          userProfile,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (data.error) {
+        throw new Error(data.error)
+      }
+
+      const aiResponse: Message = {
+        id: (++messageIdCounter.current).toString(),
+        content: data.response.replaceAll("**", ""), 
+        isUser: false,
+        timestamp: new Date(),
+      }
+
+      setMessages((prev) => [...prev, aiResponse])
+    } catch (error) {
+      console.error("Error sending message:", error)
+      const errorMessage: Message = {
+        id: (++messageIdCounter.current).toString(),
+        content: `Error: ${error instanceof Error ? error.message : "Lo siento, hubo un error al procesar tu mensaje. Por favor intenta de nuevo o verifica tu conexion."}\n\nSi el error menciona "API key", necesitas crear un archivo .env.local con tu clave de Gemini. Consulta CONFIGURACION_API.md para mas detalles.`,
+        isUser: false,
+        timestamp: new Date(),
+      }
+      setMessages((prev) => [...prev, errorMessage])
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault()
+      handleSendMessage()
+    }
+  }
+
+  // Resto del componente...
+}
+\end{lstlisting}
+
+\textbf{Caracteristicas del chat:}
+\begin{itemize}
+    \item \textbf{Estado de Mensajes}: Gestiona historial completo de conversacion
+    \item \textbf{Perfil de Usuario}: Carga y utiliza datos personales para personalizacion
+    \item \textbf{Temas Rapidos}: Badges clickeables para consultas comunes
+    \item \textbf{Indicadores de Carga}: Feedback visual durante procesamiento
+    \item \textbf{Manejo de Errores}: Mensajes informativos para problemas de API
+    \item \textbf{Scroll Automatico}: Navegacion fluida en conversaciones largas
+\end{itemize}
+
+\subsection{Componente ImageAnalyzer}
+
+Analizador de imagenes de comida con IA.
+
+\begin{lstlisting}[caption=components/meals/image-analyzer.tsx - Estructura principal]
+"use client"
+
+import type React from "react"
+import { useState, useRef, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Camera, Upload, X, Sparkles, User, Loader2 } from "lucide-react"
+import { getUserProfile } from "@/lib/user-actions"
+import { calculateBMI } from "@/lib/health-actions"
+
+interface UserProfile {
+  weight: number | null
+  height: number | null
+  dateOfBirth: string | null
+  sex: string | null
+  bmi?: number
+  bmiCategory?: string
+  age?: number
+}
+
+export default function ImageAnalyzer() {
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [analysis, setAnalysis] = useState<string | null>(null)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [isClient, setIsClient] = useState(false)
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    setIsClient(true)
+    loadUserProfile()
+  }, [])
+
+  const loadUserProfile = async () => {
+    try {
+      const profile = await getUserProfile()
+      if (profile) {
+        let age: number | undefined
+        let bmi: number | undefined
+        let bmiCategory: string | undefined
+
+        if (profile.dateOfBirth) {
+          const birthDate = new Date(profile.dateOfBirth)
+          age = new Date().getFullYear() - birthDate.getFullYear()
+        }
+
+        if (profile.weight && profile.height) {
+          const bmiResult = await calculateBMI(profile.weight, profile.height, age, profile.sex || undefined)
+          bmi = bmiResult.bmi
+          bmiCategory = bmiResult.category
+        }
+
+        setUserProfile({
+          weight: profile.weight,
+          height: profile.height,
+          dateOfBirth: profile.dateOfBirth,
+          sex: profile.sex,
+          bmi,
+          bmiCategory,
+          age,
+        })
+      }
+    } catch (error) {
+      console.error("Error loading user profile:", error)
+    }
+  }
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setSelectedImage(reader.result as string)
+        setAnalysis(null)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleAnalyze = async () => {
+    if (!selectedImage) return
+
+    setIsAnalyzing(true)
+    setAnalysis(null)
+
+    try {
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          image: selectedImage,
+          userProfile,
+        }),
+      })
+
+      const data: { error: string; analysis: string } = await response.json()
+
+      if (data.error) {
+        throw new Error(data.error)
+      }
+
+      setAnalysis(data.analysis.replaceAll("**", ""))
+    } catch (error) {
+      console.error("Error analyzing image:", error)
+      setAnalysis("Lo siento, hubo un error al analizar la imagen. Por favor intenta de nuevo o verifica tu conexion.")
+    } finally {
+      setIsAnalyzing(false)
+    }
+  }
+
+  const handleClear = () => {
+    setSelectedImage(null)
+    setAnalysis(null)
+    if (fileInputRef.current) fileInputRef.current.value = ""
+    if (cameraInputRef.current) cameraInputRef.current.value = ""
+  }
+
+  // Resto del componente...
+}
+\end{lstlisting}
+
+\textbf{Caracteristicas del analizador:}
+\begin{itemize}
+    \item \textbf{Captura de Imagen}: Soporte para camara y subida de archivos
+    \item \textbf{Previsualizacion}: Vista previa de la imagen seleccionada
+    \item \textbf{Analisis en Tiempo Real}: Procesamiento inmediato con IA
+    \item \textbf{Resultados Detallados}: Informacion nutricional completa
+    \item \textbf{Personalizacion}: Recomendaciones basadas en perfil del usuario
+    \item \textbf{Manejo de Estados}: Carga, error y exito claramente diferenciados
+\end{itemize}
+
+\section{Integracion con IA}
+
+\subsection{Google Gemini Integration}
+
+El modulo utiliza Google Gemini 2.5 Flash para procesamiento de lenguaje natural y analisis de imagenes.
+
+\subsubsection{Configuracion de API}
+
+\begin{lstlisting}[caption=Configuracion de Google Gemini]
+// Variables de entorno requeridas
+GOOGLE_GENERATIVE_AI_API_KEY=tu_clave_de_gemini_aqui
+GEMINI_API_KEY=tu_clave_de_gemini_aqui
+
+// Importaciones necesarias
+import { generateText, generateObject } from "ai"
+import { google } from "@ai-sdk/google"
+import { GoogleGenerativeAI } from "@google/generative-ai"
+\end{lstlisting}
+
+\subsubsection{Modelos Utilizados}
+
+\begin{itemize}
+    \item \textbf{Gemini 2.5 Flash}: Para chat conversacional y analisis de texto
+    \item \textbf{Gemini 2.0 Flash Exp}: Para analisis de imagenes con schema estructurado
+    \item \textbf{GoogleGenerativeAI}: Para analisis detallado de imagenes de comida
+\end{itemize}
+
+\subsection{Schemas de Validacion}
+
+\subsubsection{Schema de Analisis de Comida}
+
+\begin{lstlisting}[caption=Schema Zod para validacion de analisis]
+const foodAnalysisSchema = z.object({
+  foodName: z.string().describe("Nombre del plato o comida"),
+  calories: z.number().describe("Numero estimado de calorias"),
+  protein: z.number().describe("Gramos de proteina"),
+  carbs: z.number().describe("Gramos de carbohidratos"),
+  fats: z.number().describe("Gramos de grasas"),
+  fiber: z.number().optional().describe("Gramos de fibra"),
+  serving: z.string().describe("Descripcion del tamano de la porcion"),
+  ingredients: z.array(z.string()).describe("Lista de ingredientes visibles"),
+  recommendations: z.string().describe("Breve recomendacion nutricional"),
+  confidence: z.enum(["alta", "media", "baja"]).describe("Nivel de confianza en el analisis"),
+})
+\end{lstlisting}
+
+\section{Calculos Nutricionales}
+
+\subsection{Metabolismo Basal (BMR)}
+
+Calculo del metabolismo basal utilizando la ecuacion de Mifflin-St Jeor.
+
+\begin{lstlisting}[caption=Calculo de BMR personalizado]
+// Ecuacion de Mifflin-St Jeor para BMR
+if (userProfile.sex === "male") {
+  bmr = 10 * userProfile.weight + 6.25 * userProfile.height - 5 * userProfile.age + 5
+} else {
+  bmr = 10 * userProfile.weight + 6.25 * userProfile.height - 5 * userProfile.age - 161
+}
+
+// TDEE (Total Daily Energy Expenditure) - Actividad moderada
+tdee = Math.round(bmr * 1.55)
+\end{lstlisting}
+
+\subsection{Necesidades Proteicas}
+
+Calculo de necesidades proteicas basado en el peso corporal.
+
+\begin{lstlisting}[caption=Calculo de proteinas recomendadas]
+// Rango de proteinas para fitness (1.6-2.2g por kg de peso)
+proteinMin = Math.round(userProfile.weight * 1.6)
+proteinMax = Math.round(userProfile.weight * 2.2)
+\end{lstlisting}
+
+\section{Integracion con Datos del Usuario}
+
+\subsection{Acceso a Datos de Actividad}
+
+El asistente integra datos de todos los modulos de FitTrack:
+
+\begin{lstlisting}[caption=Integracion con datos de actividad]
+// Datos de ejercicios de gimnasio
+const exercises = await getUniqueExercises()
+const history = await getExerciseHistory(lastExercise, 30)
+
+// Datos de running
+const runningSessions = await getRunningHistory(30)
+const totalDistance = runningSessions.reduce((sum, session) => sum + session.distance, 0)
+const avgPace = runningSessions.reduce((sum, session) => sum + session.pace, 0) / runningSessions.length
+
+// Datos de entrenamientos
+const workouts = await getWorkouts()
+const recentWorkouts = workouts.slice(0, 5)
+\end{lstlisting}
+
+\subsection{Personalizacion Avanzada}
+
+El sistema utiliza el perfil completo del usuario para personalizar respuestas:
+
+\begin{itemize}
+    \item \textbf{Datos Demograficos}: Peso, altura, edad, sexo
+    \item \textbf{Metricas de Salud}: IMC, categoria de peso
+    \item \textbf{Actividad Reciente}: Ejercicios, running, entrenamientos
+    \item \textbf{Objetivos Fitness}: Basados en patrones de actividad
+    \item \textbf{Progreso Historico}: Tendencias y mejoras
+\end{itemize}
+
+\section{Flujos de Datos}
+
+\subsection{Flujo de Chat Conversacional}
+
+\begin{enumerate}
+    \item \textbf{Usuario escribe mensaje} en ChatInterface
+    \item \textbf{Validacion de entrada} en cliente
+    \item \textbf{Envio a /api/chat} con perfil de usuario
+    \item \textbf{Recopilacion de datos} de gimnasio, running y salud
+    \item \textbf{Calculo de metricas} nutricionales personalizadas
+    \item \textbf{Generacion de prompt} contextualizado
+    \item \textbf{Procesamiento con Gemini} 2.5 Flash
+    \item \textbf{Respuesta personalizada} al usuario
+    \item \textbf{Actualizacion de UI} con mensaje del asistente
+\end{enumerate}
+
+\subsection{Flujo de Analisis de Imagenes}
+
+\begin{enumerate}
+    \item \textbf{Usuario selecciona imagen} (camara o archivo)
+    \item \textbf{Previsualizacion} de la imagen seleccionada
+    \item \textbf{Envio a /api/analyze} con imagen y perfil
+    \item \textbf{Procesamiento de imagen} con Gemini 2.5 Flash
+    \item \textbf{Analisis nutricional} detallado
+    \item \textbf{Recomendaciones personalizadas} basadas en perfil
+    \item \textbf{Presentacion de resultados} estructurados
+    \item \textbf{Opciones de accion} (nuevo analisis, limpiar)
+\end{enumerate}
+
+\section{Caracteristicas Avanzadas}
+
+\subsection{Temas Rapidos}
+
+El chat incluye temas predefinidos para consultas comunes:
+
+\begin{lstlisting}[caption=Temas rapidos del chat]
+const quickTopics = [
+  "Mi perfil",
+  "Mis ejercicios", 
+  "Cuantas calorias necesito",
+  "Ganar musculo",
+  "Perder peso",
+  "Pre entreno",
+  "Post entreno",
+  "Meal prep",
+  "Recetas",
+  "Suplementos",
+  "Proteinas",
+  "Carbohidratos"
+]
+\end{lstlisting}
+
+\subsection{Indicadores de Confianza}
+
+El analisis de imagenes incluye niveles de confianza:
+
+\begin{itemize}
+    \item \textbf{Alta}: Identificacion clara de alimentos y porciones
+    \item \textbf{Media}: Identificacion parcial con estimaciones razonables
+    \item \textbf{Baja}: Imagen poco clara o alimentos no identificables
+\end{itemize}
+
+\subsection{Validacion de Imagenes}
+
+\begin{lstlisting}[caption=Validacion de tipos de archivo]
+// Formatos soportados
+accept="image/*"
+capture="environment"  // Para camara trasera en moviles
+
+// Validacion en cliente
+const file = event.target.files?.[0]
+if (file) {
+  const reader = new FileReader()
+  reader.onloadend = () => {
+    setSelectedImage(reader.result as string)
+    setAnalysis(null)
+  }
+  reader.readAsDataURL(file)
+}
+\end{lstlisting}
+
+\section{Mejores Practicas de Desarrollo}
+
+\subsection{Seguridad}
+
+\begin{itemize}
+    \item \textbf{Validacion de Autenticacion}: Verificar usuario en cada request
+    \item \textbf{Limite de Tamaño}: Validar tamaño de imagenes subidas
+    \item \textbf{Sanitizacion}: Limpiar inputs del usuario
+    \item \textbf{API Keys}: Proteger claves de Gemini en variables de entorno
+    \item \textbf{Rate Limiting}: Implementar limites de uso para APIs
+\end{itemize}
+
+\subsection{Performance}
+
+\begin{itemize}
+    \item \textbf{Lazy Loading}: Cargar componentes bajo demanda
+    \item \textbf{Optimizacion de Imagenes}: Comprimir imagenes antes del envio
+    \item \textbf{Cache de Respuestas}: Almacenar respuestas frecuentes
+    \item \textbf{Debouncing}: Evitar requests excesivos en chat
+    \item \textbf{Loading States}: Feedback visual durante procesamiento
+\end{itemize}
+
+\subsection{Mantenibilidad}
+
+\begin{itemize}
+    \item \textbf{TypeScript}: Tipado estricto en todos los componentes
+    \item \textbf{Interfaces}: Definir interfaces claras para props
+    \item \textbf{Error Handling}: Manejo robusto de errores
+    \item \textbf{Logging}: Registro detallado para debugging
+    \item \textbf{Testing}: Tests unitarios para funciones criticas
+\end{itemize}
+
+\section{Solucion de Problemas}
+
+\subsection{Problemas Comunes}
+
+\subsubsection{Error: API key no configurada}
+
+\textbf{Sintomas}: Error "API key no configurada" en respuestas
+\textbf{Causa}: Variables de entorno no configuradas
+\textbf{Solucion}: 
+\begin{enumerate}
+    \item Crear archivo \texttt{.env.local}
+    \item Agregar \texttt{GOOGLE_GENERATIVE_AI_API_KEY=tu\_clave}
+    \item Reiniciar servidor de desarrollo
+\end{enumerate}
+
+\subsubsection{Error: Imagen no analizable}
+
+\textbf{Sintomas}: Analisis falla o retorna error
+\textbf{Causa}: Imagen corrupta, muy grande o formato no soportado
+\textbf{Solucion}: 
+\begin{enumerate}
+    \item Verificar formato de imagen (JPG, PNG, WEBP)
+    \item Reducir tamaño de imagen
+    \item Asegurar buena iluminacion en fotos
+\end{enumerate}
+
+\subsubsection{Error: Chat no responde}
+
+\textbf{Sintomas}: Mensajes no se procesan o timeout
+\textbf{Causa}: Problemas de red o limite de cuota de API
+\textbf{Solucion}: 
+\begin{enumerate}
+    \item Verificar conexion a internet
+    \item Comprobar cuota de Gemini API
+    \item Revisar logs del servidor
+\end{enumerate}
+
+\subsection{Debugging}
+
+\subsubsection{Logs del Cliente}
+
+\begin{lstlisting}[caption=Debugging en cliente]
+// Habilitar logs detallados
+console.log('User Profile:', userProfile)
+console.log('Messages:', messages)
+console.log('Selected Image:', selectedImage)
+
+// Verificar estado de carga
+console.log('Is Loading:', isLoading)
+console.log('Is Analyzing:', isAnalyzing)
+\end{lstlisting}
+
+\subsubsection{Logs del Servidor}
+
+\begin{lstlisting}[caption=Debugging en servidor]
+// En API routes
+console.log('Request body:', await request.json())
+console.log('User authenticated:', !!user)
+console.log('Image size:', image.length)
+
+// En analisis de IA
+console.log('Analysis result:', text)
+console.log('Confidence level:', object.confidence)
+\end{lstlisting}
+
+\section{Conclusion}
+
+El modulo de Asistente Fitness representa la vanguardia en aplicaciones de salud y fitness, combinando inteligencia artificial avanzada con personalizacion profunda. Su arquitectura modular y su integracion completa con el ecosistema FitTrack lo convierten en una herramienta poderosa para usuarios que buscan optimizar su nutricion y rendimiento.
+
+\textbf{Caracteristicas destacadas:}
+\begin{itemize}
+    \item Integracion completa con datos de usuario
+    \item IA de ultima generacion para analisis preciso
+    \item Interfaz intuitiva y responsiva
+    \item Personalizacion basada en objetivos reales
+    \item Calculos nutricionales cientificamente validados
+    \item Arquitectura escalable y mantenible
+\end{itemize}
+
+Para contribuir al desarrollo del modulo:
+\begin{enumerate}
+    \item Seguir las convenciones de TypeScript establecidas
+    \item Implementar tests para nuevas funcionalidades
+    \item Documentar cambios en prompts de IA
+    \item Mantener compatibilidad con APIs de Gemini
+    \item Respetar limites de cuota de APIs externas
+\end{enumerate}
+
+\end{document}

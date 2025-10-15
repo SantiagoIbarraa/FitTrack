@@ -15,6 +15,8 @@ export async function signIn(prevState: any, formData: FormData) {
     return { error: "El correo y la contraseña son obligatorios" }
   }
 
+  console.log("[v0] Sign in attempt for email:", email.toString())
+
   const supabase = await createClient()
 
   try {
@@ -24,14 +26,31 @@ export async function signIn(prevState: any, formData: FormData) {
     })
 
     if (error) {
+      console.log("[v0] Sign in error:", error.message, error.status)
+
+      if (error.message.includes("Invalid login credentials")) {
+        return {
+          error: "Correo o contraseña incorrectos. Si no tienes cuenta, regístrate primero.",
+        }
+      }
+
+      if (error.message.includes("Email not confirmed")) {
+        return {
+          error: "Por favor confirma tu correo electrónico antes de iniciar sesión.",
+        }
+      }
+
       return { error: error.message }
     }
 
     if (!data.session || !data.user) {
+      console.log("[v0] No session or user returned")
       return { error: "Error al establecer la sesión" }
     }
+
+    console.log("[v0] Sign in successful for user:", data.user.id)
   } catch (error) {
-    console.error("Error de inicio de sesión:", error)
+    console.error("[v0] Unexpected sign in error:", error)
     return { error: "Ocurrió un error inesperado. Inténtalo de nuevo." }
   }
 

@@ -13,7 +13,7 @@ import { es } from "date-fns/locale"
 interface Exercise {
   id: string
   exercise_name: string
-  weight_kg: number | null
+  weight: number | null // Changed from weight_kg to weight
   repetitions: number | null
   sets: number | null
   image_url: string | null
@@ -33,10 +33,11 @@ export default function RoutineDetail({ routineId, routineName, onBack }: Routin
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
 
-
   const loadExercises = async () => {
     try {
+      console.log("[v0] Loading exercises for routine:", routineId)
       const data = await getRoutineExercises(routineId)
+      console.log("[v0] Exercises loaded:", data)
       setExercises(data || [])
     } catch (error) {
       console.error("Error loading exercises:", error)
@@ -68,8 +69,6 @@ export default function RoutineDetail({ routineId, routineName, onBack }: Routin
     setEditingExercise(null)
     setRefreshTrigger((prev) => prev + 1)
   }
-
-
 
   if (loading) {
     return (
@@ -135,42 +134,42 @@ export default function RoutineDetail({ routineId, routineName, onBack }: Routin
                     {exercise.image_url && (
                       <div className="flex-shrink-0">
                         <img
-                          src={exercise.image_url}
+                          src={exercise.image_url || "/placeholder.svg"}
                           alt={exercise.exercise_name}
                           className="w-16 h-16 object-cover rounded-lg border"
                           onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
+                            const target = e.target as HTMLImageElement
+                            target.style.display = "none"
                           }}
                         />
                       </div>
                     )}
                     <div className="flex-1">
-                    <h4 className="font-semibold text-lg">{exercise.exercise_name}</h4>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {exercise.weight_kg && (
-                        <Badge variant="secondary" className="flex items-center gap-1">
-                          <Weight className="h-3 w-3" />
-                          {exercise.weight_kg} kg
-                        </Badge>
-                      )}
-                      {exercise.repetitions && (
-                        <Badge variant="secondary" className="flex items-center gap-1">
-                          <RotateCcw className="h-3 w-3" />
-                          {exercise.repetitions} reps
-                        </Badge>
-                      )}
-                      {exercise.sets && (
-                        <Badge variant="secondary" className="flex items-center gap-1">
-                          <Hash className="h-3 w-3" />
-                          {exercise.sets} series
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-1 mt-2 text-sm text-gray-500">
-                      <Calendar className="h-3 w-3" />
-                      {format(new Date(exercise.created_at), "PPP 'a las' HH:mm", { locale: es })}
-                    </div>
+                      <h4 className="font-semibold text-lg">{exercise.exercise_name}</h4>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {exercise.weight !== null && exercise.weight !== undefined && (
+                          <Badge variant="secondary" className="flex items-center gap-1">
+                            <Weight className="h-3 w-3" />
+                            {exercise.weight} kg
+                          </Badge>
+                        )}
+                        {exercise.repetitions && (
+                          <Badge variant="secondary" className="flex items-center gap-1">
+                            <RotateCcw className="h-3 w-3" />
+                            {exercise.repetitions} reps
+                          </Badge>
+                        )}
+                        {exercise.sets && (
+                          <Badge variant="secondary" className="flex items-center gap-1">
+                            <Hash className="h-3 w-3" />
+                            {exercise.sets} series
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1 mt-2 text-sm text-gray-500">
+                        <Calendar className="h-3 w-3" />
+                        {format(new Date(exercise.created_at), "PPP 'a las' HH:mm", { locale: es })}
+                      </div>
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -197,8 +196,6 @@ export default function RoutineDetail({ routineId, routineName, onBack }: Routin
           ))}
         </div>
       )}
-      
-
     </div>
   )
 }

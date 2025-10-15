@@ -14,7 +14,8 @@ import ExerciseSelectorModal from "./exercise-selector-modal"
 interface Workout {
   id: string
   exercise_name: string
-  weight_kg: number | null
+  weight_kg?: number | null // For gym_workouts table
+  weight?: number | null // For routine_exercises table
   repetitions: number | null
   sets: number | null
   image_url: string | null
@@ -42,6 +43,7 @@ export default function WorkoutForm({ onWorkoutAdded, editWorkout, onEditComplet
   const [showExerciseModal, setShowExerciseModal] = useState(false)
   const [selectedExercise, setSelectedExercise] = useState<GymExercise | null>(null)
   const [customExerciseName, setCustomExerciseName] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     if (editWorkout) {
@@ -60,9 +62,19 @@ export default function WorkoutForm({ onWorkoutAdded, editWorkout, onEditComplet
   }
 
   const handleSubmit = async (formData: FormData) => {
-    const exerciseName = selectedExercise?.name || customExerciseName
+    if (isSubmitting) {
+      console.log("[v0] Already submitting, ignoring duplicate submission")
+      return
+    }
+
+    setIsSubmitting(true)
+    console.log("[v0] handleSubmit called, editWorkout:", editWorkout, "routineId:", routineId)
+
+    const exerciseName = selectedExercise?.name || customExerciseName || editWorkout?.exercise_name
 
     if (!exerciseName) {
+      console.log("[v0] No exercise name provided")
+      setIsSubmitting(false)
       return
     }
 
@@ -80,32 +92,54 @@ export default function WorkoutForm({ onWorkoutAdded, editWorkout, onEditComplet
     }
 
     if (routineId) {
+      const weightValue = formData.get("weight_kg")?.toString()
+      const repsValue = formData.get("repetitions")?.toString()
+      const setsValue = formData.get("sets")?.toString()
+
+      console.log("[v0] Form values - weight:", weightValue, "reps:", repsValue, "sets:", setsValue)
+
+      if (!weightValue || weightValue.trim() === "") {
+        alert("El peso es obligatorio para ejercicios en rutinas")
+        setIsSubmitting(false)
+        return
+      }
+
       const exerciseData = {
         exercise_name: exerciseName,
-        weight_kg: formData.get("weight_kg") ? Number.parseFloat(formData.get("weight_kg")?.toString() || "0") : null,
-        repetitions: formData.get("repetitions")
-          ? Number.parseInt(formData.get("repetitions")?.toString() || "0")
-          : null,
-        sets: formData.get("sets") ? Number.parseInt(formData.get("sets")?.toString() || "0") : null,
+        weight: Number.parseFloat(weightValue),
+        repetitions: repsValue && repsValue.trim() !== "" ? Number.parseInt(repsValue) : null,
+        sets: setsValue && setsValue.trim() !== "" ? Number.parseInt(setsValue) : null,
         image_url: imageUrl,
       }
 
+      console.log("[v0] Submitting exercise data:", exerciseData)
+      console.log("[v0] Is this an update?", !!editWorkout, "Exercise ID:", editWorkout?.id)
+
       let result
       if (editWorkout) {
+        console.log("[v0] Calling updateExerciseInRoutine with ID:", editWorkout.id)
         result = await updateExerciseInRoutine(editWorkout.id, exerciseData)
       } else {
+        console.log("[v0] Calling addExerciseToRoutine")
         result = await addExerciseToRoutine(routineId, exerciseData)
       }
+
+      console.log("[v0] Result from routine action:", result)
 
       if (result?.success) {
         setIsOpen(false)
         setSelectedExercise(null)
         setCustomExerciseName("")
+        setIsSubmitting(false)
         if (editWorkout) {
           onEditComplete?.()
         } else {
           onWorkoutAdded?.()
         }
+      } else {
+        console.error("[v0] Operation failed:", result?.error)
+        alert(result?.error || "Error al guardar el ejercicio")
+        setIsSubmitting(false)
       }
     } else {
       const result = await formAction(newFormData)
@@ -113,11 +147,14 @@ export default function WorkoutForm({ onWorkoutAdded, editWorkout, onEditComplet
         setIsOpen(false)
         setSelectedExercise(null)
         setCustomExerciseName("")
+        setIsSubmitting(false)
         if (editWorkout) {
           onEditComplete?.()
         } else {
           onWorkoutAdded?.()
         }
+      } else {
+        setIsSubmitting(false)
       }
     }
   }
@@ -253,16 +290,18 @@ export default function WorkoutForm({ onWorkoutAdded, editWorkout, onEditComplet
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="weight_kg">Peso (kg)</Label>
+                  <Label htmlFor="weight_kg">Peso (kg) {routineId && <span className="text-red-500">*</span>}</Label>
                   <Input
                     id="weight_kg"
                     name="weight_kg"
                     type="number"
                     step="0.5"
                     min="0"
-                    placeholder="80"
-                    defaultValue={editWorkout?.weight_kg ?? ""}
+                    placeholder="Ej: 80"
+                    defaultValue={editWorkout?.weight ?? editWorkout?.weight_kg ?? ""}
+                    required={!!routineId}
                   />
+                  {routineId && <p className="text-xs text-muted-foreground">Campo obligatorio</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="repetitions">Repeticiones</Label>
@@ -303,11 +342,11 @@ export default function WorkoutForm({ onWorkoutAdded, editWorkout, onEditComplet
             </div>
 
             <div className="flex gap-2">
-              <Button type="submit" className="flex-1 bg-green-600 hover:bg-green-700">
-                <Loader2 className="h-4 w-4 mr-2 animate-spin hidden" />
+              <Button type="submit" className="flex-1 bg-green-600 hover:bg-green-700" disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 {editWorkout ? "Actualizar Ejercicio" : "Guardar Ejercicio"}
               </Button>
-              <Button type="button" variant="outline" onClick={handleCancel}>
+              <Button type="button" variant="outline" onClick={handleCancel} disabled={isSubmitting}>
                 Cancelar
               </Button>
             </div>

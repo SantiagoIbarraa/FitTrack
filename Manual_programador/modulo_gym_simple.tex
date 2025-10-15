@@ -1,0 +1,901 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{float}
+
+% Configuración de página
+\geometry{margin=2.5cm}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Modulo de Gimnasio - FitTrack}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\setlength{\headheight}{15pt}
+
+% Configuración de colores para código
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{bluekeywords}{rgb}{0.13,0.13,1}
+\definecolor{greencomments}{rgb}{0,0.5,0}
+\definecolor{redstrings}{rgb}{0.9,0,0}
+
+% Configuración de listings
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{greencomments},
+    keywordstyle=\color{bluekeywords},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{redstrings},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    frame=single,
+    rulecolor=\color{codegray}
+}
+
+\lstdefinestyle{sqlstyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{greencomments},
+    keywordstyle=\color{bluekeywords},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{redstrings},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    frame=single,
+    rulecolor=\color{codegray},
+    language=SQL
+}
+
+\lstset{style=mystyle}
+
+% Configuración de títulos
+\titleformat{\section}{\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+% Configuración de hipervínculos
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    citecolor=red,
+}
+
+\begin{document}
+
+% Portada
+\begin{titlepage}
+\centering
+\vspace*{2cm}
+
+{\Huge\bfseries Modulo de Gimnasio}\\[0.5cm]
+{\LARGE FitTrack}\\[1cm]
+
+{\large Documentacion Tecnica Completa}\\[2cm]
+
+\begin{minipage}{0.8\textwidth}
+\centering
+Este documento proporciona una guia tecnica exhaustiva del modulo de gimnasio de FitTrack, incluyendo arquitectura, implementacion, base de datos, componentes React, Server Actions y ejemplos practicos de uso.
+\end{minipage}
+
+\vfill
+
+{\large Version 1.0}\\[0.5cm]
+{\large \today}
+
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section{Introduccion al Modulo de Gimnasio}
+
+El modulo de gimnasio es uno de los componentes mas complejos y funcionales de FitTrack. Permite a los usuarios registrar entrenamientos individuales, crear y gestionar rutinas personalizadas, hacer seguimiento de su progreso y acceder a un catalogo de ejercicios administrado.
+
+\subsection{Caracteristicas Principales}
+
+\begin{itemize}
+    \item \textbf{Registro de Entrenamientos}: Permite registrar ejercicios individuales con peso, repeticiones y series
+    \item \textbf{Gestion de Rutinas}: Crear, editar y ejecutar rutinas personalizadas
+    \item \textbf{Catalogo de Ejercicios}: Base de datos de ejercicios administrada por administradores
+    \item \textbf{Historial de Progreso}: Seguimiento detallado del progreso a lo largo del tiempo
+    \item \textbf{Metricas y Estadisticas}: Analisis de rendimiento y tendencias
+    \item \textbf{Selector de Ejercicios}: Interfaz intuitiva para seleccionar ejercicios del catalogo
+    \item \textbf{Imagenes de Ejercicios}: Soporte para imagenes en ejercicios personalizados
+\end{itemize}
+
+\subsection{Arquitectura General}
+
+El modulo sigue una arquitectura de capas bien definida:
+
+\begin{enumerate}
+    \item \textbf{Capa de Presentacion}: Componentes React con TypeScript
+    \item \textbf{Capa de Logica}: Server Actions de Next.js
+    \item \textbf{Capa de Datos}: Supabase PostgreSQL con RLS
+    \item \textbf{Capa de Servicios}: Utilidades y helpers
+\end{enumerate}
+
+\section{Estructura de Base de Datos}
+
+\subsection{Diagrama de Relaciones}
+
+\begin{figure}[H]
+\centering
+\begin{verbatim}
+    auth.users
+         |
+    +----+----+
+    |         |
+gym_workouts routines
+    |         |
+    |    routine_exercises
+    |
+gym_exercises
+\end{verbatim}
+\caption{Diagrama de relaciones de las tablas del modulo de gimnasio}
+\end{figure}
+
+\subsection{Tabla gym\_workouts}
+
+Esta tabla almacena los entrenamientos individuales realizados por los usuarios.
+
+\begin{lstlisting}[style=sqlstyle, caption=Estructura completa de gym_workouts]
+CREATE TABLE IF NOT EXISTS public.gym_workouts (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    exercise_name TEXT NOT NULL,
+    weight_kg NUMERIC(5,2),
+    repetitions INTEGER,
+    sets INTEGER,
+    image_url TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Indices para optimizacion
+CREATE INDEX IF NOT EXISTS idx_gym_workouts_user_id ON public.gym_workouts(user_id);
+CREATE INDEX IF NOT EXISTS idx_gym_workouts_created_at ON public.gym_workouts(created_at);
+CREATE INDEX IF NOT EXISTS idx_gym_workouts_exercise_name ON public.gym_workouts(exercise_name);
+\end{lstlisting}
+
+\textbf{Descripcion de campos:}
+\begin{itemize}
+    \item \texttt{id}: Identificador unico UUID generado automaticamente
+    \item \texttt{user\_id}: Referencia al usuario propietario del entrenamiento
+    \item \texttt{exercise\_name}: Nombre del ejercicio realizado (texto libre)
+    \item \texttt{weight\_kg}: Peso utilizado en kilogramos (opcional, maximo 999.99)
+    \item \texttt{repetitions}: Numero de repeticiones realizadas (opcional)
+    \item \texttt{sets}: Numero de series realizadas (opcional)
+    \item \texttt{image\_url}: URL de imagen del ejercicio (opcional)
+    \item \texttt{created\_at}: Timestamp de creacion automatico
+\end{itemize}
+
+\subsection{Tabla routines}
+
+Almacena las rutinas personalizadas creadas por los usuarios.
+
+\begin{lstlisting}[style=sqlstyle, caption=Estructura completa de routines]
+CREATE TABLE IF NOT EXISTS public.routines (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    name TEXT NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- Indices para optimizacion
+CREATE INDEX IF NOT EXISTS idx_routines_user_id ON public.routines(user_id);
+CREATE INDEX IF NOT EXISTS idx_routines_created_at ON public.routines(created_at);
+\end{lstlisting}
+
+\textbf{Descripcion de campos:}
+\begin{itemize}
+    \item \texttt{id}: Identificador unico UUID de la rutina
+    \item \texttt{user\_id}: Referencia al usuario propietario
+    \item \texttt{name}: Nombre de la rutina (requerido)
+    \item \texttt{description}: Descripcion opcional de la rutina
+    \item \texttt{created\_at}: Timestamp de creacion
+    \item \texttt{updated\_at}: Timestamp de ultima modificacion
+\end{itemize}
+
+\subsection{Tabla routine\_exercises}
+
+Contiene los ejercicios que pertenecen a cada rutina con su orden especifico.
+
+\begin{lstlisting}[style=sqlstyle, caption=Estructura completa de routine_exercises]
+CREATE TABLE IF NOT EXISTS public.routine_exercises (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    routine_id UUID REFERENCES public.routines(id) ON DELETE CASCADE NOT NULL,
+    exercise_name TEXT NOT NULL,
+    weight DECIMAL(6,2) NOT NULL CHECK (weight >= 0),
+    repetitions INTEGER NOT NULL CHECK (repetitions > 0),
+    sets INTEGER NOT NULL CHECK (sets > 0),
+    image_url TEXT,
+    order_index INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- Indices para optimizacion
+CREATE INDEX IF NOT EXISTS idx_routine_exercises_routine_id ON public.routine_exercises(routine_id);
+CREATE INDEX IF NOT EXISTS idx_routine_exercises_order ON public.routine_exercises(routine_id, order_index);
+\end{lstlisting}
+
+\textbf{Descripcion de campos:}
+\begin{itemize}
+    \item \texttt{id}: Identificador unico del ejercicio en la rutina
+    \item \texttt{routine\_id}: Referencia a la rutina padre
+    \item \texttt{exercise\_name}: Nombre del ejercicio
+    \item \texttt{weight}: Peso en kilogramos (requerido, >= 0)
+    \item \texttt{repetitions}: Repeticiones (requerido, > 0)
+    \item \texttt{sets}: Series (requerido, > 0)
+    \item \texttt{image\_url}: URL de imagen opcional
+    \item \texttt{order\_index}: Orden del ejercicio en la rutina
+    \item \texttt{created\_at}: Timestamp de creacion
+\end{itemize}
+
+\subsection{Tabla gym\_exercises}
+
+Catalogo de ejercicios administrado por administradores del sistema.
+
+\begin{lstlisting}[style=sqlstyle, caption=Estructura completa de gym_exercises]
+CREATE TABLE IF NOT EXISTS gym_exercises (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL,
+    category TEXT NOT NULL CHECK (category IN (
+        'Pecho', 'Biceps', 'Triceps', 'Hombros', 
+        'Pierna', 'Espalda', 'Otros'
+    )),
+    description TEXT,
+    image_url TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Indices para optimizacion
+CREATE INDEX IF NOT EXISTS idx_gym_exercises_category ON gym_exercises(category);
+CREATE INDEX IF NOT EXISTS idx_gym_exercises_name ON gym_exercises(name);
+\end{lstlisting}
+
+\textbf{Descripcion de campos:}
+\begin{itemize}
+    \item \texttt{id}: Identificador unico del ejercicio
+    \item \texttt{name}: Nombre del ejercicio
+    \item \texttt{category}: Categoria del ejercicio (constraint de valores validos)
+    \item \texttt{description}: Descripcion detallada del ejercicio
+    \item \texttt{image\_url}: URL de imagen del ejercicio
+    \item \texttt{created\_at}: Timestamp de creacion
+    \item \texttt{updated\_at}: Timestamp de ultima modificacion
+\end{itemize}
+
+\subsection{Politicas de Seguridad (RLS)}
+
+Todas las tablas implementan Row Level Security para garantizar que los usuarios solo accedan a sus propios datos.
+
+\begin{lstlisting}[style=sqlstyle, caption=Politicas RLS para gym_workouts]
+-- Habilitar RLS
+ALTER TABLE public.gym_workouts ENABLE ROW LEVEL SECURITY;
+
+-- Politicas para gym_workouts
+CREATE POLICY "Usuarios pueden ver sus propios entrenamientos"
+ON public.gym_workouts
+FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Usuarios pueden insertar sus propios entrenamientos"
+ON public.gym_workouts
+FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Usuarios pueden modificar sus propios entrenamientos"
+ON public.gym_workouts
+FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Usuarios pueden eliminar sus propios entrenamientos"
+ON public.gym_workouts
+FOR DELETE USING (auth.uid() = user_id);
+\end{lstlisting}
+
+\section{Server Actions - Logica de Negocio}
+
+Las Server Actions manejan toda la logica de negocio del modulo de gimnasio. Estan implementadas en TypeScript con validacion robusta y manejo de errores.
+
+\subsection{Archivo gym-actions.ts}
+
+\subsubsection{createWorkout - Crear Entrenamiento}
+
+\begin{lstlisting}[caption=Funcion createWorkout completa]
+"use server"
+
+import { revalidatePath } from "next/cache"
+import { createClient } from "@/lib/supabase/server"
+
+export async function createWorkout(prevState: any, formData: FormData) {
+  // Extraer datos del formulario
+  const exercise_name = formData.get("exercise_name")?.toString()
+  const weight_kg = formData.get("weight_kg")?.toString()
+  const repetitions = formData.get("repetitions")?.toString()
+  const sets = formData.get("sets")?.toString()
+  const image_url = formData.get("image_url")?.toString()
+
+  // Validacion basica
+  if (!exercise_name) {
+    return { error: "El nombre del ejercicio es requerido" }
+  }
+
+  // Verificar autenticacion
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return { error: "Usuario no autenticado" }
+  }
+
+  try {
+    // Preparar datos para insercion
+    const insertData = {
+      user_id: user.id,
+      exercise_name,
+      weight_kg: weight_kg && weight_kg.trim() !== "" ? 
+        Math.max(0, Number.parseFloat(weight_kg)) : null,
+      repetitions: repetitions && repetitions.trim() !== "" ? 
+        Math.max(1, Number.parseInt(repetitions)) : null,
+      sets: sets && sets.trim() !== "" ? 
+        Math.max(1, Number.parseInt(sets)) : null,
+      image_url: image_url && image_url.trim() !== "" ? 
+        image_url.trim() : null,
+    }
+
+    // Insertar en base de datos
+    const { error } = await supabase
+      .from("gym_workouts")
+      .insert(insertData)
+
+    if (error) {
+      console.error("Database error:", error)
+      return { error: "Error al guardar el ejercicio" }
+    }
+
+    // Revalidar cache
+    revalidatePath("/gym")
+    return { success: true }
+  } catch (error) {
+    console.error("Error:", error)
+    return { error: "Error al guardar el ejercicio" }
+  }
+}
+\end{lstlisting}
+
+\textbf{Caracteristicas importantes:}
+\begin{itemize}
+    \item \textbf{Validacion de entrada}: Verifica que el nombre del ejercicio este presente
+    \item \textbf{Autenticacion}: Confirma que el usuario este autenticado
+    \item \textbf{Sanitizacion}: Convierte y valida valores numericos
+    \item \textbf{Manejo de errores}: Captura y reporta errores de base de datos
+    \item \textbf{Revalidacion}: Actualiza el cache de Next.js
+\end{itemize}
+
+\section{Componentes React}
+
+\subsection{Pagina Principal - GymPage}
+
+El componente principal que coordina toda la funcionalidad del modulo de gimnasio.
+
+\begin{lstlisting}[caption=app/gym/page.tsx - Estructura completa]
+"use client"
+
+import { useState } from "react"
+import { Dumbbell, ArrowLeft } from "lucide-react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import WorkoutForm from "@/components/gym/workout-form"
+import WorkoutList from "@/components/gym/workout-list"
+import RoutineList from "@/components/gym/routine-list"
+import RoutineForm from "@/components/gym/routine-form"
+import RoutineDetail from "@/components/gym/routine-detail"
+import ExerciseHistory from "@/components/gym/exercise-history"
+import GymMetrics from "@/components/gym/gym-metrics"
+
+// Interfaces TypeScript
+interface Workout {
+  id: string
+  exercise_name: string
+  weight_kg: number | null
+  repetitions: number | null
+  sets: number | null
+  created_at: string
+}
+
+type ViewMode = "routines" | "individual" | "routine-detail" | "create-routine" | "history" | "metrics"
+
+export default function GymPage() {
+  // Estados del componente
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null)
+  const [viewMode, setViewMode] = useState<ViewMode>("routines")
+  const [selectedRoutine, setSelectedRoutine] = useState<{ id: string; name: string } | null>(null)
+
+  // Handlers para diferentes acciones
+  const handleWorkoutAdded = () => {
+    setRefreshTrigger((prev) => prev + 1)
+  }
+
+  const handleEditWorkout = (workout: Workout) => {
+    setEditingWorkout(workout)
+  }
+
+  const handleEditComplete = () => {
+    setEditingWorkout(null)
+    setRefreshTrigger((prev) => prev + 1)
+  }
+
+  const handleViewRoutine = (routineId: string, routineName: string) => {
+    setSelectedRoutine({ id: routineId, name: routineName })
+    setViewMode("routine-detail")
+  }
+
+  const handleCreateRoutine = () => {
+    setViewMode("create-routine")
+  }
+
+  const handleRoutineCreated = () => {
+    setViewMode("routines")
+    setRefreshTrigger((prev) => prev + 1)
+  }
+
+  const handleBackToRoutines = () => {
+    setSelectedRoutine(null)
+    setViewMode("routines")
+    setRefreshTrigger((prev) => prev + 1)
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Header con navegacion */}
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Volver
+              </Link>
+            </Button>
+          </div>
+          <div className="flex items-center gap-3 mb-2">
+            <Dumbbell className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Gimnasio</h1>
+          </div>
+          <p className="text-gray-600 dark:text-gray-300">
+            Organiza tus entrenamientos por rutinas o registra ejercicios individuales
+          </p>
+        </div>
+
+        {/* Pestanas de navegacion */}
+        <div className="flex gap-2 mb-6 flex-wrap">
+          <button
+            onClick={() => setViewMode("routines")}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              viewMode === "routines" || viewMode === "routine-detail" || viewMode === "create-routine"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+            }`}
+          >
+            Rutinas
+          </button>
+          <button
+            onClick={() => setViewMode("individual")}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              viewMode === "individual" ? "bg-blue-600 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+            }`}
+          >
+            Ejercicios Individuales
+          </button>
+          <button
+            onClick={() => setViewMode("history")}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              viewMode === "history" ? "bg-blue-600 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+            }`}
+          >
+            Historial
+          </button>
+          <button
+            onClick={() => setViewMode("metrics")}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              viewMode === "metrics" ? "bg-blue-600 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+            }`}
+          >
+            Metricas
+          </button>
+        </div>
+
+        {/* Renderizado condicional de componentes */}
+        <div className="grid gap-6">
+          {viewMode === "routines" && (
+            <RoutineList
+              refreshTrigger={refreshTrigger}
+              onViewRoutine={handleViewRoutine}
+              onCreateRoutine={handleCreateRoutine}
+            />
+          )}
+
+          {viewMode === "create-routine" && (
+            <RoutineForm 
+              onRoutineCreated={handleRoutineCreated} 
+              onCancel={() => setViewMode("routines")} 
+            />
+          )}
+
+          {viewMode === "routine-detail" && selectedRoutine && (
+            <RoutineDetail
+              routineId={selectedRoutine.id}
+              routineName={selectedRoutine.name}
+              onBack={handleBackToRoutines}
+            />
+          )}
+
+          {viewMode === "individual" && (
+            <>
+              <WorkoutForm
+                onWorkoutAdded={handleWorkoutAdded}
+                editWorkout={editingWorkout}
+                onEditComplete={handleEditComplete}
+              />
+              <WorkoutList 
+                refreshTrigger={refreshTrigger} 
+                onEditWorkout={handleEditWorkout} 
+              />
+            </>
+          )}
+
+          {viewMode === "history" && <ExerciseHistory />}
+          {viewMode === "metrics" && <GymMetrics />}
+        </div>
+      </div>
+    </div>
+  )
+}
+\end{lstlisting}
+
+\textbf{Caracteristicas del componente:}
+\begin{itemize}
+    \item \textbf{Estado centralizado}: Maneja todos los estados de la aplicacion
+    \item \textbf{Navegacion por pestanas}: Interfaz intuitiva para cambiar entre vistas
+    \item \textbf{Renderizado condicional}: Muestra diferentes componentes segun el modo
+    \item \textbf{Handlers de eventos}: Gestiona todas las interacciones del usuario
+    \item \textbf{TypeScript}: Tipado estricto para mayor seguridad
+\end{itemize}
+
+\section{Ejemplos Practicos de Uso}
+
+\subsection{Ejemplos de Insercion a Base de Datos}
+
+\subsubsection{Crear un Entrenamiento Individual}
+
+\begin{lstlisting}[style=sqlstyle, caption=Ejemplo de insercion en gym_workouts]
+-- Insertar un entrenamiento de press de banca
+INSERT INTO public.gym_workouts (
+    user_id,
+    exercise_name,
+    weight_kg,
+    repetitions,
+    sets,
+    image_url
+) VALUES (
+    '123e4567-e89b-12d3-a456-426614174000', -- UUID del usuario
+    'Press de Banca',
+    80.00,
+    12,
+    3,
+    'https://ejemplo.com/press-banca.jpg'
+);
+
+-- Insertar un entrenamiento de sentadillas
+INSERT INTO public.gym_workouts (
+    user_id,
+    exercise_name,
+    weight_kg,
+    repetitions,
+    sets
+) VALUES (
+    '123e4567-e89b-12d3-a456-426614174000',
+    'Sentadillas',
+    100.00,
+    10,
+    4
+);
+\end{lstlisting}
+
+\subsubsection{Crear una Rutina Completa}
+
+\begin{lstlisting}[style=sqlstyle, caption=Ejemplo de creacion de rutina completa]
+-- 1. Crear la rutina
+INSERT INTO public.routines (
+    user_id,
+    name,
+    description
+) VALUES (
+    '123e4567-e89b-12d3-a456-426614174000',
+    'Rutina de Pecho y Triceps',
+    'Rutina enfocada en el desarrollo del pecho y triceps, ideal para principiantes'
+);
+
+-- Obtener el ID de la rutina recien creada
+-- (En la aplicacion esto se maneja automaticamente)
+
+-- 2. Agregar ejercicios a la rutina
+INSERT INTO public.routine_exercises (
+    routine_id,
+    exercise_name,
+    weight,
+    repetitions,
+    sets,
+    order_index
+) VALUES 
+    ('456e7890-e89b-12d3-a456-426614174001', 'Press de Banca', 80.00, 12, 3, 0),
+    ('456e7890-e89b-12d3-a456-426614174001', 'Aperturas con Mancuernas', 25.00, 15, 3, 1),
+    ('456e7890-e89b-12d3-a456-426614174001', 'Press Frances', 30.00, 12, 3, 2),
+    ('456e7890-e89b-12d3-a456-426614174001', 'Fondos para Triceps', 0.00, 10, 3, 3);
+\end{lstlisting}
+
+\subsubsection{Consultas Utiles}
+
+\begin{lstlisting}[style=sqlstyle, caption=Consultas utiles para analisis]
+-- Obtener todos los entrenamientos de un usuario con detalles
+SELECT 
+    gw.exercise_name,
+    gw.weight_kg,
+    gw.repetitions,
+    gw.sets,
+    gw.created_at,
+    (gw.weight_kg * gw.repetitions * gw.sets) as volumen_total
+FROM public.gym_workouts gw
+WHERE gw.user_id = '123e4567-e89b-12d3-a456-426614174000'
+ORDER BY gw.created_at DESC;
+
+-- Obtener progreso de un ejercicio especifico
+SELECT 
+    exercise_name,
+    weight_kg,
+    repetitions,
+    sets,
+    created_at,
+    (weight_kg * repetitions * sets) as volumen
+FROM public.gym_workouts
+WHERE user_id = '123e4567-e89b-12d3-a456-426614174000'
+  AND exercise_name = 'Press de Banca'
+ORDER BY created_at ASC;
+
+-- Obtener rutinas con conteo de ejercicios
+SELECT 
+    r.name,
+    r.description,
+    r.created_at,
+    COUNT(re.id) as total_ejercicios
+FROM public.routines r
+LEFT JOIN public.routine_exercises re ON r.id = re.routine_id
+WHERE r.user_id = '123e4567-e89b-12d3-a456-426614174000'
+GROUP BY r.id, r.name, r.description, r.created_at
+ORDER BY r.created_at DESC;
+
+-- Obtener ejercicios de una rutina especifica en orden
+SELECT 
+    re.exercise_name,
+    re.weight,
+    re.repetitions,
+    re.sets,
+    re.order_index
+FROM public.routine_exercises re
+WHERE re.routine_id = '456e7890-e89b-12d3-a456-426614174001'
+ORDER BY re.order_index ASC;
+\end{lstlisting}
+
+\subsection{Flujos de Datos Completos}
+
+\subsubsection{Flujo de Creacion de Entrenamiento}
+
+\begin{enumerate}
+    \item \textbf{Usuario completa formulario} en \texttt{WorkoutForm}
+    \item \textbf{Validacion en cliente} de campos requeridos
+    \item \textbf{Envio a Server Action} \texttt{createWorkout}
+    \item \textbf{Verificacion de autenticacion} en servidor
+    \item \textbf{Sanitizacion de datos} (conversion de tipos)
+    \item \textbf{Insercion en base de datos} tabla \texttt{gym\_workouts}
+    \item \textbf{Revalidacion de cache} con \texttt{revalidatePath}
+    \item \textbf{Actualizacion de UI} con nuevo entrenamiento
+\end{enumerate}
+
+\subsubsection{Flujo de Gestion de Rutinas}
+
+\begin{enumerate}
+    \item \textbf{Creacion de rutina} con \texttt{createRoutine}
+    \item \textbf{Insercion en tabla} \texttt{routines}
+    \item \textbf{Agregar ejercicios} con \texttt{addExerciseToRoutine}
+    \item \textbf{Insercion en tabla} \texttt{routine\_exercises} con \texttt{order\_index}
+    \item \textbf{Visualizacion de rutina} con \texttt{getRoutineExercises}
+    \item \textbf{Ejecucion de rutina} (registro de entrenamientos individuales)
+\end{enumerate}
+
+\section{Caracteristicas Avanzadas}
+
+\subsection{Selector de Ejercicios}
+
+El modulo incluye un selector modal avanzado que permite:
+
+\begin{itemize}
+    \item \textbf{Catalogo de ejercicios}: Acceso a ejercicios administrados
+    \item \textbf{Filtrado por categoria}: Pecho, Biceps, Triceps, etc.
+    \item \textbf{Busqueda de ejercicios}: Filtrado por nombre
+    \item \textbf{Ejercicios personalizados}: Creacion de ejercicios unicos
+    \item \textbf{Imagenes de ejercicios}: Visualizacion de tecnicas
+\end{itemize}
+
+\subsection{Metricas y Estadisticas}
+
+El componente \texttt{GymMetrics} proporciona:
+
+\begin{itemize}
+    \item \textbf{Graficos de progreso}: Evolucion del peso a lo largo del tiempo
+    \item \textbf{Estadisticas de volumen}: Calculo de volumen total (peso × reps × series)
+    \item \textbf{Tendencias de entrenamiento}: Frecuencia y consistencia
+    \item \textbf{Comparativas temporales}: Progreso mensual/semanal
+    \item \textbf{Analisis por ejercicio}: Progreso especifico por ejercicio
+\end{itemize}
+
+\subsection{Historial de Ejercicios}
+
+El componente \texttt{ExerciseHistory} permite:
+
+\begin{itemize}
+    \item \textbf{Historial completo}: Todos los entrenamientos registrados
+    \item \textbf{Filtrado por ejercicio}: Ver progreso de un ejercicio especifico
+    \item \textbf{Analisis temporal}: Progreso a lo largo del tiempo
+    \item \textbf{Exportacion de datos}: Para analisis externo
+    \item \textbf{Busqueda avanzada}: Filtros por fecha, ejercicio, peso
+\end{itemize}
+
+\section{Mejores Practicas de Desarrollo}
+
+\subsection{Seguridad}
+
+\begin{itemize}
+    \item \textbf{Validacion de entrada}: Siempre validar datos en Server Actions
+    \item \textbf{Autenticacion}: Verificar usuario en cada operacion
+    \item \textbf{RLS}: Usar Row Level Security en todas las tablas
+    \item \textbf{Sanitizacion}: Limpiar y convertir datos de entrada
+    \item \textbf{Logs de seguridad}: Registrar operaciones sensibles
+\end{itemize}
+
+\subsection{Performance}
+
+\begin{itemize}
+    \item \textbf{Indices de base de datos}: Optimizar consultas frecuentes
+    \item \textbf{Paginacion}: Implementar para listas largas
+    \item \textbf{Cache}: Usar revalidatePath para actualizar cache
+    \item \textbf{Lazy loading}: Cargar componentes bajo demanda
+    \item \textbf{Optimizacion de imagenes}: Comprimir y optimizar imagenes
+\end{itemize}
+
+\subsection{Mantenibilidad}
+
+\begin{itemize}
+    \item \textbf{TypeScript}: Usar tipado estricto en todos los componentes
+    \item \textbf{Interfaces}: Definir interfaces claras para props
+    \item \textbf{Separacion de responsabilidades}: Logica en Server Actions
+    \item \textbf{Reutilizacion}: Componentes modulares y reutilizables
+    \item \textbf{Documentacion}: Comentar codigo complejo
+\end{itemize}
+
+\section{Solucion de Problemas}
+
+\subsection{Problemas Comunes}
+
+\subsubsection{Error: Tabla no existe}
+
+\textbf{Sintomas}: Error al intentar insertar o consultar datos
+\textbf{Causa}: Las tablas no han sido creadas en la base de datos
+\textbf{Solucion}: Ejecutar los scripts SQL en orden:
+\begin{enumerate}
+    \item \texttt{01-create-database-schema.sql}
+    \item \texttt{01-create-user-schema.sql}
+    \item \texttt{08-verify-routines-tables.sql}
+    \item \texttt{26-create-gym-exercises-table.sql}
+\end{enumerate}
+
+\subsubsection{Error: Usuario no autenticado}
+
+\textbf{Sintomas}: Server Actions retornan error de autenticacion
+\textbf{Causa}: Usuario no esta logueado o sesion expirada
+\textbf{Solucion}: Verificar estado de autenticacion y redirigir a login
+
+\subsubsection{Error: Politica RLS violada}
+
+\textbf{Sintomas}: Error al acceder a datos de otros usuarios
+\textbf{Causa}: Politicas RLS mal configuradas
+\textbf{Solucion}: Verificar y corregir politicas RLS
+
+\subsection{Debugging}
+
+\subsubsection{Logs del Cliente}
+
+\begin{lstlisting}[caption=Debugging en cliente]
+// Habilitar logs detallados
+localStorage.setItem('debug', 'true');
+
+// Verificar estado de autenticacion
+console.log('User:', user);
+console.log('Session:', session);
+
+// Verificar datos de entrenamientos
+console.log('Workouts:', workouts);
+\end{lstlisting}
+
+\subsubsection{Logs del Servidor}
+
+\begin{lstlisting}[caption=Debugging en servidor]
+// En Server Actions
+console.log('Action called with:', { userId, data });
+
+// En consultas de base de datos
+console.log('Query result:', { data, error });
+
+// En validaciones
+console.log('Validation result:', validationResult);
+\end{lstlisting}
+
+\section{Conclusion}
+
+El modulo de gimnasio de FitTrack es un sistema completo y robusto que permite a los usuarios gestionar sus entrenamientos de manera eficiente. Con su arquitectura bien definida, base de datos optimizada y componentes React modernos, proporciona una experiencia de usuario excepcional.
+
+\textbf{Caracteristicas destacadas:}
+\begin{itemize}
+    \item Arquitectura escalable y mantenible
+    \item Seguridad robusta con RLS
+    \item Interfaz de usuario intuitiva
+    \item Funcionalidades avanzadas de analisis
+    \item Codigo bien documentado y tipado
+\end{itemize}
+
+Para contribuir al desarrollo del modulo:
+\begin{enumerate}
+    \item Seguir las convenciones establecidas
+    \item Implementar tests apropiados
+    \item Documentar cambios significativos
+    \item Mantener la compatibilidad con la base de datos
+    \item Respetar las politicas de seguridad
+\end{enumerate}
+
+\end{document}
