@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button"
 import { updateUserPreferences } from "@/lib/accessibility-actions"
 import { useToast } from "@/hooks/use-toast"
-import { Eye, Type, Zap, Volume2, Palette, Moon, Sun } from "lucide-react"
+import { Type, Zap, Palette, Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 
 interface AccessibilitySettingsProps {
@@ -88,13 +88,6 @@ export function AccessibilitySettings({ initialPreferences, isGuest = false }: A
 
     console.log("[v0] Applying colorblind mode:", prefs.color_blind_mode)
 
-    // Apply high contrast
-    if (prefs.high_contrast) {
-      root.classList.add("high-contrast")
-    } else {
-      root.classList.remove("high-contrast")
-    }
-
     // Apply large text
     if (prefs.large_text) {
       root.classList.add("large-text")
@@ -111,7 +104,7 @@ export function AccessibilitySettings({ initialPreferences, isGuest = false }: A
   }
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-6 grid-cols-1 md:grid-cols-2 md:grid-rows-2">
       <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
@@ -184,29 +177,7 @@ export function AccessibilitySettings({ initialPreferences, isGuest = false }: A
         </CardContent>
       </Card>
 
-      <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
-            <Eye className="h-5 w-5" />
-            Alto Contraste
-          </CardTitle>
-          <CardDescription className="text-gray-600 dark:text-gray-300">
-            Aumenta el contraste entre texto y fondo para mejor legibilidad
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="high-contrast"
-              checked={preferences.high_contrast}
-              onCheckedChange={(checked) => setPreferences({ ...preferences, high_contrast: checked })}
-            />
-            <Label htmlFor="high-contrast" className="text-gray-900 dark:text-white">
-              Activar alto contraste
-            </Label>
-          </div>
-        </CardContent>
-      </Card>
+      
 
       <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
         <CardHeader>
@@ -256,31 +227,9 @@ export function AccessibilitySettings({ initialPreferences, isGuest = false }: A
         </CardContent>
       </Card>
 
-      <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
-            <Volume2 className="h-5 w-5" />
-            Optimizado para Lectores de Pantalla
-          </CardTitle>
-          <CardDescription className="text-gray-600 dark:text-gray-300">
-            Mejora la experiencia con lectores de pantalla
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="screen-reader"
-              checked={preferences.screen_reader_optimized}
-              onCheckedChange={(checked) => setPreferences({ ...preferences, screen_reader_optimized: checked })}
-            />
-            <Label htmlFor="screen-reader" className="text-gray-900 dark:text-white">
-              Optimizar para lectores de pantalla
-            </Label>
-          </div>
-        </CardContent>
-      </Card>
+      
 
-      <div className="md:col-span-2 lg:col-span-3">
+      <div className="md:col-span-2">
         <Button onClick={handleSave} disabled={loading} className="w-full">
           {loading ? "Guardando..." : "Guardar Preferencias"}
         </Button>

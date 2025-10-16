@@ -12,10 +12,8 @@ export default async function AccessibilityPage() {
   // Get preferences from database if user is logged in, otherwise use defaults
   let preferences = {
     color_blind_mode: "none",
-    high_contrast: false,
     large_text: false,
     reduce_motion: false,
-    screen_reader_optimized: false,
   }
 
   if (user) {
