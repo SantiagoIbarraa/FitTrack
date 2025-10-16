@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Dumbbell, Accessibility } from "lucide-react"
+import { Accessibility, Dumbbell } from "lucide-react"
 import { ServicesCarousel } from "@/components/services-carousel"
 import LoginForm from "@/components/auth/login-form"
 import RegisterForm from "@/components/auth/register-form"

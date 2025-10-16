@@ -8,6 +8,11 @@ export const metadata: Metadata = {
   title: "FitTrack",
   description: "Track your fitness journey",
   generator: "v0.app",
+  icons: {
+    icon: "/logo-fittrack.png",
+    shortcut: "/logo-fittrack.png",
+    apple: "/logo-fittrack.png",
+  },
 }
 
 export default function RootLayout({
