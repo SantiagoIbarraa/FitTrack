@@ -6,7 +6,7 @@ import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Camera, Upload, X, Sparkles, User, Loader2 } from "lucide-react"
+import { Camera, Upload, X, Bot, User, Loader2, Zap, FileText } from "lucide-react"
 import { getUserProfile } from "@/lib/user-actions"
 import { calculateBMI } from "@/lib/health-actions"
 
@@ -26,6 +26,7 @@ export default function ImageAnalyzer() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [isClient, setIsClient] = useState(false)
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+  const [responseMode, setResponseMode] = useState<"quick" | "extended">("quick")
   const fileInputRef = useRef<HTMLInputElement>(null)
   const cameraInputRef = useRef<HTMLInputElement>(null)
 
@@ -95,10 +96,11 @@ export default function ImageAnalyzer() {
         body: JSON.stringify({
           image: selectedImage,
           userProfile,
+          responseMode,
         }),
       })
 
-      const data: { error: string; analysis: string } = await response.json();
+      const data: { error: string; analysis: string } = await response.json()
 
       if (data.error) {
         throw new Error(data.error)
@@ -126,7 +128,7 @@ export default function ImageAnalyzer() {
         {/* Header Section */}
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <Sparkles className="h-6 w-6 text-purple-600" />
+            <Bot className="h-6 w-6 text-purple-600" />
             <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Análisis Nutricional con IA</h2>
           </div>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
@@ -145,7 +147,7 @@ export default function ImageAnalyzer() {
       {/* Header Section */}
       <div className="text-center">
         <div className="flex items-center justify-center gap-2 mb-2">
-          <Sparkles className="h-6 w-6 text-purple-600" />
+          <Bot className="h-6 w-6 text-purple-600" />
           <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Análisis Nutricional con IA</h2>
         </div>
         <p className="text-gray-600 dark:text-gray-300 mb-6">
@@ -159,6 +161,27 @@ export default function ImageAnalyzer() {
             </span>
           </div>
         )}
+      </div>
+
+      <div className="flex justify-center gap-2">
+        <Button
+          variant={responseMode === "quick" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setResponseMode("quick")}
+          className="flex items-center gap-2"
+        >
+          <Zap className="h-4 w-4" />
+          Respuesta Rápida
+        </Button>
+        <Button
+          variant={responseMode === "extended" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setResponseMode("extended")}
+          className="flex items-center gap-2"
+        >
+          <FileText className="h-4 w-4" />
+          Respuesta Extensa
+        </Button>
       </div>
 
       {/* Upload Section */}
@@ -225,12 +248,12 @@ export default function ImageAnalyzer() {
                 {isAnalyzing ? (
                   <>
                     <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                    Analizando con IA...
+                    {responseMode === "quick" ? "Análisis Rápido..." : "Análisis Detallado..."}
                   </>
                 ) : (
                   <>
-                    <Sparkles className="h-5 w-5 mr-2" />
-                    Analizar Comida
+                    {responseMode === "quick" ? <Zap className="h-5 w-5 mr-2" /> : <FileText className="h-5 w-5 mr-2" />}
+                    {responseMode === "quick" ? "Análisis Rápido" : "Análisis Detallado"}
                   </>
                 )}
               </Button>
@@ -244,11 +267,24 @@ export default function ImageAnalyzer() {
         <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-gray-800 dark:text-gray-100">
-              <Sparkles className="h-5 w-5 text-purple-600" />
+              <Bot className="h-5 w-5 text-purple-600" />
               Análisis Nutricional
               <Badge variant="secondary" className="ml-2">
-                <Sparkles className="h-3 w-3 mr-1" />
+                <Bot className="h-3 w-3 mr-1" />
                 Gemini AI
+              </Badge>
+              <Badge variant={responseMode === "quick" ? "default" : "outline"} className="ml-2">
+                {responseMode === "quick" ? (
+                  <>
+                    <Zap className="h-3 w-3 mr-1" />
+                    Rápido
+                  </>
+                ) : (
+                  <>
+                    <FileText className="h-3 w-3 mr-1" />
+                    Detallado
+                  </>
+                )}
               </Badge>
             </CardTitle>
           </CardHeader>
@@ -271,7 +307,7 @@ export default function ImageAnalyzer() {
         </Card>
         <Card className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600 shadow-sm">
           <CardContent className="p-4 text-center">
-            <Sparkles className="h-8 w-8 text-purple-500 mx-auto mb-2" />
+            <Bot className="h-8 w-8 text-purple-500 mx-auto mb-2" />
             <h4 className="font-semibold text-gray-800 dark:text-gray-100 mb-1">IA Avanzada</h4>
             <p className="text-sm text-gray-600 dark:text-gray-300">Análisis personalizado según tu perfil</p>
           </CardContent>

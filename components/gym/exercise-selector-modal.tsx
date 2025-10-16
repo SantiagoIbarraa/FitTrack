@@ -58,7 +58,7 @@ export default function ExerciseSelectorModal({ open, onOpenChange, onSelectExer
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw]  max-h-[90vh] p-0">
+      <DialogContent className="max-w-6xl max-h-[90vh] p-0">
         <DialogHeader className="px-6 pt-6 pb-4">
           <DialogTitle className="text-2xl font-bold">Seleccionar Ejercicio</DialogTitle>
         </DialogHeader>
@@ -101,12 +101,12 @@ export default function ExerciseSelectorModal({ open, onOpenChange, onSelectExer
               <p className="text-muted-foreground">No se encontraron ejercicios en esta categoría</p>
             </div>
           ) : (
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-3 gap-6">
               {displayedExercises.map((exercise) => (
                 <Button
                   key={exercise.id}
                   variant="outline"
-                  className="h-32 flex flex-col items-center justify-center p-4 hover:bg-accent bg-transparent"
+                  className="h-48 flex flex-col items-center justify-center p-6 hover:bg-accent bg-transparent"
                   onClick={() => {
                     onSelectExercise(exercise)
                     onOpenChange(false)
@@ -116,14 +116,14 @@ export default function ExerciseSelectorModal({ open, onOpenChange, onSelectExer
                     <img
                       src={exercise.image_url || "/placeholder.svg"}
                       alt={exercise.name}
-                      className="w-32 h-32 rounded object-cover mb-2"
+                      className="w-32 h-32 rounded object-cover mb-3"
                     />
                   ) : (
-                    <div className="w-16 h-16 rounded bg-muted flex items-center justify-center mb-2">
-                      <Dumbbell className="h-8 w-8 text-muted-foreground" />
+                    <div className="w-24 h-24 rounded bg-muted flex items-center justify-center mb-3">
+                      <Dumbbell className="h-12 w-12 text-muted-foreground" />
                     </div>
                   )}
-                  <div className="font-medium text-center text-sm line-clamp-2 overflow-hidden text-ellipsis w-full">
+                  <div className="font-medium text-center text-base line-clamp-2 overflow-hidden text-ellipsis w-full">
                     {exercise.name}
                   </div>
                 </Button>

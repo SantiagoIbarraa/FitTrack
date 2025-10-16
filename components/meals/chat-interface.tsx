@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Send, MessageCircle, Utensils, Apple, Coffee, Calculator, User } from "lucide-react"
+import { Send, Bot, Utensils, Apple, Coffee, Calculator, User, Zap, FileText } from "lucide-react"
 import { getUserProfile } from "@/lib/user-actions"
 import { calculateBMI } from "@/lib/health-actions"
 
@@ -35,6 +35,7 @@ export default function ChatInterface() {
   const [isLoading, setIsLoading] = useState(false)
   const [isClient, setIsClient] = useState(false)
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+  const [responseMode, setResponseMode] = useState<"quick" | "extended">("quick")
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -108,6 +109,7 @@ export default function ChatInterface() {
     setIsLoading(true)
 
     try {
+      console.log("[v0] Chat Interface: Sending message to API")
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
@@ -116,10 +118,32 @@ export default function ChatInterface() {
         body: JSON.stringify({
           message: inputValue,
           userProfile,
+          responseMode,
         }),
       })
 
-      const data = await response.json()
+      console.log("[v0] Chat Interface: Response status:", response.status, response.statusText)
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error("[v0] Chat Interface: Error response:", errorText)
+        throw new Error(`Error del servidor (${response.status}): ${errorText}`)
+      }
+
+      let data
+      try {
+        const responseText = await response.text()
+        console.log("[v0] Chat Interface: Response text length:", responseText.length)
+        data = JSON.parse(responseText)
+      } catch (parseError) {
+        console.error("[v0] Chat Interface: JSON parse error:", parseError)
+        throw new Error("La respuesta del servidor no es válida. Por favor intenta de nuevo.")
+      }
+
+      console.log("[v0] Chat Interface: Data parsed successfully", {
+        hasError: !!data.error,
+        hasResponse: !!data.response,
+      })
 
       if (data.error) {
         throw new Error(data.error)
@@ -127,17 +151,18 @@ export default function ChatInterface() {
 
       const aiResponse: Message = {
         id: (++messageIdCounter.current).toString(),
-        content: data.response.replaceAll("**", ""), 
+        content: data.response.replaceAll("**", ""),
         isUser: false,
         timestamp: new Date(),
       }
 
       setMessages((prev) => [...prev, aiResponse])
+      console.log("[v0] Chat Interface: Message added successfully")
     } catch (error) {
-      console.error("Error sending message:", error)
+      console.error("[v0] Chat Interface: Error sending message:", error)
       const errorMessage: Message = {
         id: (++messageIdCounter.current).toString(),
-        content: `❌ ${error instanceof Error ? error.message : "Lo siento, hubo un error al procesar tu mensaje. Por favor intenta de nuevo o verifica tu conexión."}\n\n💡 Si el error menciona "API key", necesitas crear un archivo .env.local con tu clave de Gemini. Consulta CONFIGURACION_API.md para más detalles.`,
+        content: `❌ ${error instanceof Error ? error.message : "Lo siento, hubo un error al procesar tu mensaje. Por favor intenta de nuevo o verifica tu conexión."}\n\n💡 Si el error menciona "API key", asegúrate de que las variables GOOGLE_GENERATIVE_AI_API_KEY o GEMINI_API_KEY estén configuradas en la sección 'Vars' del sidebar de v0.`,
         isUser: false,
         timestamp: new Date(),
       }
@@ -160,7 +185,7 @@ export default function ChatInterface() {
         <div className="space-y-6">
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
-              <MessageCircle className="h-6 w-6 text-blue-600" />
+              <Bot className="h-6 w-6 text-blue-600" />
               <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Asistente Nutricional</h2>
             </div>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
@@ -181,7 +206,7 @@ export default function ChatInterface() {
         {/* Welcome Section */}
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <MessageCircle className="h-6 w-6 text-blue-600" />
+            <Bot className="h-6 w-6 text-blue-600" />
             <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Asistente Nutricional</h2>
           </div>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
@@ -195,6 +220,28 @@ export default function ChatInterface() {
               </span>
             </div>
           )}
+        </div>
+
+        {/* Response Mode Selector */}
+        <div className="flex justify-center gap-2">
+          <Button
+            variant={responseMode === "quick" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setResponseMode("quick")}
+            className="flex items-center gap-2"
+          >
+            <Zap className="h-4 w-4" />
+            Respuesta Rápida
+          </Button>
+          <Button
+            variant={responseMode === "extended" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setResponseMode("extended")}
+            className="flex items-center gap-2"
+          >
+            <FileText className="h-4 w-4" />
+            Respuesta Extensa
+          </Button>
         </div>
 
         {/* Quick Topics */}
@@ -231,7 +278,7 @@ export default function ChatInterface() {
         <Card className="mb-4 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600 shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-gray-800 dark:text-gray-100">
-              <MessageCircle className="h-5 w-5" />
+              <Bot className="h-5 w-5" />
               Chat Nutricional
             </CardTitle>
           </CardHeader>
@@ -255,7 +302,7 @@ export default function ChatInterface() {
                 <div className="flex justify-start">
                   <div className="bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600">
                     <div className="flex items-center gap-2">
-                      <MessageCircle className="h-4 w-4 animate-pulse text-blue-600" />
+                      <Bot className="h-4 w-4 animate-pulse text-blue-600" />
                       <p className="text-sm">Analizando tu consulta...</p>
                     </div>
                   </div>

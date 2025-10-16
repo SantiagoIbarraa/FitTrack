@@ -7,7 +7,6 @@ import { getRunningHistory } from "@/lib/history-actions"
 import { getWorkouts } from "@/lib/gym-actions"
 import { z } from "zod"
 
-// Schema para el análisis de imágenes
 const foodAnalysisSchema = z.object({
   foodName: z.string().describe("Nombre del plato o comida"),
   calories: z.number().describe("Número estimado de calorías"),
@@ -23,20 +22,30 @@ const foodAnalysisSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { message, userProfile, image, type } = body
+    console.log("[v0] Chat API: Request received")
 
-    // Verificar que la API key esté configurada
-    if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
-      console.error("GOOGLE_GENERATIVE_AI_API_KEY no está configurada")
+    const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY
+    console.log("[v0] Chat API: API key exists?", !!apiKey)
+
+    if (!apiKey) {
+      console.error("[v0] Chat API: No API key found")
       return NextResponse.json(
         {
           error:
-            "API key no configurada. Por favor, crea un archivo .env.local con GOOGLE_GENERATIVE_AI_API_KEY=tu_clave_aqui",
+            "GOOGLE_GENERATIVE_AI_API_KEY no está configurada. Por favor, agrega la variable de entorno en la sección 'Vars' del sidebar.",
         },
         { status: 500 },
       )
     }
+
+    const body = await request.json()
+    console.log("[v0] Chat API: Request body parsed", {
+      type: body.type,
+      hasMessage: !!body.message,
+      hasImage: !!body.image,
+    })
+
+    const { message, userProfile, image, type } = body
 
     const supabase = await createClient()
     const {
@@ -44,26 +53,33 @@ export async function POST(request: NextRequest) {
     } = await supabase.auth.getUser()
 
     if (!user) {
+      console.error("[v0] Chat API: User not authenticated")
       return NextResponse.json({ error: "No autenticado" }, { status: 401 })
     }
 
+    console.log("[v0] Chat API: User authenticated:", user.id)
+
     // Manejar análisis de imagen
     if (type === "image" && image) {
-      return await handleImageAnalysis(image)
+      console.log("[v0] Chat API: Processing image analysis")
+      return await handleImageAnalysis(image, apiKey)
     }
 
     // Manejar chat de texto
     if (!message) {
+      console.error("[v0] Chat API: No message provided")
       return NextResponse.json({ error: "No se proporcionó un mensaje" }, { status: 400 })
     }
 
-    return await handleChatMessage(message, userProfile)
+    console.log("[v0] Chat API: Processing chat message")
+    return await handleChatMessage(message, userProfile, apiKey)
   } catch (error) {
-    console.error("Error processing request:", error)
+    console.error("[v0] Chat API: Error in POST handler:", error)
 
     let errorMessage = "Error al procesar tu solicitud"
 
     if (error instanceof Error) {
+      console.error("[v0] Chat API: Error details:", error.message, error.stack)
       if (error.message.includes("API key")) {
         errorMessage = "Error de configuración de API. Verifica tu clave de Gemini."
       } else if (error.message.includes("quota")) {
@@ -79,12 +95,14 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function handleImageAnalysis(image: string) {
+async function handleImageAnalysis(image: string, apiKey: string) {
   try {
+    console.log("[v0] Image Analysis: Starting")
     // Remove data URL prefix
     const base64Image = image.replace(/^data:image\/\w+;base64,/, "")
 
-    const model = google("gemini-2.0-flash-exp")
+    const model = google("gemini-2.5-flash", { apiKey })
+    console.log("[v0] Image Analysis: Model created")
 
     const prompt = `Analiza esta imagen de comida y proporciona la siguiente información en formato JSON:
 
@@ -103,10 +121,10 @@ async function handleImageAnalysis(image: string) {
 
 Sé lo más preciso posible. Si no puedes identificar la comida claramente, indica baja confianza y proporciona tu mejor estimación.`
 
+    console.log("[v0] Image Analysis: Calling generateObject")
     const { object } = await generateObject({
       model,
       schema: foodAnalysisSchema,
-      prompt,
       messages: [
         {
           role: "user",
@@ -121,14 +139,20 @@ Sé lo más preciso posible. Si no puedes identificar la comida claramente, indi
       ],
     })
 
+    console.log("[v0] Image Analysis: Success")
     return NextResponse.json(object)
   } catch (error) {
-    console.error("Error analyzing food image:", error)
+    console.error("[v0] Image Analysis: Error:", error)
+    if (error instanceof Error) {
+      console.error("[v0] Image Analysis: Error details:", error.message, error.stack)
+    }
     return NextResponse.json({ error: "Error al analizar la imagen. Por favor intenta de nuevo." }, { status: 500 })
   }
 }
 
-async function handleChatMessage(message: string, userProfile: any) {
+async function handleChatMessage(message: string, userProfile: any, apiKey: string) {
+  console.log("[v0] Chat Message: Starting")
+
   let exerciseData = ""
   try {
     const exercises = await getUniqueExercises()
@@ -143,7 +167,7 @@ async function handleChatMessage(message: string, userProfile: any) {
       }
     }
   } catch (error) {
-    console.log("No se pudo obtener historial de ejercicios")
+    console.log("[v0] Chat Message: No exercise history available")
   }
 
   let runningData = ""
@@ -161,7 +185,7 @@ async function handleChatMessage(message: string, userProfile: any) {
 - Última sesión: ${lastSession.distance}km en ${lastSession.duration} minutos (${lastSession.pace.toFixed(2)} min/km)`
     }
   } catch (error) {
-    console.log("No se pudo obtener historial de running")
+    console.log("[v0] Chat Message: No running history available")
   }
 
   let gymData = ""
@@ -176,7 +200,7 @@ async function handleChatMessage(message: string, userProfile: any) {
       })
     }
   } catch (error) {
-    console.log("No se pudo obtener workouts del gimnasio")
+    console.log("[v0] Chat Message: No gym workouts available")
   }
 
   let bmr = 0
@@ -195,7 +219,8 @@ async function handleChatMessage(message: string, userProfile: any) {
     proteinMax = Math.round(userProfile.weight * 2.2)
   }
 
-  const model = google("gemini-2.5-flash")
+  console.log("[v0] Chat Message: Creating model")
+  const model = google("gemini-2.5-flash", { apiKey })
 
   const prompt = `Eres un asistente nutricional experto especializado en fitness y salud. Tu nombre es "Asistente Nutricional de FitTrack".
 
@@ -229,10 +254,12 @@ INSTRUCCIONES:
 
 Responde a la pregunta del usuario ahora:`
 
+  console.log("[v0] Chat Message: Calling generateText")
   const { text } = await generateText({
     model,
     prompt,
   })
 
+  console.log("[v0] Chat Message: Success, response length:", text.length)
   return NextResponse.json({ response: text })
 }

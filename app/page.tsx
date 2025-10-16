@@ -125,9 +125,9 @@ export default async function Home() {
               <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                 <CardHeader className="text-center">
                   <Utensils className="h-12 w-12 mx-auto mb-4 text-orange-600 group-hover:scale-110 transition-transform" />
-                  <CardTitle className="text-gray-900 dark:text-white">Comidas</CardTitle>
+                  <CardTitle className="text-gray-900 dark:text-white">Asistente FitTrack</CardTitle>
                   <CardDescription className="text-gray-700 dark:text-gray-50">
-                    Asistente de nutrición con IA
+                    Chat con IA y análisis de comidas
                   </CardDescription>
                 </CardHeader>
               </Card>

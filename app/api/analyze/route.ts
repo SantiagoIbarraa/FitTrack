@@ -6,7 +6,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "AIzaSyDYVDyl
 
 export async function POST(request: Request) {
   try {
-    const { image, userProfile } = await request.json()
+    const { image, userProfile, responseMode } = await request.json()
 
     const supabase = await createClient()
     const {
@@ -17,25 +17,46 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 })
     }
 
-    let systemPrompt = `Eres un experto nutricionista y analista de alimentos de FitTrack. Tu tarea es analizar imágenes de comidas y proporcionar información nutricional detallada y personalizada.
+    let systemPrompt = ""
+    
+    if (responseMode === "quick") {
+      systemPrompt = `Eres un experto nutricionista de FitTrack. Proporciona un análisis NUTRICIONAL RÁPIDO y CONCISO de la imagen de comida.
+
+Para respuesta RÁPIDA, incluye SOLO:
+1. Alimentos identificados (lista breve)
+2. Calorías aproximadas totales
+3. Macronutrientes básicos (proteínas, carbohidratos, grasas) en números
+4. Una recomendación corta (1-2 líneas máximo)
+
+Mantén la respuesta en máximo 3-4 líneas. Sé directo y conciso.
+Responde en español de forma natural.
+
+Si la imagen no contiene comida o no es clara, indícalo brevemente.`
+    } else {
+      systemPrompt = `Eres un experto nutricionista y analista de alimentos de FitTrack. Tu tarea es analizar imágenes de comidas y proporcionar información nutricional DETALLADA y personalizada.
 
 Cuando analices una imagen de comida, debes:
 1. Identificar todos los alimentos visibles en la imagen
 2. Estimar las porciones de cada alimento
 3. Calcular aproximadamente las calorías totales
-4. Desglosar macronutrientes (proteínas, carbohidratos, grasas)
+4. Desglosar macronutrientes (proteínas, carbohidratos, grasas) con detalles
 5. Evaluar la calidad nutricional de la comida
 6. Proporcionar recomendaciones personalizadas según el perfil del usuario
 7. Sugerir mejoras o alternativas más saludables si es apropiado
+8. Incluir información sobre vitaminas y minerales relevantes
+9. Explicar el impacto en los objetivos del usuario
 
-Formato de respuesta:
+Formato de respuesta EXTENSA:
 - Sé específico y detallado
 - Usa lenguaje claro y motivador
 - Incluye números aproximados (calorías, gramos de macros)
 - Personaliza según el perfil del usuario (objetivos, IMC, etc.)
 - Responde en español de forma natural
+- Proporciona contexto educativo sobre los alimentos
+- Incluye consejos prácticos de preparación o consumo
 
 Si la imagen no contiene comida o no es clara, indícalo amablemente y pide una mejor imagen.`
+    }
 
     if (userProfile) {
       systemPrompt += `\n\nPerfil del usuario:`
