@@ -17,7 +17,7 @@ export default function WelcomePage() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-300/10 dark:bg-blue-400/5 rounded-full blur-3xl" />
       </div>
 
-      <div className="absolute top-6 left-6 right-6 z-20 flex items-center justify-between">
+      <div className="lg:absolute lg:top-6 lg:left-6 lg:right-6 z-20 flex items-center justify-between px-4 py-4">
         <div className="flex items-center gap-2">
           <div className="bg-gradient-to-br from-blue-500 to-blue-700 p-2 rounded-lg shadow-lg">
             <Dumbbell className="h-6 w-6 text-white" strokeWidth={2} />
@@ -34,12 +34,12 @@ export default function WelcomePage() {
         </button>
       </div>
 
-      <div className="relative z-10 min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      <div className="relative z-10 min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8 pt-24 lg:pt-0">
         <div className="w-full max-w-6xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Center Column - Services Carousel (now takes more space) */}
-            <div className="min-h-[500px] flex items-center justify-center">
-              <div className="w-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-3xl border-2 border-blue-200 dark:border-blue-400 p-10 shadow-2xl">
+            <div className="min-h-[480px] md:min-h-[500px] flex items-center justify-center">
+              <div className="w-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-3xl border-2 border-blue-200 dark:border-blue-400 p-6 sm:p-8 lg:p-10 shadow-2xl">
                 <ServicesCarousel />
               </div>
             </div>

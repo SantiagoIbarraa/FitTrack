@@ -231,8 +231,19 @@ async function handleChatMessage(message: string, userProfile: any, apiKey: stri
   let proteinMin = 0
   let proteinMax = 0
 
-  if (userProfile?.weight && userProfile?.height && userProfile?.age && userProfile?.sex) {
-    if (userProfile.sex === "male") {
+  // Normalizar sexo del perfil a valores esperados por las fórmulas
+  const normalizedSex = userProfile?.sex
+    ? (userProfile.sex.toLowerCase() === "masculino"
+        ? "male"
+        : userProfile.sex.toLowerCase() === "femenino"
+          ? "female"
+          : userProfile.sex.toLowerCase() === "male" || userProfile.sex.toLowerCase() === "female"
+            ? userProfile.sex.toLowerCase()
+            : undefined)
+    : undefined
+
+  if (userProfile?.weight && userProfile?.height && userProfile?.age && normalizedSex) {
+    if (normalizedSex === "male") {
       bmr = 10 * userProfile.weight + 6.25 * userProfile.height - 5 * userProfile.age + 5
     } else {
       bmr = 10 * userProfile.weight + 6.25 * userProfile.height - 5 * userProfile.age - 161
@@ -252,7 +263,7 @@ INFORMACIÓN DEL USUARIO:
 ${userProfile?.weight ? `- Peso: ${userProfile.weight}kg` : ""}
 ${userProfile?.height ? `- Altura: ${userProfile.height}cm` : ""}
 ${userProfile?.age ? `- Edad: ${userProfile.age} años` : ""}
-${userProfile?.sex ? `- Sexo: ${userProfile.sex === "male" ? "Masculino" : "Femenino"}` : ""}
+${normalizedSex ? `- Sexo: ${normalizedSex === "male" ? "Masculino" : "Femenino"}` : ""}
 ${userProfile?.bmi ? `- IMC: ${userProfile.bmi} (${userProfile.bmiCategory})` : ""}
 ${bmr > 0 ? `- Metabolismo basal (BMR): ${Math.round(bmr)} cal/día` : ""}
 ${tdee > 0 ? `- TDEE (actividad moderada): ${tdee} cal/día` : ""}

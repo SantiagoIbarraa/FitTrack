@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Dumbbell, Footprints, Utensils, MessageSquare, TrendingUp, Heart } from "lucide-react"
+import { Dumbbell, Footprints, Utensils, MessageSquare, TrendingUp, Heart, Bot } from "lucide-react"
 
 const services = [
   {
@@ -18,10 +18,10 @@ const services = [
     color: "text-blue-500",
   },
   {
-    icon: Utensils,
-    title: "Nutrición",
-    description: "Obtén consejos nutricionales personalizados con IA. Planifica tus comidas y alcanza tus objetivos.",
-    color: "text-blue-700",
+    icon: Bot,
+    title: "Asistente FitTrack",
+    description: "Chat con IA y análisis de comidas",
+    color: "text-purple-600",
   },
   {
     icon: MessageSquare,

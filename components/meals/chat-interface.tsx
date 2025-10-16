@@ -53,7 +53,7 @@ export default function ChatInterface() {
       {
         id: (++messageIdCounter.current).toString(),
         content:
-          "¡Hola! Soy tu asistente nutricional de PRegister. Puedo ayudarte con consejos sobre alimentación, calcular tus necesidades calóricas, sugerir recetas y crear planes de comidas. Pregúntame sobre: calorías, proteínas, ganar músculo, perder peso, meal prep, recetas, suplementos, y mucho más. ¿En qué puedo ayudarte?",
+          "¡Hola! Soy tu asistente nutricional de FitTrack. Puedo ayudarte con consejos sobre alimentación, calcular tus necesidades calóricas, sugerir recetas y crear planes de comidas. Pregúntame sobre: calorías, proteínas, ganar músculo, perder peso, meal prep, recetas, suplementos, y mucho más. ¿En qué puedo ayudarte?",
         isUser: false,
         timestamp: new Date(),
       },
@@ -74,7 +74,17 @@ export default function ChatInterface() {
         }
 
         if (profile.weight && profile.height) {
-          const bmiResult = await calculateBMI(profile.weight, profile.height, age, profile.sex || undefined)
+          // Normalizar sexo a 'male'/'female' si viene en español
+          const normalizedSex = profile.sex
+            ? (profile.sex.toLowerCase() === "masculino"
+                ? "male"
+                : profile.sex.toLowerCase() === "femenino"
+                  ? "female"
+                  : profile.sex.toLowerCase() === "male" || profile.sex.toLowerCase() === "female"
+                    ? profile.sex.toLowerCase()
+                    : undefined)
+            : undefined
+          const bmiResult = await calculateBMI(profile.weight, profile.height, age, normalizedSex)
           bmi = bmiResult.bmi
           bmiCategory = bmiResult.category
         }
