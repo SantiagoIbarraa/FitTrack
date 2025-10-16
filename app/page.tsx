@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Dumbbell, LogOut, User, Footprints, Utensils, MessageSquare, Shield, Accessibility } from "lucide-react"
+import { Dumbbell, LogOut, User, Footprints, Utensils, MessageSquare, Shield, Accessibility, Bot, Users, UserCheck, PersonStanding } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import ActivityTabs from "@/components/dashboard/activity-tabs"
@@ -61,7 +61,7 @@ export default async function Home() {
             <div className="flex items-center gap-2">
               <Button variant="outline" size="icon" asChild title="Accesibilidad">
                 <Link href="/accessibility">
-                  <Accessibility className="h-4 w-4" />
+                  <PersonStanding className="h-4 w-4" />
                 </Link>
               </Button>
               <ThemeToggle />
@@ -124,7 +124,7 @@ export default async function Home() {
             <Link href="/meals" className="group flex-1 min-w-[280px] md:min-w-[300px] lg:basis-[calc(33.333%-1rem)]">
               <Card className="h-full transition-all duration-200 hover:shadow-lg hover:scale-105 bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                 <CardHeader className="text-center">
-                  <Utensils className="h-12 w-12 mx-auto mb-4 text-orange-600 group-hover:scale-110 transition-transform" />
+                  <Bot className="h-12 w-12 mx-auto mb-4 text-purple-600 group-hover:scale-110 transition-transform" />
                   <CardTitle className="text-gray-900 dark:text-white">Asistente FitTrack</CardTitle>
                   <CardDescription className="text-gray-700 dark:text-gray-50">
                     Chat con IA y análisis de comidas

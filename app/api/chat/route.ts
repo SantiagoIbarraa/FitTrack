@@ -1,5 +1,6 @@
 import { generateText, generateObject } from "ai"
 import { google } from "@ai-sdk/google"
+import { GoogleGenerativeAI } from "@google/generative-ai"
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { getExerciseHistory, getUniqueExercises } from "@/lib/exercise-history-actions"
@@ -18,6 +19,7 @@ const foodAnalysisSchema = z.object({
   ingredients: z.array(z.string()).describe("Lista de ingredientes visibles"),
   recommendations: z.string().describe("Breve recomendación nutricional"),
   confidence: z.enum(["alta", "media", "baja"]).describe("Nivel de confianza en el análisis"),
+  biologicalSex: z.enum(["masculino", "femenino", "no_detectado"]).describe("Sexo biológico detectado en la imagen"),
 })
 
 export async function POST(request: NextRequest) {
@@ -62,7 +64,7 @@ export async function POST(request: NextRequest) {
     // Manejar análisis de imagen
     if (type === "image" && image) {
       console.log("[v0] Chat API: Processing image analysis")
-      return await handleImageAnalysis(image, apiKey)
+      return await handleImageAnalysis(image, apiKey, userProfile)
     }
 
     // Manejar chat de texto
@@ -95,13 +97,14 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function handleImageAnalysis(image: string, apiKey: string) {
+async function handleImageAnalysis(image: string, apiKey: string, userProfile?: any) {
   try {
     console.log("[v0] Image Analysis: Starting")
     // Remove data URL prefix
     const base64Image = image.replace(/^data:image\/\w+;base64,/, "")
 
-    const model = google("gemini-2.5-flash", { apiKey })
+    const genAI = new GoogleGenerativeAI(apiKey)
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
     console.log("[v0] Image Analysis: Model created")
 
     const prompt = `Analiza esta imagen de comida y proporciona la siguiente información en formato JSON:
@@ -116,30 +119,50 @@ async function handleImageAnalysis(image: string, apiKey: string) {
   "serving": "descripción del tamaño de la porción (ej: '1 plato mediano', '200g')",
   "ingredients": ["lista", "de", "ingredientes", "visibles"],
   "recommendations": "breve recomendación nutricional o consejo sobre esta comida",
-  "confidence": "alta/media/baja - tu nivel de confianza en el análisis"
+  "confidence": "alta/media/baja - tu nivel de confianza en el análisis",
+  "biologicalSex": "masculino/femenino/no_detectado - analiza el sexo biológico si aparece una persona en la imagen basándote en características físicas visibles"
 }
+
+IMPORTANTE: Si en la imagen aparece una persona, analiza también el sexo biológico (masculino/femenino) basándote en características físicas visibles. Si no hay persona visible, usa "no_detectado".
 
 Sé lo más preciso posible. Si no puedes identificar la comida claramente, indica baja confianza y proporciona tu mejor estimación.`
 
-    console.log("[v0] Image Analysis: Calling generateObject")
-    const { object } = await generateObject({
-      model,
-      schema: foodAnalysisSchema,
-      messages: [
-        {
-          role: "user",
-          content: [
-            { type: "text", text: prompt },
-            {
-              type: "image",
-              image: `data:image/jpeg;base64,${base64Image}`,
-            },
-          ],
+    console.log("[v0] Image Analysis: Calling generateContent")
+    const result = await model.generateContent([
+      prompt,
+      {
+        inlineData: {
+          data: base64Image,
+          mimeType: "image/jpeg",
         },
-      ],
-    })
+      },
+    ])
+
+    const response = await result.response
+    const text = response.text()
+    
+    // Parse JSON response
+    let object
+    try {
+      object = JSON.parse(text)
+    } catch (error) {
+      console.error("[v0] Image Analysis: Error parsing JSON:", error)
+      return NextResponse.json({ error: "Error al procesar la respuesta de la IA" }, { status: 500 })
+    }
 
     console.log("[v0] Image Analysis: Success")
+    
+    // Agregar verificación de sexo si está disponible en el perfil
+    if (userProfile && userProfile.sex) {
+      const userSex = userProfile.sex.toLowerCase()
+      object.recommendations += `\n\n--- VERIFICACIÓN DE SEXO ---\n`
+      object.recommendations += `Sexo registrado en tu perfil: ${userSex}\n`
+      object.recommendations += `Sexo detectado por IA: ${object.biologicalSex}\n`
+      if (object.biologicalSex !== userSex && object.biologicalSex !== "no_detectado") {
+        object.recommendations += `⚠️ Discrepancia detectada. Si el análisis no coincide con tu sexo registrado, verifica que la imagen sea clara.`
+      }
+    }
+    
     return NextResponse.json(object)
   } catch (error) {
     console.error("[v0] Image Analysis: Error:", error)
@@ -220,7 +243,8 @@ async function handleChatMessage(message: string, userProfile: any, apiKey: stri
   }
 
   console.log("[v0] Chat Message: Creating model")
-  const model = google("gemini-2.5-flash", { apiKey })
+  const genAI = new GoogleGenerativeAI(apiKey)
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" })
 
   const prompt = `Eres un asistente nutricional experto especializado en fitness y salud. Tu nombre es "Asistente Nutricional de FitTrack".
 
@@ -254,11 +278,10 @@ INSTRUCCIONES:
 
 Responde a la pregunta del usuario ahora:`
 
-  console.log("[v0] Chat Message: Calling generateText")
-  const { text } = await generateText({
-    model,
-    prompt,
-  })
+  console.log("[v0] Chat Message: Calling generateContent")
+  const result = await model.generateContent(prompt)
+  const response = await result.response
+  const text = response.text()
 
   console.log("[v0] Chat Message: Success, response length:", text.length)
   return NextResponse.json({ response: text })

@@ -28,6 +28,8 @@ Para respuesta RÁPIDA, incluye SOLO:
 3. Macronutrientes básicos (proteínas, carbohidratos, grasas) en números
 4. Una recomendación corta (1-2 líneas máximo)
 
+IMPORTANTE: Si en la imagen aparece una persona, analiza también el sexo biológico (masculino/femenino) basándote en características físicas visibles y menciónalo al final.
+
 Mantén la respuesta en máximo 3-4 líneas. Sé directo y conciso.
 Responde en español de forma natural.
 
@@ -45,6 +47,8 @@ Cuando analices una imagen de comida, debes:
 7. Sugerir mejoras o alternativas más saludables si es apropiado
 8. Incluir información sobre vitaminas y minerales relevantes
 9. Explicar el impacto en los objetivos del usuario
+
+IMPORTANTE: Si en la imagen aparece una persona, analiza también el sexo biológico (masculino/femenino) basándote en características físicas visibles y menciónalo en una sección separada al final del análisis.
 
 Formato de respuesta EXTENSA:
 - Sé específico y detallado
@@ -100,7 +104,16 @@ Si la imagen no contiene comida o no es clara, indícalo amablemente y pide una 
     const response = await result.response
     const text = response.text()
 
-    return NextResponse.json({ analysis: text })
+    // Agregar verificación de sexo si está disponible en el perfil
+    let analysisWithSexCheck = text
+    if (userProfile && userProfile.sex) {
+      const userSex = userProfile.sex.toLowerCase()
+      analysisWithSexCheck += `\n\n--- VERIFICACIÓN DE SEXO ---\n`
+      analysisWithSexCheck += `Sexo registrado en tu perfil: ${userSex}\n`
+      analysisWithSexCheck += `Si el análisis de la IA no coincide con tu sexo registrado, por favor verifica que la imagen sea clara y muestre tus características físicas.`
+    }
+
+    return NextResponse.json({ analysis: analysisWithSexCheck })
   } catch (error) {
     console.error("Error analyzing image:", error)
     return NextResponse.json({ error: "Error al analizar la imagen. Por favor intenta de nuevo." }, { status: 500 })

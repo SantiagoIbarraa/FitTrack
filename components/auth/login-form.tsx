@@ -44,8 +44,8 @@ export default function LoginForm() {
   return (
     <div className="w-full space-y-6">
       <div className="space-y-2 text-center">
-        <h2 className="text-2xl font-bold text-blue-900">Bienvenido de nuevo</h2>
-        <p className="text-gray-600">Continúa tu progreso</p>
+        <h2 className="text-2xl font-bold text-blue-900 dark:text-blue-300">Bienvenido de nuevo</h2>
+        <p className="text-gray-600 dark:text-white">Continúa tu progreso</p>
       </div>
 
       <form action={formAction} className="space-y-6">

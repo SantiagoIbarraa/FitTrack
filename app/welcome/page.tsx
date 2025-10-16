@@ -22,15 +22,15 @@ export default function WelcomePage() {
           <div className="bg-gradient-to-br from-blue-500 to-blue-700 p-2 rounded-lg shadow-lg">
             <Dumbbell className="h-6 w-6 text-white" strokeWidth={2} />
           </div>
-          <h1 className="text-2xl font-bold text-blue-900 dark:text-blue-100">FitTrack</h1>
+          <h1 className="text-2xl font-bold text-blue-900 dark:text-white">FitTrack</h1>
         </div>
 
         <button
           onClick={() => (window.location.href = "/accessibility")}
-          className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-2 rounded-lg border border-blue-200 dark:border-blue-700 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors shadow-md"
+          className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-2 rounded-lg border border-blue-200 dark:border-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors shadow-md"
           aria-label="Configuración de accesibilidad"
         >
-          <Accessibility className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+          <Accessibility className="h-6 w-6 text-blue-600 dark:text-blue-300" />
         </button>
       </div>
 
@@ -39,21 +39,21 @@ export default function WelcomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Center Column - Services Carousel (now takes more space) */}
             <div className="min-h-[500px] flex items-center justify-center">
-              <div className="w-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-3xl border-2 border-blue-200 dark:border-blue-700 p-10 shadow-2xl">
+              <div className="w-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-3xl border-2 border-blue-200 dark:border-blue-400 p-10 shadow-2xl">
                 <ServicesCarousel />
               </div>
             </div>
 
             <div className="space-y-6">
-              <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-3xl border-2 border-blue-200 dark:border-blue-700 shadow-2xl overflow-hidden">
+              <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-3xl border-2 border-blue-200 dark:border-blue-400 shadow-2xl overflow-hidden">
                 {/* Tab Headers */}
-                <div className="flex border-b border-blue-200 dark:border-blue-700">
+                <div className="flex border-b border-blue-200 dark:border-blue-400">
                   <button
                     onClick={() => setActiveTab("register")}
                     className={`flex-1 py-4 px-6 text-center font-semibold transition-all duration-200 ${
                       activeTab === "register"
                         ? "bg-blue-600 text-white"
-                        : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700"
+                        : "bg-white dark:bg-gray-800 text-gray-600 dark:text-white hover:bg-blue-50 dark:hover:bg-gray-700"
                     }`}
                   >
                     Registrarse
@@ -63,7 +63,7 @@ export default function WelcomePage() {
                     className={`flex-1 py-4 px-6 text-center font-semibold transition-all duration-200 ${
                       activeTab === "login"
                         ? "bg-blue-600 text-white"
-                        : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700"
+                        : "bg-white dark:bg-gray-800 text-gray-600 dark:text-white hover:bg-blue-50 dark:hover:bg-gray-700"
                     }`}
                   >
                     Iniciar Sesión
@@ -75,7 +75,7 @@ export default function WelcomePage() {
               </div>
 
               <div className="text-center">
-                <p className="text-sm text-gray-600 dark:text-gray-300">
+                <p className="text-sm text-gray-600 dark:text-white">
                   Únete a miles de usuarios que ya transformaron su vida
                 </p>
               </div>

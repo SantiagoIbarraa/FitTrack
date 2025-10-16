@@ -63,8 +63,8 @@ export default function RegisterForm() {
   return (
     <div className="w-full space-y-6">
       <div className="space-y-2 text-center">
-        <h2 className="text-2xl font-bold text-blue-900">Comienza tu transformación</h2>
-        <p className="text-gray-600">Crea tu cuenta gratis</p>
+        <h2 className="text-2xl font-bold text-blue-900 dark:text-blue-300">Comienza tu transformación</h2>
+        <p className="text-gray-600 dark:text-white">Crea tu cuenta gratis</p>
       </div>
 
       <form action={formAction} onSubmit={handlePasswordValidation} className="space-y-6">

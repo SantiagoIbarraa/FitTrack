@@ -55,7 +55,7 @@ export function ServicesCarousel() {
         setCurrentIndex((prev) => (prev + 1) % services.length)
         setIsAnimating(false)
       }, 500)
-    }, 4000)
+    }, 6000)
 
     return () => clearInterval(interval)
   }, [])
@@ -76,9 +76,9 @@ export function ServicesCarousel() {
           </div>
         </div>
 
-        <h3 className="text-3xl font-bold text-blue-900 mb-4 text-center">{currentService.title}</h3>
+        <h3 className="text-3xl font-bold text-blue-900 dark:text-blue-300 mb-4 text-center">{currentService.title}</h3>
 
-        <p className="text-lg text-gray-700 text-center max-w-md leading-relaxed">{currentService.description}</p>
+        <p className="text-lg text-gray-700 dark:text-white text-center max-w-md leading-relaxed">{currentService.description}</p>
       </div>
 
       <div className="flex gap-2 mt-8">

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { Plus, Loader2, PersonStanding } from "lucide-react"
+import { Plus, Loader2, PersonStanding, Activity } from "lucide-react"
 import { createRunningSession } from "@/lib/running-actions"
 import SuccessModal from "@/components/ui/success-modal"
 
@@ -65,7 +65,7 @@ export default function RunningForm({ onSessionAdded }: { onSessionAdded?: () =>
         onOpenChange={setShowSuccessModal}
         title="¡Sesión Registrada!"
         message="Tu sesión de running se ha guardado correctamente."
-        icon={PersonStanding}
+        icon={Activity}
       />
 
       <Card>

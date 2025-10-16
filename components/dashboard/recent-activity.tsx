@@ -16,9 +16,9 @@ interface Workout {
 
 interface Run {
   id: string
-  distance: number
-  duration: number
-  pace: number
+  distance_km: number
+  duration_minutes: number
+  pace_min_km: number
   created_at: string
 }
 
@@ -134,12 +134,12 @@ export default function RecentActivity() {
                runs.map((run) => (
                  <div key={run.id} className="flex items-center justify-between p-3 bg-muted dark:bg-gray-700 rounded-lg">
                    <div>
-                     <p className="font-medium dark:text-white text-sm sm:text-base">{run.distance}km</p>
+                     <p className="font-medium dark:text-white text-sm sm:text-base">{run.distance_km || 0} km</p>
                      <p className="text-xs sm:text-sm text-muted-foreground dark:text-gray-300">{new Date(run.created_at).toLocaleDateString()}</p>
                    </div>
                    <div className="flex gap-1 sm:gap-2">
-                     <Badge variant="secondary" className="text-xs">{run.duration}min</Badge>
-                     <Badge variant="outline" className="text-xs">{run.pace?.toFixed(1)} min/km</Badge>
+                     <Badge variant="secondary" className="text-xs">{run.duration_minutes}min</Badge>
+                     <Badge variant="outline" className="text-xs">{run.pace_min_km?.toFixed(1)} min/km</Badge>
                    </div>
                  </div>
                ))

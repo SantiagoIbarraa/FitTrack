@@ -127,7 +127,13 @@ export default function RunningCharts() {
               <XAxis dataKey="date" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} label={{ value: "km", angle: -90, position: "insideLeft" }} />
               <Tooltip
-                contentStyle={{ backgroundColor: "white", border: "1px solid #ccc" }}
+                contentStyle={{ 
+                  backgroundColor: "white",
+                  border: "1px solid #ccc",
+                  color: "#1f2937" // Texto oscuro siempre
+                }}
+                labelStyle={{ color: "#1f2937" }} // Texto oscuro para la etiqueta
+                itemStyle={{ color: "#1f2937" }} // Texto oscuro para los items
                 labelFormatter={(label) => {
                   const point = distanceData.find((d) => d.date === label)
                   return point ? point.fullDate : label
@@ -163,7 +169,13 @@ export default function RunningCharts() {
               <XAxis dataKey="date" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} label={{ value: "min", angle: -90, position: "insideLeft" }} />
               <Tooltip
-                contentStyle={{ backgroundColor: "white", border: "1px solid #ccc" }}
+                contentStyle={{ 
+                  backgroundColor: "white",
+                  border: "1px solid #ccc",
+                  color: "#1f2937" // Texto oscuro siempre
+                }}
+                labelStyle={{ color: "#1f2937" }} // Texto oscuro para la etiqueta
+                itemStyle={{ color: "#1f2937" }} // Texto oscuro para los items
                 labelFormatter={(label) => {
                   const point = distanceData.find((d) => d.date === label)
                   return point ? point.fullDate : label
@@ -204,7 +216,13 @@ export default function RunningCharts() {
                   reversed
                 />
                 <Tooltip
-                  contentStyle={{ backgroundColor: "white", border: "1px solid #ccc" }}
+                  contentStyle={{ 
+                    backgroundColor: "white",
+                    border: "1px solid #ccc",
+                    color: "#1f2937" // Texto oscuro siempre
+                  }}
+                  labelStyle={{ color: "#1f2937" }} // Texto oscuro para la etiqueta
+                  itemStyle={{ color: "#1f2937" }} // Texto oscuro para los items
                   labelFormatter={(label) => {
                     const point = paceData.find((d) => d.date === label)
                     return point ? point.fullDate : label
